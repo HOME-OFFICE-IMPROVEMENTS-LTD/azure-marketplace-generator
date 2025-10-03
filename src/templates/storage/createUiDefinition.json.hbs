@@ -105,13 +105,108 @@
                         }
                     }
                 ]
+            },
+            {
+                "name": "serviceSelection",
+                "label": "Service Selection",
+                "subLabel": {
+                    "preValidation": "Choose your storage services",
+                    "postValidation": "Services selected"
+                },
+                "bladeTitle": "Storage Services",
+                "elements": [
+                    {
+                        "name": "serviceInfo",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "icon": "Info",
+                            "text": "Azure Storage Account offers multiple services beyond basic blob storage. Select the services you need for your solution. Each service unlocks different business capabilities and use cases."
+                        }
+                    },
+                    {
+                        "name": "enableStaticWebsite",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Enable Static Website Hosting",
+                        "defaultValue": false,
+                        "toolTip": "Host static websites directly from your storage account - perfect for web apps, documentation sites, and frontend applications"
+                    },
+                    {
+                        "name": "websiteConfiguration",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Website Configuration",
+                        "visible": "[steps('serviceSelection').enableStaticWebsite]",
+                        "elements": [
+                            {
+                                "name": "websiteIndexDocument",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Index Document",
+                                "defaultValue": "index.html",
+                                "toolTip": "Default document for your website root",
+                                "constraints": {
+                                    "required": true,
+                                    "regex": "^.+\\.(html|htm)$",
+                                    "validationMessage": "Must be an HTML file"
+                                }
+                            },
+                            {
+                                "name": "websiteErrorDocument",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Error Document",
+                                "defaultValue": "404.html",
+                                "toolTip": "Custom error page for 404 errors",
+                                "constraints": {
+                                    "required": true,
+                                    "regex": "^.+\\.(html|htm)$",
+                                    "validationMessage": "Must be an HTML file"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "enableTables",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Enable Table Storage (NoSQL Database)",
+                        "defaultValue": false,
+                        "toolTip": "Add NoSQL database capabilities - ideal for structured data, user profiles, device data, and metadata storage"
+                    },
+                    {
+                        "name": "enableQueues",
+                        "type": "Microsoft.Common.CheckBox", 
+                        "label": "Enable Queue Storage (Message Processing)",
+                        "defaultValue": false,
+                        "toolTip": "Enable message queuing for asynchronous processing, task scheduling, and building event-driven architectures"
+                    },
+                    {
+                        "name": "enableFileShares",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Enable File Storage (Network Drives)",
+                        "defaultValue": false,
+                        "toolTip": "Create network file shares accessible via SMB protocol - perfect for shared application data and legacy application migration"
+                    },
+                    {
+                        "name": "businessModelInfo",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": "[or(or(steps('serviceSelection').enableStaticWebsite, steps('serviceSelection').enableTables), or(steps('serviceSelection').enableQueues, steps('serviceSelection').enableFileShares))]",
+                        "options": {
+                            "icon": "Info",
+                            "text": "💡 Business Model Tip: With multiple services enabled, you can offer different pricing tiers - Basic (blob only), Professional (includes web hosting), Enterprise (full multi-service platform). This creates natural upgrade paths and higher customer lifetime value."
+                        }
+                    }
+                ]
             }
         ],
         "outputs": {
             "storageAccountNamePrefix": "[steps('storageConfig').storageAccountPrefix]",
             "storageAccountType": "[steps('storageConfig').storageAccountType]",
             "location": "[location()]",
-            "applicationName": "[basics('applicationName')]"
+            "applicationName": "[basics('applicationName')]",
+            "enableStaticWebsite": "[steps('serviceSelection').enableStaticWebsite]",
+            "enableTables": "[steps('serviceSelection').enableTables]",
+            "enableQueues": "[steps('serviceSelection').enableQueues]",
+            "enableFileShares": "[steps('serviceSelection').enableFileShares]",
+            "websiteIndexDocument": "[if(steps('serviceSelection').enableStaticWebsite, steps('serviceSelection').websiteConfiguration.websiteIndexDocument, 'index.html')]",
+            "websiteErrorDocument": "[if(steps('serviceSelection').enableStaticWebsite, steps('serviceSelection').websiteConfiguration.websiteErrorDocument, '404.html')]"
         }
     }
 }
