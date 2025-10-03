@@ -35,7 +35,7 @@ export class TemplateGenerator {
       return `${cleanPrefix}${suffix}`.substring(0, 24); // Max 24 chars for storage accounts
     });
 
-    // Latest API version helper (Trade Secret: ARM-TTK fails with old APIs)
+    // Latest API version helper
     Handlebars.registerHelper('latestApiVersion', (resourceType: string) => {
       const apiVersions: { [key: string]: string } = {
         'Microsoft.Storage/storageAccounts': '2023-01-01',
