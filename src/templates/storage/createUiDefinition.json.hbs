@@ -1,0 +1,117 @@
+{
+    "$schema": "{{uiSchemaUrl}}",
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "config": {
+            "isWizard": false,
+            "basics": {
+                "description": "**{{name}}** by {{publisher}}\n\nManaged Azure Storage Account solution with enterprise-grade configuration options.",
+                "subscription": {
+                    "constraints": {
+                        "validations": [
+                            {
+                                "permission": "Microsoft.Storage/storageAccounts/write",
+                                "message": "Must have permission to create storage accounts"
+                            }
+                        ]
+                    }
+                },
+                "resourceGroup": {
+                    "constraints": {
+                        "validations": [
+                            {
+                                "isValid": "[not(contains(resourceGroup().name, 'temp'))]",
+                                "message": "Resource group name cannot contain 'temp'"
+                            }
+                        ]
+                    }
+                },
+                "location": {
+                    "visible": true,
+                    "allowedValues": [
+                        "eastus",
+                        "eastus2", 
+                        "westus",
+                        "westus2",
+                        "westeurope",
+                        "northeurope"
+                    ]
+                }
+            }
+        },
+        "basics": [
+            {
+                "name": "applicationName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Application Name",
+                "defaultValue": "{{name}}",
+                "toolTip": "Name for this managed application instance",
+                "constraints": {
+                    "required": true,
+                    "regex": "^[a-zA-Z0-9-]{3,24}$",
+                    "validationMessage": "Name must be 3-24 characters, alphanumeric and hyphens only"
+                }
+            }
+        ],
+        "steps": [
+            {
+                "name": "storageConfig",
+                "label": "Storage Configuration",
+                "subLabel": {
+                    "preValidation": "Configure storage account settings",
+                    "postValidation": "Storage configuration complete"
+                },
+                "bladeTitle": "Storage Settings",
+                "elements": [
+                    {
+                        "name": "storageAccountPrefix",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Storage Account Name Prefix",
+                        "defaultValue": "{{storageAccountName name}}",
+                        "toolTip": "Prefix for storage account name (lowercase letters and numbers only)",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^[a-z0-9]{3,11}$",
+                            "validationMessage": "Prefix must be 3-11 characters, lowercase letters and numbers only"
+                        }
+                    },
+                    {
+                        "name": "storageAccountType",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Storage Account Type",
+                        "defaultValue": "Standard locally redundant storage (Standard_LRS)",
+                        "toolTip": "Select the replication option for your storage account",
+                        "constraints": {
+                            "required": true,
+                            "allowedValues": [
+                                {
+                                    "label": "Standard locally redundant storage (Standard_LRS)",
+                                    "value": "Standard_LRS"
+                                },
+                                {
+                                    "label": "Standard geo-redundant storage (Standard_GRS)",
+                                    "value": "Standard_GRS"
+                                },
+                                {
+                                    "label": "Standard read-access geo-redundant storage (Standard_RAGRS)",
+                                    "value": "Standard_RAGRS"
+                                },
+                                {
+                                    "label": "Premium locally redundant storage (Premium_LRS)",
+                                    "value": "Premium_LRS"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ],
+        "outputs": {
+            "storageAccountNamePrefix": "[steps('storageConfig').storageAccountPrefix]",
+            "storageAccountType": "[steps('storageConfig').storageAccountType]",
+            "location": "[location()]",
+            "applicationName": "[basics('applicationName')]"
+        }
+    }
+}
