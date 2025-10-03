@@ -54,6 +54,7 @@ Simple, focused, enterprise-ready:
 
 ## Documentation
 
+- [**🎯 Managed Applications Guide**](./docs/MANAGED_APPLICATIONS_GUIDE.md) - **Essential reading: Complete solution patterns & business strategy**
 - [Architecture Decisions](./docs/ARCHITECTURE.md)
 - [Development Log](./docs/DEVELOPMENT_LOG.md)
 - [Requirements](./docs/requirements.md)
