@@ -35,6 +35,48 @@
             "metadata": {
                 "description": "Location for the storage account"
             }
+        },
+        "enableStaticWebsite": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable static website hosting"
+            }
+        },
+        "enableTables": {
+            "type": "bool", 
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable Table storage for NoSQL database functionality"
+            }
+        },
+        "enableQueues": {
+            "type": "bool",
+            "defaultValue": false, 
+            "metadata": {
+                "description": "Enable Queue storage for message processing"
+            }
+        },
+        "enableFileShares": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable File storage for network drive functionality"
+            }
+        },
+        "websiteIndexDocument": {
+            "type": "string",
+            "defaultValue": "index.html",
+            "metadata": {
+                "description": "Index document for static website"
+            }
+        },
+        "websiteErrorDocument": {
+            "type": "string", 
+            "defaultValue": "404.html",
+            "metadata": {
+                "description": "Error document for static website"
+            }
         }
     },
     "variables": {
@@ -52,7 +94,7 @@
             "kind": "StorageV2",
             "properties": {
                 "accessTier": "Hot",
-                "allowBlobPublicAccess": false,
+                "allowBlobPublicAccess": "[parameters('enableStaticWebsite')]",
                 "allowSharedKeyAccess": true,
                 "encryption": {
                     "services": {
@@ -62,7 +104,15 @@
                         },
                         "file": {
                             "keyType": "Account", 
-                            "enabled": true
+                            "enabled": "[parameters('enableFileShares')]"
+                        },
+                        "table": {
+                            "keyType": "Account",
+                            "enabled": "[parameters('enableTables')]"
+                        },
+                        "queue": {
+                            "keyType": "Account", 
+                            "enabled": "[parameters('enableQueues')]"
                         }
                     },
                     "keySource": "Microsoft.Storage"
@@ -74,12 +124,34 @@
                     "defaultAction": "Allow"
                 },
                 "supportsHttpsTrafficOnly": true,
-                "minimumTlsVersion": "TLS1_2"
+                "minimumTlsVersion": "TLS1_2"{{#if enableStaticWebsite}},
+                "staticWebsite": {
+                    "enabled": "[parameters('enableStaticWebsite')]",
+                    "indexDocument": "[parameters('websiteIndexDocument')]", 
+                    "errorDocument404Path": "[parameters('websiteErrorDocument')]"
+                }{{/if}}
             },
             "tags": {
                 "CreatedBy": "Azure Marketplace Generator",
                 "Publisher": "{{publisher}}",
                 "Application": "{{name}}"
+            }
+        },
+        {
+            "condition": "[parameters('enableFileShares')]",
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "{{latestApiVersion 'Microsoft.Storage/storageAccounts/fileServices'}}",
+            "name": "[concat(variables('storageAccountName'), '/default/application-data')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "properties": {
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB",
+                "metadata": {
+                    "description": "Default file share for application data",
+                    "createdBy": "Azure Marketplace Generator"
+                }
             }
         }
     ],
@@ -103,6 +175,64 @@
             "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
             "metadata": {
                 "description": "Resource ID of the storage account"
+            }
+        },
+        "primaryKey": {
+            "type": "string",
+            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}').keys[0].value]",
+            "metadata": {
+                "description": "Primary access key for the storage account"
+            }
+        },
+        "connectionString": {
+            "type": "string", 
+            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}').keys[0].value, ';EndpointSuffix=core.windows.net')]",
+            "metadata": {
+                "description": "Connection string for the storage account"
+            }
+        },
+        "staticWebsiteUrl": {
+            "condition": "[parameters('enableStaticWebsite')]",
+            "type": "string",
+            "value": "[reference(variables('storageAccountName'), '{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}').primaryEndpoints.web]",
+            "metadata": {
+                "description": "Static website primary endpoint URL"
+            }
+        },
+        "tableEndpoint": {
+            "condition": "[parameters('enableTables')]",
+            "type": "string",
+            "value": "[reference(variables('storageAccountName'), '{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}').primaryEndpoints.table]",
+            "metadata": {
+                "description": "Table storage endpoint URL"
+            }
+        },
+        "queueEndpoint": {
+            "condition": "[parameters('enableQueues')]",
+            "type": "string", 
+            "value": "[reference(variables('storageAccountName'), '{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}').primaryEndpoints.queue]",
+            "metadata": {
+                "description": "Queue storage endpoint URL"
+            }
+        },
+        "fileEndpoint": {
+            "condition": "[parameters('enableFileShares')]",
+            "type": "string",
+            "value": "[reference(variables('storageAccountName'), '{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}').primaryEndpoints.file]",
+            "metadata": {
+                "description": "File storage endpoint URL"
+            }
+        },
+        "enabledServices": {
+            "type": "object",
+            "value": {
+                "staticWebsite": "[parameters('enableStaticWebsite')]",
+                "tables": "[parameters('enableTables')]", 
+                "queues": "[parameters('enableQueues')]",
+                "fileShares": "[parameters('enableFileShares')]"
+            },
+            "metadata": {
+                "description": "Summary of enabled storage services"
             }
         }
     }
