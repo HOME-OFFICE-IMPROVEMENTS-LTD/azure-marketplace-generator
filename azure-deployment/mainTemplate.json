@@ -2,7 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "metadata": {
-        "_generator": {
+                "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2023-07-01",
+            "name": "storageAccountDeployment", "_generator": {
             "name": "Azure Marketplace Generator",
             "version": "0.1.0",
             "templateHash": "2025-10-03T18:39:33.110Z"
@@ -154,8 +156,8 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
-            "name": "storageDeployment",
+            "apiVersion": "2023-07-01",
+            "name": "customerUsageAttribution",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
