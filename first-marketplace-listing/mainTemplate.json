@@ -1,13 +1,13 @@
 {
-    "$schema": "{{armSchemaUrl}}",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "metadata": {
         "_generator": {
             "name": "Azure Marketplace Generator",
             "version": "0.1.0",
-            "templateHash": "{{generatedDate}}"
+            "templateHash": "2025-10-04T15:27:47.111Z"
         },
-        "description": "{{name}} - Managed Application Main Template"
+        "description": "Flexible-Azure-Storage-Platform - Managed Application Main Template"
     },
     "parameters": {
         "storageAccountNamePrefix": {
@@ -107,7 +107,7 @@
     "resources": [
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "{{latestApiVersion 'Microsoft.Resources/deployments'}}",
+            "apiVersion": "2022-09-01",
             "name": "storageDeployment",
             "properties": {
                 "mode": "Incremental",
