@@ -77,6 +77,27 @@
             "metadata": {
                 "description": "Error document for static website"
             }
+        },
+        "enableEventGrid": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable Event Grid for storage automation workflows"
+            }
+        },
+        "eventGridSubscriptionName": {
+            "type": "string",
+            "defaultValue": "storage-automation",
+            "metadata": {
+                "description": "Name for the Event Grid subscription"
+            }
+        },
+        "webhookEndpoint": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Webhook endpoint URL for Event Grid notifications (optional)"
+            }
         }
     },
     "variables": {
@@ -135,6 +156,63 @@
                 "CreatedBy": "Azure Marketplace Generator",
                 "Publisher": "{{publisher}}",
                 "Application": "{{name}}"
+            }
+        },
+        {
+            "condition": "[parameters('enableEventGrid')]",
+            "type": "Microsoft.EventGrid/systemTopics",
+            "apiVersion": "{{latestApiVersion 'Microsoft.EventGrid/systemTopics'}}",
+            "name": "[concat(variables('storageAccountName'), '-events')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "properties": {
+                "source": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+                "topicType": "Microsoft.Storage.StorageAccounts"
+            },
+            "tags": {
+                "CreatedBy": "Azure Marketplace Generator",
+                "Publisher": "{{publisher}}",
+                "Application": "{{name}}",
+                "Purpose": "Storage Events Automation"
+            }
+        },
+        {
+            "condition": "[and(parameters('enableEventGrid'), not(equals(parameters('webhookEndpoint'), '')))]",
+            "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
+            "apiVersion": "{{latestApiVersion 'Microsoft.EventGrid/systemTopics/eventSubscriptions'}}",
+            "name": "[concat(variables('storageAccountName'), '-events/', parameters('eventGridSubscriptionName'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.EventGrid/systemTopics', concat(variables('storageAccountName'), '-events'))]"
+            ],
+            "properties": {
+                "destination": {
+                    "endpointType": "WebHook",
+                    "properties": {
+                        "endpointUrl": "[parameters('webhookEndpoint')]"
+                    }
+                },
+                "filter": {
+                    "includedEventTypes": [
+                        "Microsoft.Storage.BlobCreated",
+                        "Microsoft.Storage.BlobDeleted",
+                        "Microsoft.Storage.BlobTierChanged"
+                    ],
+                    "subjectBeginsWith": "/blobServices/default/containers/",
+                    "subjectEndsWith": "",
+                    "isSubjectCaseSensitive": false
+                },
+                "labels": [
+                    "storage-automation",
+                    "file-processing",
+                    "{{name}}"
+                ],
+                "eventDeliverySchema": "EventGridSchema",
+                "retryPolicy": {
+                    "maxDeliveryAttempts": 3,
+                    "eventTimeToLiveInMinutes": 1440
+                }
             }
         },
         {
@@ -229,10 +307,35 @@
                 "staticWebsite": "[parameters('enableStaticWebsite')]",
                 "tables": "[parameters('enableTables')]", 
                 "queues": "[parameters('enableQueues')]",
-                "fileShares": "[parameters('enableFileShares')]"
+                "fileShares": "[parameters('enableFileShares')]",
+                "eventGrid": "[parameters('enableEventGrid')]"
             },
             "metadata": {
                 "description": "Summary of enabled storage services"
+            }
+        },
+        "eventGridTopicId": {
+            "condition": "[parameters('enableEventGrid')]",
+            "type": "string",
+            "value": "[resourceId('Microsoft.EventGrid/systemTopics', concat(variables('storageAccountName'), '-events'))]",
+            "metadata": {
+                "description": "Resource ID of the Event Grid system topic"
+            }
+        },
+        "eventGridTopicEndpoint": {
+            "condition": "[parameters('enableEventGrid')]",
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.EventGrid/systemTopics', concat(variables('storageAccountName'), '-events')), '{{latestApiVersion 'Microsoft.EventGrid/systemTopics'}}').metricResourceId]",
+            "metadata": {
+                "description": "Event Grid topic endpoint for monitoring"
+            }
+        },
+        "eventGridSubscriptionId": {
+            "condition": "[and(parameters('enableEventGrid'), not(equals(parameters('webhookEndpoint'), '')))]",
+            "type": "string", 
+            "value": "[resourceId('Microsoft.EventGrid/systemTopics/eventSubscriptions', concat(variables('storageAccountName'), '-events'), parameters('eventGridSubscriptionName'))]",
+            "metadata": {
+                "description": "Resource ID of the Event Grid subscription"
             }
         }
     }
