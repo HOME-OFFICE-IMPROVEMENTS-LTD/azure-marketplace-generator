@@ -63,7 +63,7 @@
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2023-01-01",
+            "apiVersion": "2023-04-01",
             "name": "[variables('storageAccountName')]",
             "location": "[resourceGroup().location]",
             "sku": {
@@ -122,14 +122,14 @@
         },
         "storageEndpoint": {
             "type": "string",
-            "value": "[reference(variables('storageAccountName'), '2023-01-01').primaryEndpoints.blob]",
+            "value": "[reference(variables('storageAccountName'), '2023-04-01').primaryEndpoints.blob]",
             "metadata": {
                 "description": "Primary blob endpoint URL"
             }
         },
         "connectionString": {
             "type": "string", 
-            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2023-01-01').keys[0].value, ';EndpointSuffix=core.windows.net')]",
+            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2023-04-01').keys[0].value, ';EndpointSuffix=core.windows.net')]",
             "metadata": {
                 "description": "Connection string for the storage account"
             }
@@ -137,7 +137,7 @@
         "staticWebsiteUrl": {
             "condition": "[parameters('enableStaticWebsite')]",
             "type": "string",
-            "value": "[reference(variables('storageAccountName'), '2023-01-01').primaryEndpoints.web]",
+            "value": "[reference(variables('storageAccountName'), '2023-04-01').primaryEndpoints.web]",
             "metadata": {
                 "description": "Static website primary endpoint URL (only when enabled)"
             }
@@ -145,7 +145,7 @@
         "tableEndpoint": {
             "condition": "[parameters('enableTables')]",
             "type": "string",
-            "value": "[reference(variables('storageAccountName'), '2023-01-01').primaryEndpoints.table]",
+            "value": "[reference(variables('storageAccountName'), '2023-04-01').primaryEndpoints.table]",
             "metadata": {
                 "description": "Table storage endpoint URL (only when enabled)"
             }
@@ -153,7 +153,7 @@
         "queueEndpoint": {
             "condition": "[parameters('enableQueues')]",
             "type": "string", 
-            "value": "[reference(variables('storageAccountName'), '2023-01-01').primaryEndpoints.queue]",
+            "value": "[reference(variables('storageAccountName'), '2023-04-01').primaryEndpoints.queue]",
             "metadata": {
                 "description": "Queue storage endpoint URL (only when enabled)"
             }
@@ -161,7 +161,7 @@
         "fileEndpoint": {
             "condition": "[parameters('enableFileShares')]",
             "type": "string",
-            "value": "[reference(variables('storageAccountName'), '2023-01-01').primaryEndpoints.file]",
+            "value": "[reference(variables('storageAccountName'), '2023-04-01').primaryEndpoints.file]",
             "metadata": {
                 "description": "File storage endpoint URL (only when enabled)"
             }
