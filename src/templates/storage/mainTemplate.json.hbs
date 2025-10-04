@@ -78,6 +78,27 @@
             "metadata": {
                 "description": "Error document for static website (only used if static website is enabled)"
             }
+        },
+        "enableEventGrid": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable Event Grid for automated storage event processing and workflows"
+            }
+        },
+        "eventGridSubscriptionName": {
+            "type": "string",
+            "defaultValue": "storage-automation",
+            "metadata": {
+                "description": "Name for the Event Grid subscription (used for organization and monitoring)"
+            }
+        },
+        "webhookEndpoint": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Webhook endpoint URL for Event Grid notifications (leave empty to skip webhook setup)"
+            }
         }
     },
     "variables": {
@@ -121,6 +142,15 @@
                     },
                     "websiteErrorDocument": {
                         "value": "[parameters('websiteErrorDocument')]"
+                    },
+                    "enableEventGrid": {
+                        "value": "[parameters('enableEventGrid')]"
+                    },
+                    "eventGridSubscriptionName": {
+                        "value": "[parameters('eventGridSubscriptionName')]"
+                    },
+                    "webhookEndpoint": {
+                        "value": "[parameters('webhookEndpoint')]"
                     }
                 }
             }
@@ -187,6 +217,22 @@
                 "description": "Summary of enabled storage services in this deployment"
             }
         },
+        "eventGridTopicId": {
+            "condition": "[parameters('enableEventGrid')]",
+            "type": "string",
+            "value": "[reference('storageDeployment').outputs.eventGridTopicId.value]",
+            "metadata": {
+                "description": "Resource ID of the Event Grid system topic for automation"
+            }
+        },
+        "eventGridSubscriptionId": {
+            "condition": "[and(parameters('enableEventGrid'), not(equals(parameters('webhookEndpoint'), '')))]",
+            "type": "string",
+            "value": "[reference('storageDeployment').outputs.eventGridSubscriptionId.value]",
+            "metadata": {
+                "description": "Resource ID of the Event Grid subscription for webhook notifications"
+            }
+        },
         "deploymentSummary": {
             "type": "object",
             "value": {
@@ -198,10 +244,15 @@
                     "table": "[if(parameters('enableTables'), reference('storageDeployment').outputs.tableEndpoint.value, 'Not enabled')]",
                     "queue": "[if(parameters('enableQueues'), reference('storageDeployment').outputs.queueEndpoint.value, 'Not enabled')]",
                     "file": "[if(parameters('enableFileShares'), reference('storageDeployment').outputs.fileEndpoint.value, 'Not enabled')]"
+                },
+                "automation": {
+                    "eventGrid": "[parameters('enableEventGrid')]",
+                    "topicId": "[if(parameters('enableEventGrid'), reference('storageDeployment').outputs.eventGridTopicId.value, 'Not enabled')]",
+                    "webhookConfigured": "[if(and(parameters('enableEventGrid'), not(equals(parameters('webhookEndpoint'), ''))), 'Yes', 'No')]"
                 }
             },
             "metadata": {
-                "description": "Complete deployment summary with all service endpoints"
+                "description": "Complete deployment summary with all service endpoints and automation capabilities"
             }
         }
     }
