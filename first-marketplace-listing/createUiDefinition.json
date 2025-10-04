@@ -1,12 +1,12 @@
 {
-    "$schema": "{{uiSchemaUrl}}",
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
     "handler": "Microsoft.Azure.CreateUIDef",
     "version": "0.1.2-preview",
     "parameters": {
         "config": {
             "isWizard": false,
             "basics": {
-                "description": "**{{name}}** by {{publisher}}\n\nManaged Azure Storage Account solution with enterprise-grade configuration options.",
+                "description": "**Flexible-Azure-Storage-Platform** by YourCompanyName\n\nManaged Azure Storage Account solution with enterprise-grade configuration options.",
                 "subscription": {
                     "constraints": {
                         "validations": [
@@ -45,7 +45,7 @@
                 "name": "applicationName",
                 "type": "Microsoft.Common.TextBox",
                 "label": "Application Name",
-                "defaultValue": "{{name}}",
+                "defaultValue": "Flexible-Azure-Storage-Platform",
                 "toolTip": "Name for this managed application instance",
                 "constraints": {
                     "required": true,
@@ -68,7 +68,7 @@
                         "name": "storageAccountPrefix",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Storage Account Name Prefix",
-                        "defaultValue": "{{storageAccountName name}}",
+                        "defaultValue": "flexibleazurestorageplat",
                         "toolTip": "Prefix for storage account name (lowercase letters and numbers only)",
                         "constraints": {
                             "required": true,
