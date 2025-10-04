@@ -78,6 +78,61 @@
             "metadata": {
                 "description": "Error document for static website (only used if static website is enabled)"
             }
+        },
+        "enableLifecycleManagement": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable automated lifecycle management policies for cost optimization"
+            }
+        },
+        "hotToCoolDays": {
+            "type": "int",
+            "defaultValue": 30,
+            "minValue": 1,
+            "maxValue": 365,
+            "metadata": {
+                "description": "Number of days after last modification to move blobs from Hot to Cool tier"
+            }
+        },
+        "coolToArchiveDays": {
+            "type": "int",
+            "defaultValue": 90,
+            "minValue": 1,
+            "maxValue": 365,
+            "metadata": {
+                "description": "Number of days after last modification to move blobs from Cool to Archive tier"
+            }
+        },
+        "dataRetentionDays": {
+            "type": "int",
+            "defaultValue": 2555,
+            "minValue": 180,
+            "maxValue": 3653,
+            "metadata": {
+                "description": "Number of days to retain data before automatic deletion (default: 7 years)"
+            }
+        },
+        "enableAutoTierToHot": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Automatically tier blobs back to Hot when accessed from Cool tier"
+            }
+        },
+        "enablePrivateEndpoints": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable private endpoints for enhanced security (requires VNet integration)"
+            }
+        },
+        "enableCostAlerting": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Enable cost monitoring and alerting for storage optimization"
+            }
         }
     },
     "variables": {
@@ -134,6 +189,27 @@
                     },
                     "websiteErrorDocument": {
                         "value": "[parameters('websiteErrorDocument')]"
+                    },
+                    "enableLifecycleManagement": {
+                        "value": "[parameters('enableLifecycleManagement')]"
+                    },
+                    "hotToCoolDays": {
+                        "value": "[parameters('hotToCoolDays')]"
+                    },
+                    "coolToArchiveDays": {
+                        "value": "[parameters('coolToArchiveDays')]"
+                    },
+                    "dataRetentionDays": {
+                        "value": "[parameters('dataRetentionDays')]"
+                    },
+                    "enableAutoTierToHot": {
+                        "value": "[parameters('enableAutoTierToHot')]"
+                    },
+                    "enablePrivateEndpoints": {
+                        "value": "[parameters('enablePrivateEndpoints')]"
+                    },
+                    "enableCostAlerting": {
+                        "value": "[parameters('enableCostAlerting')]"
                     }
                 }
             }
