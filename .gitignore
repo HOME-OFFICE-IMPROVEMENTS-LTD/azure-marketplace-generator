@@ -70,3 +70,34 @@ temp/
 # ARM-TTK cache (if any)
 cache/
 .arm-ttk-cache/
+
+# ENTERPRISE SECURITY - NO EXCEPTIONS
+*.key
+*.pem
+*.p12
+*.pfx
+*.snk
+*.p7b
+*.cer
+*.ovpn
+PublishSettings/
+*.publishsettings
+.env*
+.secrets
+secrets.json
+appsettings.*.json
+local.settings.json
+
+# ARM-TTK Reports (may contain sensitive data)
+packages/validated/
+test-output/
+validation-output/
+arm-ttk-output/
+*-report.json
+
+# Azure CLI cache
+.azure/
+
+# HOILTD Organization Policy - SSO Only
+.azureauth
+.azure-credentials

@@ -230,11 +230,11 @@
                 "description": "Name of the created storage account"
             }
         },
-        "connectionString": {
+        "storageAccountId": {
             "type": "string",
-            "value": "[reference('storageDeployment').outputs.connectionString.value]",
+            "value": "[reference('storageDeployment').outputs.storageAccountId.value]",
             "metadata": {
-                "description": "Connection string for accessing the storage account"
+                "description": "Resource ID of the created storage account (Enterprise Compliant - No Secrets)"
             }
         },
         "staticWebsiteUrl": {
