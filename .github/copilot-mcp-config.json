@@ -1,0 +1,103 @@
+{
+  "mcpServers": {
+    "azure-marketplace": {
+      "command": "npx",
+      "args": ["@azure/mcp-server-marketplace"],
+      "description": "Azure Marketplace API integration for real-time offerings, pricing, and partner data",
+      "capabilities": {
+        "resources": true,
+        "tools": true,
+        "prompts": true
+      },
+      "env": {
+        "AZURE_TENANT_ID": "${AZURE_TENANT_ID}",
+        "AZURE_CLIENT_ID": "${AZURE_CLIENT_ID}"
+      }
+    },
+    "azure-arm-templates": {
+      "command": "npx",
+      "args": ["@azure/mcp-server-arm"],
+      "description": "Azure Resource Manager template validation, schema access, and best practices",
+      "capabilities": {
+        "resources": true,
+        "tools": true
+      },
+      "env": {
+        "AZURE_SUBSCRIPTION_ID": "${AZURE_SUBSCRIPTION_ID}"
+      }
+    },
+    "microsoft-docs": {
+      "command": "npx",
+      "args": ["@microsoft/mcp-server-docs"],
+      "description": "Microsoft Learn documentation, Azure docs, and API references",
+      "capabilities": {
+        "resources": true,
+        "tools": true,
+        "prompts": true
+      }
+    },
+    "enterprise-knowledge": {
+      "command": "npx",
+      "args": ["@enterprise/mcp-server-knowledge"],
+      "description": "HOME-OFFICE-IMPROVEMENTS-LTD internal documentation and standards",
+      "capabilities": {
+        "resources": true,
+        "prompts": true
+      },
+      "env": {
+        "ENTERPRISE_KNOWLEDGE_BASE": "https://docs.home-office-improvements.ltd",
+        "API_KEY": "${ENTERPRISE_DOCS_API_KEY}"
+      }
+    },
+    "github-enterprise": {
+      "command": "npx", 
+      "args": ["@github/mcp-server-enterprise"],
+      "description": "GitHub Enterprise integration for repository management and workflow automation",
+      "capabilities": {
+        "resources": true,
+        "tools": true
+      },
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "GITHUB_ENTERPRISE_URL": "https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD"
+      }
+    },
+    "security-compliance": {
+      "command": "npx",
+      "args": ["@security/mcp-server-compliance"],
+      "description": "Enterprise security scanning, compliance checks, and vulnerability assessment",
+      "capabilities": {
+        "tools": true,
+        "prompts": true
+      },
+      "env": {
+        "SECURITY_POLICY": "enterprise-strict",
+        "COMPLIANCE_STANDARD": "HOILTD-2024"
+      }
+    },
+    "web-search": {
+      "command": "npx",
+      "args": ["@mcp/server-web-search"],
+      "description": "Curated web search for Azure best practices, marketplace trends, and technical updates",
+      "capabilities": {
+        "tools": true
+      },
+      "env": {
+        "SEARCH_API_KEY": "${BING_SEARCH_API_KEY}",
+        "ALLOWED_DOMAINS": "microsoft.com,azure.com,github.com,docs.microsoft.com"
+      }
+    },
+    "file-system": {
+      "command": "npx",
+      "args": ["@mcp/server-filesystem"],
+      "description": "Secure file system access for template generation and project management",
+      "capabilities": {
+        "resources": true,
+        "tools": true
+      },
+      "env": {
+        "ALLOWED_PATHS": "/workspace,/tmp,/home/runner/work"
+      }
+    }
+  }
+}
