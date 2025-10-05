@@ -64,21 +64,52 @@
     "github-enterprise": {
       "type": "stdio",
       "command": "npx", 
-      "args": ["@github/mcp-server-enterprise"],
-      "tools": ["list-repos", "create-issue", "get-workflow-status", "manage-branches"],
+      "args": ["@github/mcp-server-enterprise", "--org=HOME-OFFICE-IMPROVEMENTS-LTD"],
+      "tools": [
+        "list-repos", 
+        "create-issue", 
+        "get-workflow-status", 
+        "manage-branches",
+        "automate-pr-workflow",
+        "manage-dependabot-alerts",
+        "sync-repository-settings",
+        "bulk-operation-management",
+        "advanced-security-integration",
+        "enterprise-audit-logging"
+      ],
       "env": {
         "GITHUB_TOKEN": "${GITHUB_TOKEN}",
-        "GITHUB_ENTERPRISE_URL": "https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD"
+        "GITHUB_ENTERPRISE_URL": "https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD",
+        "ORGANIZATION": "HOME-OFFICE-IMPROVEMENTS-LTD",
+        "AUTO_MERGE_ENABLED": "true",
+        "DEPENDABOT_AUTO_MERGE": "patch,minor",
+        "SECURITY_ALERTS_WEBHOOK": "${SECURITY_WEBHOOK_URL}"
       }
     },
     "security-compliance": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@security/mcp-server-compliance"],
-      "tools": ["scan-vulnerabilities", "check-compliance", "audit-permissions"],
+      "args": ["@security/mcp-server-compliance", "--enterprise-mode"],
+      "tools": [
+        "scan-vulnerabilities", 
+        "check-compliance", 
+        "audit-permissions",
+        "automated-security-scanning",
+        "dependency-vulnerability-assessment",
+        "code-security-analysis",
+        "infrastructure-security-validation",
+        "incident-response-automation",
+        "compliance-reporting",
+        "security-policy-enforcement"
+      ],
       "env": {
         "SECURITY_POLICY": "enterprise-strict",
-        "COMPLIANCE_STANDARD": "HOILTD-2024"
+        "COMPLIANCE_STANDARD": "HOILTD-2024",
+        "VULNERABILITY_THRESHOLD": "medium",
+        "AUTO_REMEDIATION": "true",
+        "SECURITY_NOTIFICATIONS": "${SECURITY_TEAM_EMAIL}",
+        "INCIDENT_ESCALATION_WEBHOOK": "${INCIDENT_WEBHOOK_URL}",
+        "AUDIT_LOG_RETENTION": "2555"
       }
     },
     "web-search": {
@@ -104,10 +135,26 @@
     "file-system": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@mcp/server-filesystem"],
-      "tools": ["read-file", "write-file", "list-directory", "create-template"],
+      "args": ["@mcp/server-filesystem", "--secure-mode"],
+      "tools": [
+        "read-file", 
+        "write-file", 
+        "list-directory", 
+        "create-template",
+        "automated-template-generation",
+        "project-scaffolding",
+        "configuration-management",
+        "secure-file-operations",
+        "backup-and-restore",
+        "file-integrity-validation"
+      ],
       "env": {
-        "ALLOWED_PATHS": "/workspace,/tmp,/home/runner/work"
+        "ALLOWED_PATHS": "/workspace,/tmp,/home/runner/work,/repos/azure-marketplace-generator",
+        "MAX_FILE_SIZE": "10485760",
+        "ALLOWED_EXTENSIONS": ".json,.yaml,.yml,.md,.ts,.js,.bicep,.arm",
+        "ENCRYPTION_ENABLED": "true",
+        "BACKUP_ENABLED": "true",
+        "AUDIT_FILE_OPERATIONS": "true"
       }
     }
   }
