@@ -87,7 +87,7 @@ New-AzResourceGroupDeployment `
 ### Support
 
 For technical support, please contact:
-- Email: support@homeofficeimprovements.com
+- Email: info@hoiltd.com
 - Documentation: Available in the package README.md
 
 ## Security Considerations

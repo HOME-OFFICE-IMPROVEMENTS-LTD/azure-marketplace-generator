@@ -32,8 +32,8 @@ This solution deploys:
 - **Scalability**: Enterprise-grade storage solution that scales with your needs
 
 ## Support
-This solution is developed and maintained by HomeOfficeImprovements Ltd.
-For support, please contact: support@homeofficeimprovements.com
+This solution is developed and maintained by Home & Office Improvements Ltd.
+For support, please contact: info@hoiltd.com
 
 ## Version
 Current version: 2.1.0
