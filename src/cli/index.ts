@@ -7,6 +7,7 @@ import { validateCommand } from './commands/validate';
 import { packageCommand } from './commands/package';
 import { promoteCommand, listPackagesCommand } from './commands/promote';
 import { statusCommand } from './commands/status';
+import { authCommand, testCommand } from './commands/auth';
 
 const program = new Command();
 
@@ -34,6 +35,8 @@ program.addCommand(packageCommand);
 program.addCommand(promoteCommand);
 program.addCommand(listPackagesCommand);
 program.addCommand(statusCommand);
+program.addCommand(authCommand);
+program.addCommand(testCommand);
 
 // Error handling
 program.exitOverride();
@@ -60,4 +63,6 @@ if (!process.argv.slice(2).length) {
   console.log(chalk.blue('   azmp validate azure-deployment/    # Validate templates'));
   console.log(chalk.blue('   azmp list-packages                 # View all packages'));
   console.log(chalk.blue('   azmp promote <path> 1.0.0          # Promote to marketplace'));
+  console.log(chalk.blue('   azmp auth --fix-mfa                # Fix Azure MFA issues'));
+  console.log(chalk.blue('   azmp test-mcp info@hoiltd.com      # Test MCP servers'));
 }
