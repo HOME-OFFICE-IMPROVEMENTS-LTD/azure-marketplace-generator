@@ -6,7 +6,7 @@
         "config": {
             "isWizard": false,
             "basics": {
-                "description": "**flexible-storage-demo** by HomeOfficeImprovements\n\nManaged Azure Storage Account solution with enterprise-grade configuration options.",
+                "description": "**Storage Lifecycle Management** by HomeOfficeImprovements\n\nEnterprise Azure Storage solution with automated lifecycle policies, cost optimization, and advanced security features.",
                 "subscription": {
                     "constraints": {
                         "validations": [

@@ -2,14 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "metadata": {
-                "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2023-07-01",
-            "name": "storageAccountDeployment", "_generator": {
+        "_generator": {
             "name": "Azure Marketplace Generator",
             "version": "0.1.0",
-            "templateHash": "2025-10-03T18:39:33.110Z"
+            "templateHash": "2025-10-05T02:45:00.000Z"
         },
-        "description": "flexible-storage-demo - Managed Application Main Template"
+        "description": "Storage Lifecycle Management - Azure Marketplace Solution Template"
     },
     "parameters": {
         "storageAccountNamePrefix": {

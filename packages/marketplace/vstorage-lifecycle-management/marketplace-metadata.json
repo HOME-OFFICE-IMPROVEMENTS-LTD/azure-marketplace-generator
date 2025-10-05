@@ -1,0 +1,15 @@
+{
+  "packageId": "storage-lifecycle-management",
+  "version": "1.0.0",
+  "offeringType": "Solution Template",
+  "generated": "2025-10-05T02:45:00.000Z",
+  "validated": "2025-10-05T01:25:50.847Z",
+  "armTtkVersion": "latest",
+  "templatePath": "azure-deployment/"
+}kageId": "marketplace-vstorage-lifecycle-management",
+  "version": "storage-lifecycle-management",
+  "generated": "2025-10-05T01:25:35.356Z",
+  "validated": "2025-10-05T01:25:35.356Z",
+  "armTtkVersion": "latest",
+  "templatePath": "azure-deployment"
+}
