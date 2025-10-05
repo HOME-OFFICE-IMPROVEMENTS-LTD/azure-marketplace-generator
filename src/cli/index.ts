@@ -6,6 +6,7 @@ import { createCommand } from './commands/create';
 import { validateCommand } from './commands/validate';
 import { packageCommand } from './commands/package';
 import { promoteCommand, listPackagesCommand } from './commands/promote';
+import { statusCommand } from './commands/status';
 
 const program = new Command();
 
@@ -32,6 +33,7 @@ program.addCommand(validateCommand);
 program.addCommand(packageCommand);
 program.addCommand(promoteCommand);
 program.addCommand(listPackagesCommand);
+program.addCommand(statusCommand);
 
 // Error handling
 program.exitOverride();
@@ -54,6 +56,7 @@ if (!process.argv.slice(2).length) {
   console.log(chalk.gray('Enterprise tool for marketplace-ready managed applications\n'));
   program.outputHelp();
   console.log(chalk.blue('\n💡 Quick start:'));
+  console.log(chalk.blue('   azmp status                        # Show portfolio status'));
   console.log(chalk.blue('   azmp validate azure-deployment/    # Validate templates'));
   console.log(chalk.blue('   azmp list-packages                 # View all packages'));
   console.log(chalk.blue('   azmp promote <path> 1.0.0          # Promote to marketplace'));
