@@ -1,0 +1,92 @@
+name: 🔒 Enterprise Security & ARM-TTK Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  
+jobs:
+  security-compliance:
+    name: 🏢 HOILTD Security Compliance
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+        
+    - name: 🔍 Comprehensive Secrets Scanning
+      run: |
+        echo "🔍 Scanning entire repository for hardcoded secrets..."
+        if grep -r "connectionString\|primaryKey\|accessKey\|AccountKey\|DefaultEndpointsProtocol=https" \
+             --include="*.json" --include="*.js" --include="*.ts" --include="*.yaml" --include="*.yml" \
+             . || \
+           find . -name "*.zip" -exec unzip -l {} \; | grep -i "key\|secret\|password" || \
+           grep -r "listKeys(" --include="*.json" .; then
+          echo "❌ SECURITY VIOLATION: Secrets found in repository"
+          echo "🏢 HOILTD POLICY: All secrets must be in Azure Key Vault"
+          exit 1
+        else
+          echo "✅ No hardcoded secrets found - HOILTD compliant"
+        fi
+    
+    - name: 🔐 Azure Login (SSO Integration) 
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+    - name: 🛡️ ARM-TTK Security Validation
+      uses: Azure/arm-ttk-action@v1
+      with:
+        template-path: './packages/marketplace'
+        result-format: 'json'
+        
+    - name: 📦 Node.js Setup
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: 📋 Dependencies Security Audit
+      run: |
+        npm ci
+        npm audit --audit-level moderate
+        
+    - name: 🔧 TypeScript Strict Compilation
+      run: |
+        npm run build
+        
+    - name: 🧪 Security Tests
+      run: |
+        npm test
+        
+    - name: 📊 CodeQL Security Analysis
+      uses: github/codeql-action/init@v2
+      with:
+        languages: typescript, javascript
+        
+    - name: 🏗️ CodeQL Analysis Build
+      uses: github/codeql-action/autobuild@v2
+      
+    - name: 📈 CodeQL Analysis Results
+      uses: github/codeql-action/analyze@v2
+      
+    - name: ✅ Enterprise Compliance Summary
+      run: |
+        echo "🏢 HOME-OFFICE-IMPROVEMENTS-LTD Security Validation Complete"
+        echo "✅ ARM-TTK Security Tests: Passed"
+        echo "✅ Secrets Scanning: Clean"
+        echo "✅ Dependency Audit: Secure"
+        echo "✅ TypeScript Compilation: Strict Mode"
+        echo "✅ CodeQL Analysis: Complete"
+        echo "🎯 Ready for Enterprise Deployment"

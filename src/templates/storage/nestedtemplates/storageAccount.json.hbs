@@ -116,7 +116,7 @@
             "properties": {
                 "accessTier": "Hot",
                 "allowBlobPublicAccess": "[parameters('enableStaticWebsite')]",
-                "allowSharedKeyAccess": true,
+                "allowSharedKeyAccess": false,
                 "encryption": {
                     "services": {
                         "blob": {
@@ -142,7 +142,7 @@
                     "bypass": "AzureServices",
                     "virtualNetworkRules": [],
                     "ipRules": [],
-                    "defaultAction": "Allow"
+                    "defaultAction": "Deny"
                 },
                 "supportsHttpsTrafficOnly": true,
                 "minimumTlsVersion": "TLS1_2"{{#if enableStaticWebsite}},

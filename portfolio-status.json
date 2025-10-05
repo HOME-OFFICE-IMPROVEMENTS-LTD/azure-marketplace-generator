@@ -13,29 +13,22 @@
       {
         "name": "Storage Lifecycle Management",
         "package": "packages/marketplace/azure-storage/storage-lifecycle-management/",
-        "status": "under-review",
+        "status": "certification",
         "submittedDate": "2025-10-05",
-        "version": "2.0.0"
+        "certificationDate": "2025-10-04",
+        "version": "2.0.0",
+        "notes": "Manual validation in progress (<2 business days)"
       }
     ],
-    "inDevelopment": [
-      {
-        "name": "Repository Reorganization",
-        "package": "organizational-refactor",
-        "status": "planning",
-        "startedDate": "2025-10-05",
-        "version": "1.0.0",
-        "description": "Reorganize packages by Azure resource kingdoms for scalable growth"
-      }
-    ]
+    "inDevelopment": []
   },
   "lastSession": {
     "date": "2025-10-05",
-    "focus": "Completed repository reorganization by resource kingdoms",
+    "focus": "Repository reorganization complete, storage packages in certification",
     "nextActions": [
-      "Start Azure Web Apps kingdom development",
-      "Plan first Web App + App Service Plans offering",
-      "Monitor Partner Center for lifecycle management review"
+      "Plan Azure Web Apps service portfolio development",
+      "Monitor certification progress for storage lifecycle management",
+      "Design first Web App + App Service Plans marketplace offering"
     ]
   },
   "stats": {

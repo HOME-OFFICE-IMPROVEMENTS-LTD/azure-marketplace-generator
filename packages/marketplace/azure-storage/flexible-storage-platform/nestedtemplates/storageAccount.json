@@ -116,7 +116,7 @@
             "properties": {
                 "accessTier": "Hot",
                 "allowBlobPublicAccess": "[parameters('enableStaticWebsite')]",
-                "allowSharedKeyAccess": true,
+                "allowSharedKeyAccess": false,
                 "encryption": {
                     "services": {
                         "blob": {
@@ -142,7 +142,7 @@
                     "bypass": "AzureServices",
                     "virtualNetworkRules": [],
                     "ipRules": [],
-                    "defaultAction": "Allow"
+                    "defaultAction": "Deny"
                 },
                 "supportsHttpsTrafficOnly": true,
                 "minimumTlsVersion": "TLS1_2"
@@ -248,20 +248,6 @@
             "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
             "metadata": {
                 "description": "Resource ID of the storage account"
-            }
-        },
-        "primaryKey": {
-            "type": "string",
-            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2023-01-01').keys[0].value]",
-            "metadata": {
-                "description": "Primary access key for the storage account"
-            }
-        },
-        "connectionString": {
-            "type": "string", 
-            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2023-01-01').keys[0].value, ';EndpointSuffix=core.windows.net')]",
-            "metadata": {
-                "description": "Connection string for the storage account"
             }
         },
         "staticWebsiteUrl": {
