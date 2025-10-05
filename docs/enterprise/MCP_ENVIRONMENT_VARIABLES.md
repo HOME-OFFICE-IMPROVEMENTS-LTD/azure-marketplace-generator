@@ -204,7 +204,44 @@ done
 echo "🎉 All required environment variables are configured!"
 ```
 
-### **2. Azure Connectivity Test**
+### **2. Azure Authentication Helper**
+**NEW: Automated authentication troubleshooting for MFA issues**
+
+```bash
+# Fix MFA authentication issues (RECOMMENDED)
+./scripts/azure-auth-helper.sh fix-mfa
+
+# Check current authentication status
+./scripts/azure-auth-helper.sh check
+
+# Clear cached credentials and reset
+./scripts/azure-auth-helper.sh full-reset
+
+# Use service principal authentication (non-interactive)
+export AZURE_CLIENT_ID="your-client-id"
+export AZURE_CLIENT_SECRET="your-client-secret"
+export AZURE_TENANT_ID="your-tenant-id"
+./scripts/azure-auth-helper.sh service-principal
+```
+
+### **3. Azure DevOps & Lighthouse Testing**
+**NEW: Comprehensive testing for DevOps and Performance MCP servers**
+
+```bash
+# Test all systems for info@hoiltd.com
+./scripts/test-devops-lighthouse.sh info@hoiltd.com
+
+# Test Azure DevOps connectivity only
+./scripts/test-devops-lighthouse.sh devops
+
+# Test Lighthouse performance capabilities
+./scripts/test-devops-lighthouse.sh lighthouse
+
+# Create test work item
+./scripts/test-devops-lighthouse.sh workitem
+```
+
+### **4. Legacy Azure Connectivity Test**
 ```bash
 # Test Azure authentication
 az login --service-principal \
@@ -215,6 +252,81 @@ az login --service-principal \
 # Verify subscription access
 az account set --subscription $AZURE_SUBSCRIPTION_ID
 az account show
+```
+
+---
+
+## 🔧 **Troubleshooting Common Issues**
+
+### **Azure MFA Authentication Problems**
+
+**Problem**: "Authentication failed... must use multi-factor authentication"  
+**Solution**: Use our automated authentication helper
+
+```bash
+# RECOMMENDED: Fix MFA issues automatically
+./scripts/azure-auth-helper.sh fix-mfa
+
+# Alternative: Use device code flow (avoids browser issues)
+az login --use-device-code --tenant 473c2116-bcd0-4936-8d3b-dea0f76371a5
+```
+
+### **Cached Credentials Issues**
+
+**Problem**: "Already logged in" but still getting authentication errors  
+**Solution**: Clear cached credentials
+
+```bash
+# Clear all cached Azure CLI credentials
+./scripts/azure-auth-helper.sh clear
+
+# Or manually clear cache
+az account clear
+rm -rf ~/.azure/accessTokens.json
+rm -rf ~/.azure/azureProfile.json
+```
+
+### **Service Principal Authentication**
+
+**Problem**: Interactive login required in CI/CD environments  
+**Solution**: Use service principal authentication
+
+```bash
+# Set environment variables
+export AZURE_CLIENT_ID="your-service-principal-id"
+export AZURE_CLIENT_SECRET="your-service-principal-secret"
+export AZURE_TENANT_ID="473c2116-bcd0-4936-8d3b-dea0f76371a5"
+
+# Login using service principal
+./scripts/azure-auth-helper.sh service-principal
+```
+
+### **Azure DevOps Access Issues**
+
+**Problem**: Cannot access Azure DevOps projects or PAT token issues  
+**Solution**: Verify and test DevOps configuration
+
+```bash
+# Test Azure DevOps connectivity
+./scripts/test-devops-lighthouse.sh devops
+
+# Set required environment variables
+export AZURE_DEVOPS_ORG_URL="https://dev.azure.com/home-office-improvements-ltd"
+export AZURE_DEVOPS_PAT="your-personal-access-token"
+export AZURE_DEVOPS_PROJECT="azure-marketplace-generator"
+```
+
+### **MCP Server Connection Issues**
+
+**Problem**: MCP servers not responding or authentication failures  
+**Solution**: Validate all environment variables and test connectivity
+
+```bash
+# Run comprehensive testing
+./scripts/test-devops-lighthouse.sh all
+
+# Check specific environment variables
+./scripts/azure-auth-helper.sh check
 ```
 
 ---
