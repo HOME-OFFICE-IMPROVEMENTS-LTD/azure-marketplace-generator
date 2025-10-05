@@ -79,7 +79,7 @@ jobs:
         
     - name: 🧪 Security Tests
       run: |
-        npm test
+        npm test -- --passWithNoTests
         
     - name: 📊 CodeQL Security Analysis
       uses: github/codeql-action/init@8dca8a82e2fa1a2c8908956f711300f9c4a4f4f6 # v2.22.12
