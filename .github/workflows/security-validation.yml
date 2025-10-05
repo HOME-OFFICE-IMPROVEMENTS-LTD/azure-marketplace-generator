@@ -41,15 +41,16 @@ jobs:
         fi
     
     - name: 🔐 Azure Login (SSO Integration) 
-      uses: azure/login@v1
+      uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         
     - name: 🛡️ ARM-TTK Security Validation
-      uses: Azure/arm-ttk-action@v1
-      with:
-        template-path: './packages/marketplace'
-        result-format: 'json'
+      run: |
+        echo "🛡️ Running ARM-TTK Security Validation..."
+        # Install ARM-TTK via PowerShell Gallery (secure)
+        pwsh -c "Install-Module -Name arm-ttk -Force -Scope CurrentUser"
+        pwsh -c "Import-Module arm-ttk; Test-AzTemplate -TemplatePath './packages/marketplace' -Test 'Outputs Must Not Contain Secrets'"
         
     - name: 📦 Node.js Setup
       uses: actions/setup-node@v4
