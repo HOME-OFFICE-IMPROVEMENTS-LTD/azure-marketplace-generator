@@ -22,17 +22,43 @@
     "microsoft-docs": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@microsoft/mcp-server-docs"],
-      "tools": ["search-docs", "get-api-reference", "fetch-tutorial", "check-latest-version"]
+      "args": ["@microsoft/mcp-server-docs", "--focus=azure,marketplace"],
+      "tools": [
+        "search-docs", 
+        "get-api-reference", 
+        "fetch-tutorial", 
+        "check-latest-version",
+        "get-azure-best-practices",
+        "fetch-code-samples",
+        "get-service-updates",
+        "search-marketplace-docs"
+      ],
+      "env": {
+        "DOCS_LANGUAGE": "en-us",
+        "CONTENT_FILTER": "azure,arm-templates,marketplace,bicep",
+        "CACHE_DURATION": "3600"
+      }
     },
     "enterprise-knowledge": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@enterprise/mcp-server-knowledge"],
-      "tools": ["search-standards", "get-policy", "check-compliance"],
+      "args": ["@enterprise/mcp-server-knowledge", "--org=hoiltd"],
+      "tools": [
+        "search-standards", 
+        "get-policy", 
+        "check-compliance",
+        "get-architecture-patterns",
+        "validate-security-requirements",
+        "fetch-deployment-procedures",
+        "get-coding-standards",
+        "check-enterprise-approval"
+      ],
       "env": {
         "ENTERPRISE_KNOWLEDGE_BASE": "https://docs.home-office-improvements.ltd",
-        "API_KEY": "${ENTERPRISE_DOCS_API_KEY}"
+        "API_KEY": "${ENTERPRISE_DOCS_API_KEY}",
+        "ORGANIZATION": "HOME-OFFICE-IMPROVEMENTS-LTD",
+        "COMPLIANCE_LEVEL": "enterprise-strict",
+        "SECURITY_CLEARANCE": "internal-confidential"
       }
     },
     "github-enterprise": {
@@ -58,11 +84,21 @@
     "web-search": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@mcp/server-web-search"],
-      "tools": ["search-web", "get-trends", "fetch-updates"],
+      "args": ["@mcp/server-web-search", "--enterprise-mode"],
+      "tools": [
+        "search-web", 
+        "get-trends", 
+        "fetch-updates",
+        "search-azure-docs",
+        "get-marketplace-insights",
+        "fetch-security-advisories",
+        "search-best-practices"
+      ],
       "env": {
         "SEARCH_API_KEY": "${BING_SEARCH_API_KEY}",
-        "ALLOWED_DOMAINS": "microsoft.com,azure.com,github.com,docs.microsoft.com"
+        "ALLOWED_DOMAINS": "microsoft.com,azure.com,github.com,docs.microsoft.com,learn.microsoft.com",
+        "SEARCH_FILTERS": "azure,marketplace,security,enterprise",
+        "RESULT_LIMIT": "10"
       }
     },
     "file-system": {
