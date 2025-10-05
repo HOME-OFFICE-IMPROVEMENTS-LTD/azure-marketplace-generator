@@ -142,7 +142,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2023-07-01",
-            "name": "pid-3558aef5-9b17-4870-98ee-923a78ee4c87-partnercenter",
+            "name": "pid-2a166cb3-9d16-46ce-aa7d-41716819308c-partnercenter",
             "properties": {
                 "mode": "Incremental",
                 "template": {
