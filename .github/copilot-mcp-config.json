@@ -115,7 +115,7 @@
     "web-search": {
       "type": "stdio",
       "command": "npx",
-      "args": ["@mcp/server-web-search", "--enterprise-mode"],
+      "args": ["@mcp/server-web-search", "--intelligence-mode"],
       "tools": [
         "search-web", 
         "get-trends", 
@@ -123,13 +123,75 @@
         "search-azure-docs",
         "get-marketplace-insights",
         "fetch-security-advisories",
-        "search-best-practices"
+        "search-best-practices",
+        "ai-powered-search",
+        "predictive-content-analysis",
+        "intelligent-filtering",
+        "context-aware-recommendations",
+        "real-time-trend-analysis",
+        "automated-research-synthesis"
       ],
       "env": {
         "SEARCH_API_KEY": "${BING_SEARCH_API_KEY}",
-        "ALLOWED_DOMAINS": "microsoft.com,azure.com,github.com,docs.microsoft.com,learn.microsoft.com",
-        "SEARCH_FILTERS": "azure,marketplace,security,enterprise",
-        "RESULT_LIMIT": "10"
+        "ALLOWED_DOMAINS": "microsoft.com,azure.com,github.com,docs.microsoft.com,learn.microsoft.com,partner.microsoft.com",
+        "SEARCH_FILTERS": "azure,marketplace,security,enterprise,partner-center",
+        "RESULT_LIMIT": "15",
+        "AI_ENHANCEMENT": "true",
+        "PREDICTIVE_ANALYSIS": "enabled",
+        "CONTEXT_LEARNING": "continuous"
+      }
+    },
+    "ai-analytics": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@ai/mcp-server-analytics", "--intelligence-layer"],
+      "tools": [
+        "analyze-code-patterns",
+        "predict-performance-issues",
+        "optimize-resource-allocation",
+        "intelligent-error-detection",
+        "predictive-security-modeling",
+        "automated-performance-tuning",
+        "machine-learning-insights",
+        "behavioral-analysis",
+        "trend-prediction",
+        "anomaly-detection",
+        "intelligent-recommendations",
+        "adaptive-optimization"
+      ],
+      "env": {
+        "AI_MODEL": "gpt-4o-enterprise",
+        "ANALYTICS_SCOPE": "full-repository",
+        "PREDICTION_ACCURACY": "high",
+        "LEARNING_MODE": "continuous",
+        "OPTIMIZATION_LEVEL": "aggressive",
+        "TELEMETRY_COLLECTION": "enterprise-grade",
+        "ML_MODEL_UPDATE": "weekly"
+      }
+    },
+    "performance-intelligence": {
+      "type": "stdio", 
+      "command": "npx",
+      "args": ["@performance/mcp-server-intelligence", "--predictive-mode"],
+      "tools": [
+        "monitor-performance-metrics",
+        "predict-resource-needs",
+        "optimize-deployment-strategy",
+        "intelligent-scaling-recommendations",
+        "automated-performance-analysis",
+        "predictive-maintenance",
+        "resource-efficiency-optimization",
+        "cost-optimization-ai",
+        "performance-forecasting",
+        "intelligent-alerting"
+      ],
+      "env": {
+        "AZURE_SUBSCRIPTION_ID": "${AZURE_SUBSCRIPTION_ID}",
+        "PERFORMANCE_THRESHOLD": "enterprise-grade",
+        "PREDICTION_HORIZON": "30_days",
+        "OPTIMIZATION_TARGET": "cost_performance_balance",
+        "AI_RECOMMENDATIONS": "enabled",
+        "AUTOMATED_SCALING": "intelligent"
       }
     },
     "file-system": {
@@ -155,6 +217,37 @@
         "ENCRYPTION_ENABLED": "true",
         "BACKUP_ENABLED": "true",
         "AUDIT_FILE_OPERATIONS": "true"
+      }
+    },
+    "microsoft-partner-center": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@microsoft/mcp-server-partner-center", "--commercial-marketplace"],
+      "tools": [
+        "manage-marketplace-offers",
+        "track-certification-status",
+        "analyze-marketplace-performance",
+        "optimize-offer-listings",
+        "automate-publishing-workflow",
+        "monitor-commercial-metrics",
+        "manage-partner-profile",
+        "handle-customer-reviews",
+        "process-marketplace-analytics",
+        "coordinate-go-to-market-strategy",
+        "manage-pricing-strategies",
+        "automate-compliance-checks"
+      ],
+      "env": {
+        "PARTNER_CENTER_TENANT_ID": "${PARTNER_CENTER_TENANT_ID}",
+        "PARTNER_CENTER_CLIENT_ID": "${PARTNER_CENTER_CLIENT_ID}",
+        "PARTNER_CENTER_CLIENT_SECRET": "${PARTNER_CENTER_CLIENT_SECRET}",
+        "MARKETPLACE_API_ENDPOINT": "https://api.partner.microsoft.com/v1.0",
+        "COMMERCIAL_MARKETPLACE": "azure-marketplace",
+        "PUBLISHER_ID": "${AZURE_MARKETPLACE_PUBLISHER_ID}",
+        "OFFER_MANAGEMENT": "automated",
+        "CERTIFICATION_TRACKING": "enabled",
+        "ANALYTICS_INTEGRATION": "real-time",
+        "COMPLIANCE_AUTOMATION": "strict"
       }
     }
   }
