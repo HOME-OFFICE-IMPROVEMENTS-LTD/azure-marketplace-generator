@@ -18,15 +18,24 @@
         "version": "2.0.0"
       }
     ],
-    "inDevelopment": []
+    "inDevelopment": [
+      {
+        "name": "Repository Reorganization",
+        "package": "organizational-refactor",
+        "status": "planning",
+        "startedDate": "2025-10-05",
+        "version": "1.0.0",
+        "description": "Reorganize packages by Azure resource kingdoms for scalable growth"
+      }
+    ]
   },
   "lastSession": {
     "date": "2025-10-05",
-    "focus": "Fixed CUA ID validation and submitted Storage Lifecycle Management v2",
+    "focus": "Repository organization and Azure Web Apps kingdom analysis",
     "nextActions": [
-      "Monitor Partner Center for review feedback",
-      "Plan third marketplace offering",
-      "Analyze performance of first published listing"
+      "Reorganize marketplace packages by resource kingdoms",
+      "Analyze Azure Web Apps as next resource target",
+      "Monitor Partner Center for lifecycle management review"
     ]
   },
   "stats": {
