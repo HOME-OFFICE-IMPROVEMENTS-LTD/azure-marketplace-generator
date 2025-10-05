@@ -6,7 +6,7 @@
         "config": {
             "isWizard": false,
             "basics": {
-                "description": "**Storage Lifecycle Management** by HomeOfficeImprovements\n\nEnterprise Azure Storage solution with automated lifecycle policies, cost optimization, and advanced security features.",
+                "description": "**Storage Lifecycle Management** by Home & Office Improvements Ltd\n\nEnterprise Azure Storage solution with automated lifecycle policies, cost optimization, and advanced security features.",
                 "subscription": {
                     "constraints": {
                         "validations": [
