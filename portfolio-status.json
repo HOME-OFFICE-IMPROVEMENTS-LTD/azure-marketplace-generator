@@ -3,7 +3,7 @@
     "published": [
       {
         "name": "Flexible Storage Platform",
-        "package": "packages/marketplace/flexible-storage-marketplace/",
+        "package": "packages/marketplace/azure-storage/flexible-storage-platform/",
         "status": "live",
         "publishedDate": "2025-10-03",
         "version": "1.0.0"
@@ -11,8 +11,8 @@
     ],
     "submitted": [
       {
-        "name": "Storage Lifecycle Management v2",
-        "package": "packages/marketplace/vstorage-lifecycle-management/",
+        "name": "Storage Lifecycle Management",
+        "package": "packages/marketplace/azure-storage/storage-lifecycle-management/",
         "status": "under-review",
         "submittedDate": "2025-10-05",
         "version": "2.0.0"
@@ -31,10 +31,10 @@
   },
   "lastSession": {
     "date": "2025-10-05",
-    "focus": "Repository organization and Azure Web Apps kingdom analysis",
+    "focus": "Completed repository reorganization by resource kingdoms",
     "nextActions": [
-      "Reorganize marketplace packages by resource kingdoms",
-      "Analyze Azure Web Apps as next resource target",
+      "Start Azure Web Apps kingdom development",
+      "Plan first Web App + App Service Plans offering",
       "Monitor Partner Center for lifecycle management review"
     ]
   },
