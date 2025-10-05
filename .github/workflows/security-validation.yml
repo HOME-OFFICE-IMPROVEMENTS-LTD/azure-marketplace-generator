@@ -21,7 +21,7 @@ jobs:
     
     steps:
     - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.1.7
       with:
         persist-credentials: false
         
@@ -53,7 +53,7 @@ jobs:
         pwsh -c "Import-Module arm-ttk; Test-AzTemplate -TemplatePath './packages/marketplace' -Test 'Outputs Must Not Contain Secrets'"
         
     - name: 📦 Node.js Setup
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.0.4
       with:
         node-version: '18'
         cache: 'npm'
@@ -72,15 +72,15 @@ jobs:
         npm test
         
     - name: 📊 CodeQL Security Analysis
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@8dca8a82e2fa1a2c8908956f711300f9c4a4f4f6 # v2.22.12
       with:
         languages: typescript, javascript
         
     - name: 🏗️ CodeQL Analysis Build
-      uses: github/codeql-action/autobuild@v2
+      uses: github/codeql-action/autobuild@8dca8a82e2fa1a2c8908956f711300f9c4a4f4f6 # v2.22.12
       
     - name: 📈 CodeQL Analysis Results
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@8dca8a82e2fa1a2c8908956f711300f9c4a4f4f6 # v2.22.12
       
     - name: ✅ Enterprise Compliance Summary
       run: |
