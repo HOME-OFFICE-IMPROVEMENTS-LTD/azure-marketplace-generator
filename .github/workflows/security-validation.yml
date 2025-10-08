@@ -63,7 +63,7 @@ jobs:
         pwsh -c "Import-Module arm-ttk; Test-AzTemplate -TemplatePath './packages/marketplace' -Test 'Outputs Must Not Contain Secrets'"
         
     - name: 📦 Node.js Setup
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.0.4
+      uses: actions/setup-node@89d709d423dc495668cd762a18dd4a070611be3f # v4.0.4
       with:
         node-version: '18'
         cache: 'npm'
