@@ -42,7 +42,7 @@ jobs:
     
     steps:
       - name: 🔄 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -136,7 +136,7 @@ jobs:
     
     steps:
       - name: 🔄 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: ⚡ Performance Prediction Engine
         id: performance-forecasting
@@ -195,7 +195,7 @@ jobs:
     
     steps:
       - name: 🔄 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 📈 Azure Marketplace Trend Analysis
         id: market-trends
@@ -255,7 +255,7 @@ jobs:
     
     steps:
       - name: 🔄 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 🤖 Advanced AI Forecasting
         id: ai-forecasting
