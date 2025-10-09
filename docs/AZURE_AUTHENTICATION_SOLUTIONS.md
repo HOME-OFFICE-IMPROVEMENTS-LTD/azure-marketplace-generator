@@ -5,10 +5,23 @@ This document describes the Azure authentication solutions implemented to resolv
 ## 🚨 Problem Addressed
 
 **Issue**: Users experiencing authentication failures with Azure CLI despite being "already logged in", specifically:
-- MFA authentication failures against multiple tenants
+- MFA authentication failures against multiple tenants (HOILTD DEV, MOHAMMAD AL-SOURI)
+- Error: "Due to a configuration change made by your administrator, or because you moved to a new location, you must use multi-factor authentication"
 - Browser-based login prompts appearing unexpectedly  
 - Cached credential conflicts causing authentication loops
 - Interactive authentication requirements in automated environments
+- Multiple tenant selection confusion
+
+**Symptoms from the problem statement**:
+```
+Authentication failed against tenant 473c2116-bcd0-4936-8d3b-dea0f76371a5 'HOILTD DEV': AADSTS50076: Due to a configuration change made by your administrator, or because you moved to a new location, you must use multi-factor authentication to access '797f4846-ba00-4fd7-ba43-dac1f8f63013'.
+```
+
+**Root Causes**:
+- Azure CLI cached credentials are outdated
+- Browser-based MFA flows can fail in certain environments
+- Multiple tenants cause confusion during authentication
+- Administrative policy changes require re-authentication
 
 ## ✅ Solutions Implemented
 
@@ -147,6 +160,56 @@ ACCESSIBILITY_LEVEL="WCAG-AAA"
 PERFORMANCE_BUDGET="strict"
 ```
 
+## 🔧 Troubleshooting Common Issues
+
+### **Network Connectivity Issues**
+
+**Problem**: "Failed to resolve 'login.microsoftonline.com'" or network timeout errors
+
+**Solutions**:
+```bash
+# 1. Check internet connectivity
+ping -c 3 login.microsoftonline.com
+
+# 2. Test DNS resolution
+nslookup login.microsoftonline.com
+
+# 3. Check proxy settings
+echo $HTTP_PROXY
+echo $HTTPS_PROXY
+
+# 4. If behind corporate firewall, contact IT or try:
+az login --use-device-code  # Often works better through firewalls
+```
+
+**Corporate Network Users**:
+- Device code flow typically works better through corporate firewalls
+- Contact your IT department if authentication endpoints are blocked
+- Consider using service principal authentication for automated scenarios
+
+### **MFA Authentication Problems** 
+
+**Problem**: "AADSTS50076: Due to a configuration change made by your administrator, or because you moved to a new location, you must use multi-factor authentication"
+
+**Solution**: Use the automated fix (RECOMMENDED)
+```bash
+# This handles the exact scenario from the problem statement
+./scripts/azure-auth-helper.sh fix-mfa
+```
+
+**Manual steps if needed**:
+```bash
+# 1. Clear cached credentials
+az account clear
+rm -rf ~/.azure/accessTokens.json ~/.azure/azureProfile.json
+
+# 2. Use device code flow (bypasses browser MFA issues)
+az login --use-device-code --tenant 473c2116-bcd0-4936-8d3b-dea0f76371a5
+
+# 3. Select correct subscription
+az account set --subscription 1001490f-c77c-403e-be9e-97eac578d1d6
+```
+
 ## 🎉 Benefits Achieved
 
 ### For Users
@@ -169,21 +232,52 @@ PERFORMANCE_BUDGET="strict"
 
 ## 🚀 Quick Start
 
-1. **Fix Authentication Issues**:
+### **For the Specific MFA Issue (RECOMMENDED)**
+
+If you're seeing authentication failures like "AADSTS50076: Due to a configuration change made by your administrator, or because you moved to a new location, you must use multi-factor authentication":
+
+1. **Use the automated MFA fix**:
    ```bash
+   # This is the RECOMMENDED solution for MFA issues
    ./scripts/azure-auth-helper.sh fix-mfa
    ```
 
-2. **Test MCP Servers**:
-   ```bash
-   ./scripts/test-devops-lighthouse.sh info@hoiltd.com
-   ```
-
-3. **Use CLI Integration**:
+   OR using the CLI:
    ```bash
    npm run build
    azmp auth --fix-mfa
-   azmp test-mcp info@hoiltd.com
+   ```
+
+2. **What this does**:
+   - Clears conflicting cached credentials
+   - Uses device code flow to bypass browser MFA issues  
+   - Automatically selects the correct HOILTD tenant
+   - Sets the Microsoft Partner Network subscription as default
+   - Tests connectivity to ensure everything works
+
+3. **Follow the device code instructions**:
+   - Visit the URL shown in the terminal
+   - Enter the device code provided
+   - Complete MFA on your mobile device
+   - Select the HOILTD DEV tenant when prompted
+
+### **Alternative Solutions**
+
+2. **Manual device code login**:
+   ```bash
+   # Clear cache first
+   az account clear
+   
+   # Login with device code to specific tenant
+   az login --use-device-code --tenant 473c2116-bcd0-4936-8d3b-dea0f76371a5
+   
+   # Set correct subscription
+   az account set --subscription 1001490f-c77c-403e-be9e-97eac578d1d6
+   ```
+
+3. **Test MCP Servers**:
+   ```bash
+   ./scripts/test-devops-lighthouse.sh info@hoiltd.com
    ```
 
 ## 📋 Files Modified/Created

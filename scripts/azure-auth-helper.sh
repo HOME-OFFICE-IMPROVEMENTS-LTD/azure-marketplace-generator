@@ -79,20 +79,68 @@ service_principal_login() {
 device_code_login() {
     echo -e "${YELLOW}📱 Using device code authentication to avoid MFA browser issues...${NC}"
     
-    # Use device code flow which often works better with MFA
-    az login --use-device-code --tenant "$HOILTD_TENANT_ID"
+    # Check network connectivity first
+    if ! ping -c 1 login.microsoftonline.com &>/dev/null; then
+        echo -e "${RED}❌ Network connectivity issue detected${NC}"
+        echo -e "${BLUE}💡 This might be due to:${NC}"
+        echo -e "${BLUE}   • Firewall or proxy restrictions${NC}"
+        echo -e "${BLUE}   • VPN connection issues${NC}"
+        echo -e "${BLUE}   • Corporate network policies${NC}"
+        echo -e "${BLUE}   • Internet connectivity problems${NC}"
+        echo -e ""
+        echo -e "${YELLOW}🔧 Suggested solutions:${NC}"
+        echo -e "${BLUE}   1. Check your internet connection${NC}"
+        echo -e "${BLUE}   2. Verify VPN settings if using corporate network${NC}"
+        echo -e "${BLUE}   3. Contact IT if behind corporate firewall${NC}"
+        echo -e "${BLUE}   4. Try from a different network if possible${NC}"
+        return 1
+    fi
     
-    echo -e "${GREEN}✅ Device code authentication completed${NC}"
+    # Use device code flow which often works better with MFA
+    echo -e "${BLUE}💡 Follow the instructions displayed to complete authentication${NC}"
+    echo -e "${BLUE}💡 This method bypasses browser-based MFA issues${NC}"
+    
+    if az login --use-device-code --tenant "$HOILTD_TENANT_ID"; then
+        echo -e "${GREEN}✅ Device code authentication completed${NC}"
+    else
+        echo -e "${RED}❌ Device code authentication failed${NC}"
+        echo -e "${BLUE}💡 Common solutions:${NC}"
+        echo -e "${BLUE}   • Ensure you selected the correct tenant: HOILTD DEV${NC}"
+        echo -e "${BLUE}   • Complete MFA verification on your mobile device${NC}"
+        echo -e "${BLUE}   • Contact your administrator if MFA is not working${NC}"
+        echo -e "${BLUE}   • Try the manual browser login: az login --tenant $HOILTD_TENANT_ID${NC}"
+        return 1
+    fi
 }
 
 # Function to select correct tenant and subscription
 select_hoiltd_context() {
     echo -e "${YELLOW}🎯 Setting HOILTD context...${NC}"
     
-    # Set the correct tenant
-    az account set --subscription "$DEFAULT_SUBSCRIPTION_ID"
+    # Check if we have multiple tenants/subscriptions available
+    AVAILABLE_SUBSCRIPTIONS=$(az account list --query "[].{Name:name, Id:id, Tenant:tenantId}" -o table 2>/dev/null || echo "")
     
-    echo -e "${GREEN}✅ Set to Microsoft Partner Network subscription${NC}"
+    if [[ -z "$AVAILABLE_SUBSCRIPTIONS" ]]; then
+        echo -e "${RED}❌ No subscriptions available or authentication required${NC}"
+        echo -e "${BLUE}💡 Please authenticate first using: $0 fix-mfa${NC}"
+        return 1
+    fi
+    
+    # Display available subscriptions for user reference
+    echo -e "${BLUE}📋 Available subscriptions:${NC}"
+    echo "$AVAILABLE_SUBSCRIPTIONS"
+    echo -e ""
+    
+    # Set the correct subscription
+    if az account set --subscription "$DEFAULT_SUBSCRIPTION_ID"; then
+        echo -e "${GREEN}✅ Set to Microsoft Partner Network subscription${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Could not set default subscription automatically${NC}"
+        echo -e "${BLUE}💡 Please manually select subscription:${NC}"
+        echo -e "${BLUE}   az account set --subscription \"$DEFAULT_SUBSCRIPTION_ID\"${NC}"
+        echo -e "${BLUE}   Or select interactively: az account set --subscription <name>${NC}"
+        return 1
+    fi
     
     # Verify the context
     echo -e "${BLUE}🔍 Current context:${NC}"
@@ -145,10 +193,31 @@ main() {
             ;;
         "fix-mfa"|"mfa")
             echo -e "${YELLOW}🔧 Fixing MFA authentication issues...${NC}"
+            echo -e "${BLUE}📖 This will:${NC}"
+            echo -e "${BLUE}   1. Clear any cached credentials that might conflict${NC}"
+            echo -e "${BLUE}   2. Use device code flow to bypass browser MFA issues${NC}"
+            echo -e "${BLUE}   3. Set the correct HOILTD tenant and subscription${NC}"
+            echo -e "${BLUE}   4. Test connectivity to ensure everything works${NC}"
+            echo -e ""
+            
             clear_cached_credentials
-            device_code_login
-            select_hoiltd_context
-            test_azure_connectivity
+            if device_code_login; then
+                if select_hoiltd_context; then
+                    test_azure_connectivity
+                    echo -e "${GREEN}🎉 MFA authentication fix completed successfully!${NC}"
+                    echo -e "${BLUE}💡 You should now be able to use Azure CLI commands${NC}"
+                else
+                    echo -e "${YELLOW}⚠️  Authentication successful but context setup had issues${NC}"
+                    echo -e "${BLUE}💡 You may need to manually select the correct subscription${NC}"
+                fi
+            else
+                echo -e "${RED}❌ MFA authentication fix failed${NC}"
+                echo -e "${BLUE}💡 Additional troubleshooting options:${NC}"
+                echo -e "${BLUE}   • Try manual browser login: az login${NC}"
+                echo -e "${BLUE}   • Contact your Azure administrator${NC}"
+                echo -e "${BLUE}   • Check if your account has the required permissions${NC}"
+                exit 1
+            fi
             ;;
         "full-reset"|"reset")
             echo -e "${YELLOW}🔄 Performing full authentication reset...${NC}"
