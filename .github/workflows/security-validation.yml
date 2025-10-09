@@ -49,7 +49,7 @@ jobs:
         fi
     
     - name: 🔐 Azure Login (SSO Integration) 
-      uses: azure/login@eec3c95657c1536435858eda1f3ff5437fee8474 # v2.3.0
+      uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
       if: false  # Disabled until Azure credentials are configured
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
