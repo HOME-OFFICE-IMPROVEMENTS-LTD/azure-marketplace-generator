@@ -39,6 +39,9 @@ jobs:
   predictive-security-analysis:
     name: 🛡️ Predictive Security Analysis
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     
     steps:
       - name: 🔄 Checkout Repository
@@ -133,6 +136,9 @@ jobs:
   performance-forecasting:
     name: ⚡ Performance Forecasting
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     
     steps:
       - name: 🔄 Checkout Repository
@@ -192,6 +198,9 @@ jobs:
   market-intelligence:
     name: 📈 Market Intelligence & Trends
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     
     steps:
       - name: 🔄 Checkout Repository
@@ -252,6 +261,9 @@ jobs:
     name: 🤖 AI-Powered Forecasting Engine
     runs-on: ubuntu-latest
     needs: [predictive-security-analysis, performance-forecasting, market-intelligence]
+    permissions:
+      contents: read
+      actions: read
     
     steps:
       - name: 🔄 Checkout Repository
