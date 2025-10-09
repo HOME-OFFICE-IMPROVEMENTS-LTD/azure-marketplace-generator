@@ -39,6 +39,9 @@ jobs:
   ai-code-analysis:
     name: 🤖 AI-Powered Code Analysis
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     
     steps:
       - name: 🔄 Checkout Repository
@@ -250,6 +253,9 @@ jobs:
     name: 🎯 Machine Learning Insights
     runs-on: ubuntu-latest
     needs: ai-code-analysis
+    permissions:
+      contents: read
+      actions: read
     
     steps:
       - name: 🔄 Checkout Repository
@@ -298,6 +304,9 @@ jobs:
     name: 🎯 Adaptive Optimization Engine
     runs-on: ubuntu-latest
     needs: [ai-code-analysis, machine-learning-insights]
+    permissions:
+      contents: read
+      actions: read
     
     steps:
       - name: 🔄 Checkout Repository
