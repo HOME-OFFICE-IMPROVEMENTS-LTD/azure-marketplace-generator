@@ -1,0 +1,52 @@
+{
+  "name": "@azmp/lighthouse-rag-mcp-server",
+  "version": "1.0.0",
+  "description": "Lighthouse MCP Server with RAG capabilities for performance intelligence and optimization patterns",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lighthouse": "lighthouse --output json --quiet"
+  },
+  "keywords": [
+    "lighthouse",
+    "mcp",
+    "rag",
+    "performance",
+    "optimization",
+    "web-vitals",
+    "accessibility",
+    "seo"
+  ],
+  "author": "HOME-OFFICE-IMPROVEMENTS-LTD",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "openai": "^4.57.0",
+    "lighthouse": "^12.8.2",
+    "chrome-launcher": "^1.0.0",
+    "puppeteer": "^22.15.0",
+    "axios": "^1.7.4",
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.8",
+    "node-cache": "^5.1.2",
+    "cheerio": "^1.0.0-rc.12",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/fs-extra": "^11.0.4",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.12"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
