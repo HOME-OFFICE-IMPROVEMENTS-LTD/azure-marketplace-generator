@@ -8,6 +8,7 @@ import { packageCommand } from './commands/package';
 import { promoteCommand, listPackagesCommand } from './commands/promote';
 import { statusCommand } from './commands/status';
 import { authCommand, testCommand } from './commands/auth';
+import { helpCommand } from './commands/help';
 import { registerGraphCommands } from './commands/graph';
 
 const program = new Command();
@@ -38,6 +39,7 @@ program.addCommand(listPackagesCommand);
 program.addCommand(statusCommand);
 program.addCommand(authCommand);
 program.addCommand(testCommand);
+program.addCommand(helpCommand);
 
 // Register Graph MCP commands
 registerGraphCommands(program);
@@ -58,19 +60,23 @@ try {
 
 // Show help if no command provided
 if (!process.argv.slice(2).length) {
-  console.log(chalk.blue('🚀 Azure Marketplace Generator CLI'));
-  console.log(chalk.blue('='.repeat(40)));
+  console.log(chalk.blue.bold('🚀 Azure Marketplace Generator CLI v2.0'));
+  console.log(chalk.blue('='.repeat(50)));
   console.log(chalk.gray('Enterprise tool for marketplace-ready managed applications\n'));
+  
+  console.log(chalk.yellow('🎯 INTELLIGENT FEATURES (Phase 1):'));
+  console.log(chalk.gray('   AI-powered validation, auto-fix, marketplace insights\n'));
+  
+  console.log(chalk.yellow('⚡ SMART PACKAGING (Phase 2):'));
+  console.log(chalk.gray('   Auto-optimization, quality scoring, excellence tracking\n'));
+  
   program.outputHelp();
+  
   console.log(chalk.blue('\n💡 Quick start:'));
+  console.log(chalk.blue('   azmp help --phase2                 # Learn about smart packaging'));
+  console.log(chalk.blue('   azmp validate ./app --intelligent  # AI-powered validation'));
+  console.log(chalk.blue('   azmp package ./app --optimize      # Smart packaging'));
   console.log(chalk.blue('   azmp status                        # Show portfolio status'));
-  console.log(chalk.blue('   azmp validate azure-deployment/    # Validate templates'));
   console.log(chalk.blue('   azmp list-packages                 # View all packages'));
   console.log(chalk.blue('   azmp promote <path> 1.0.0          # Promote to marketplace'));
-  console.log(chalk.blue('   azmp auth --fix-mfa                # Fix Azure MFA issues'));
-  console.log(chalk.blue('   azmp test-mcp info@hoiltd.com      # Test MCP servers'));
-  console.log(chalk.blue('   azmp graph user --profile          # Get user profile via Graph'));
-  console.log(chalk.blue('   azmp graph org --context           # Get organizational context'));
-  console.log(chalk.blue('   azmp graph generate --type storage # Generate intelligent templates'));
-  console.log(chalk.blue('   azmp graph rag --search "Azure"    # Search organizational knowledge'));
 }
