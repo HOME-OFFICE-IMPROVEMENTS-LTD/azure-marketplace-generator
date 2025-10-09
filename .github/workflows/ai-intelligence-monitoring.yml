@@ -45,7 +45,7 @@ jobs:
     
     steps:
       - name: 🔄 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -259,7 +259,7 @@ jobs:
     
     steps:
       - name: 🔄 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 🧠 ML Model Training & Inference
         run: |
@@ -310,7 +310,7 @@ jobs:
     
     steps:
       - name: 🔄 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: 🎯 Continuous Learning & Adaptation
         run: |
