@@ -10,6 +10,13 @@
         "description": "Flexible-Azure-Storage-Platform - Managed Application Main Template"
     },
     "parameters": {
+        "applicationName": {
+            "type": "string",
+            "defaultValue": "Flexible-Azure-Storage-Platform",
+            "metadata": {
+                "description": "Name for this managed application instance"
+            }
+        },
         "storageAccountNamePrefix": {
             "type": "string",
             "maxLength": 11,
@@ -65,20 +72,6 @@
                 "description": "Enable File storage for network drive and shared file functionality"
             }
         },
-        "websiteIndexDocument": {
-            "type": "string",
-            "defaultValue": "index.html",
-            "metadata": {
-                "description": "Index document for static website (only used if static website is enabled)"
-            }
-        },
-        "websiteErrorDocument": {
-            "type": "string", 
-            "defaultValue": "404.html",
-            "metadata": {
-                "description": "Error document for static website (only used if static website is enabled)"
-            }
-        },
         "enableEventGrid": {
             "type": "bool",
             "defaultValue": false,
@@ -107,8 +100,24 @@
     "resources": [
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2022-09-01",
+            "apiVersion": "2023-07-01",
+            "name": "pid-3558aef5-9b17-4870-98ee-923a78ee4c87-partnercenter",
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2023-07-01",
             "name": "storageDeployment",
+            "dependsOn": [
+                "pid-3558aef5-9b17-4870-98ee-923a78ee4c87-partnercenter"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -137,12 +146,6 @@
                     "enableFileShares": {
                         "value": "[parameters('enableFileShares')]"
                     },
-                    "websiteIndexDocument": {
-                        "value": "[parameters('websiteIndexDocument')]"
-                    },
-                    "websiteErrorDocument": {
-                        "value": "[parameters('websiteErrorDocument')]"
-                    },
                     "enableEventGrid": {
                         "value": "[parameters('enableEventGrid')]"
                     },
@@ -157,6 +160,13 @@
         }
     ],
     "outputs": {
+        "applicationName": {
+            "type": "string",
+            "value": "[parameters('applicationName')]",
+            "metadata": {
+                "description": "Name of the deployed managed application instance"
+            }
+        },
         "storageEndpoint": {
             "type": "string",
             "value": "[reference('storageDeployment').outputs.storageEndpoint.value]",
