@@ -64,20 +64,6 @@
                 "description": "Enable File storage for network drive functionality"
             }
         },
-        "websiteIndexDocument": {
-            "type": "string",
-            "defaultValue": "index.html",
-            "metadata": {
-                "description": "Index document for static website"
-            }
-        },
-        "websiteErrorDocument": {
-            "type": "string", 
-            "defaultValue": "404.html",
-            "metadata": {
-                "description": "Error document for static website"
-            }
-        },
         "enableEventGrid": {
             "type": "bool",
             "defaultValue": false,
@@ -106,7 +92,7 @@
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2023-01-01",
+            "apiVersion": "2025-06-01",
             "name": "[variables('storageAccountName')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -156,7 +142,7 @@
         {
             "condition": "[parameters('enableEventGrid')]",
             "type": "Microsoft.EventGrid/systemTopics",
-            "apiVersion": "2023-01-01",
+            "apiVersion": "2025-02-15",
             "name": "[concat(variables('storageAccountName'), '-events')]",
             "location": "[parameters('location')]",
             "dependsOn": [
@@ -176,7 +162,7 @@
         {
             "condition": "[and(parameters('enableEventGrid'), not(equals(parameters('webhookEndpoint'), '')))]",
             "type": "Microsoft.EventGrid/systemTopics/eventSubscriptions",
-            "apiVersion": "2023-01-01",
+            "apiVersion": "2025-02-15",
             "name": "[concat(variables('storageAccountName'), '-events/', parameters('eventGridSubscriptionName'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.EventGrid/systemTopics', concat(variables('storageAccountName'), '-events'))]"
@@ -213,7 +199,7 @@
         {
             "condition": "[parameters('enableFileShares')]",
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
-            "apiVersion": "2023-01-01",
+            "apiVersion": "2025-06-01",
             "name": "[concat(variables('storageAccountName'), '/default/application-data')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
@@ -238,7 +224,7 @@
         },
         "storageEndpoint": {
             "type": "string",
-            "value": "[reference(variables('storageAccountName'), '2023-01-01').primaryEndpoints.blob]",
+            "value": "[reference(variables('storageAccountName'), '2025-06-01').primaryEndpoints.blob]",
             "metadata": {
                 "description": "Primary blob endpoint URL"
             }
@@ -253,7 +239,7 @@
         "staticWebsiteUrl": {
             "condition": "[parameters('enableStaticWebsite')]",
             "type": "string",
-            "value": "[reference(variables('storageAccountName'), '2023-01-01').primaryEndpoints.web]",
+            "value": "[reference(variables('storageAccountName'), '2025-06-01').primaryEndpoints.web]",
             "metadata": {
                 "description": "Static website primary endpoint URL"
             }
@@ -261,7 +247,7 @@
         "tableEndpoint": {
             "condition": "[parameters('enableTables')]",
             "type": "string",
-            "value": "[reference(variables('storageAccountName'), '2023-01-01').primaryEndpoints.table]",
+            "value": "[reference(variables('storageAccountName'), '2025-06-01').primaryEndpoints.table]",
             "metadata": {
                 "description": "Table storage endpoint URL"
             }
@@ -269,7 +255,7 @@
         "queueEndpoint": {
             "condition": "[parameters('enableQueues')]",
             "type": "string", 
-            "value": "[reference(variables('storageAccountName'), '2023-01-01').primaryEndpoints.queue]",
+            "value": "[reference(variables('storageAccountName'), '2025-06-01').primaryEndpoints.queue]",
             "metadata": {
                 "description": "Queue storage endpoint URL"
             }
@@ -277,7 +263,7 @@
         "fileEndpoint": {
             "condition": "[parameters('enableFileShares')]",
             "type": "string",
-            "value": "[reference(variables('storageAccountName'), '2023-01-01').primaryEndpoints.file]",
+            "value": "[reference(variables('storageAccountName'), '2025-06-01').primaryEndpoints.file]",
             "metadata": {
                 "description": "File storage endpoint URL"
             }
@@ -306,7 +292,7 @@
         "eventGridTopicEndpoint": {
             "condition": "[parameters('enableEventGrid')]",
             "type": "string",
-            "value": "[reference(resourceId('Microsoft.EventGrid/systemTopics', concat(variables('storageAccountName'), '-events')), '2023-01-01').metricResourceId]",
+            "value": "[reference(resourceId('Microsoft.EventGrid/systemTopics', concat(variables('storageAccountName'), '-events')), '2025-02-15').metricResourceId]",
             "metadata": {
                 "description": "Event Grid topic endpoint for monitoring"
             }
