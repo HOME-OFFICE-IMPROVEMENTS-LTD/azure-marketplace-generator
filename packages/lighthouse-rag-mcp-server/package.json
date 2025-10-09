@@ -27,7 +27,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "openai": "^4.57.0",
-    "lighthouse": "^11.7.1",
+    "lighthouse": "^12.8.2",
     "chrome-launcher": "^1.0.0",
     "puppeteer": "^22.15.0",
     "axios": "^1.7.4",
