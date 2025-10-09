@@ -1,0 +1,48 @@
+{
+  "name": "@azmp/rag-service",
+  "version": "1.0.0",
+  "description": "RAG (Retrieval Augmented Generation) service for organizational knowledge",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "keywords": [
+    "rag", 
+    "retrieval-augmented-generation",
+    "embeddings",
+    "semantic-search",
+    "sharepoint",
+    "teams"
+  ],
+  "author": "HOME-OFFICE-IMPROVEMENTS-LTD",
+  "license": "MIT",
+  "dependencies": {
+    "@azure/openai": "^1.0.0-beta.12",
+    "@azure/identity": "^4.4.1",
+    "@microsoft/msgraph-sdk": "^3.0.7",
+    "faiss-node": "^0.5.1",
+    "pdf-parse": "^1.1.1",
+    "mammoth": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.8",
+    "sqlite3": "^5.1.6",
+    "node-cache": "^5.1.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/pdf-parse": "^1.1.4",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.12"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

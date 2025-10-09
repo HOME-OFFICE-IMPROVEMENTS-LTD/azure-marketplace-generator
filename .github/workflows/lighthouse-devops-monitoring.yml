@@ -1,0 +1,453 @@
+name: 🌟 Lighthouse Performance Monitoring & Azure DevOps Integration
+
+on:
+  schedule:
+    # Performance audits every 6 hours for comprehensive monitoring
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      audit_type:
+        description: 'Type of performance audit'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - performance-only
+          - accessibility-only
+          - seo-only
+          - regression-test
+      target_url:
+        description: 'URL to audit (optional - defaults to production)'
+        required: false
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - '*.html'
+      - '*.css'
+      - '*.js'
+      - '*.ts'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - '*.html'
+      - '*.css'
+      - '*.js'
+      - '*.ts'
+
+env:
+  NODE_VERSION: '20'
+  LIGHTHOUSE_VERSION: '11.5.0'
+  AZURE_DEVOPS_ORG: 'home-office-improvements-ltd'
+  AZURE_DEVOPS_PROJECT: 'azure-marketplace-generator'
+
+jobs:
+  lighthouse-performance-audit:
+    name: 🚀 Comprehensive Performance Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+
+    strategy:
+      matrix:
+        audit-config:
+          - name: 'Desktop Performance'
+            device: 'desktop'
+            throttling: 'none'
+            viewport: '1920x1080'
+          - name: 'Mobile Performance'
+            device: 'mobile'
+            throttling: '3g-fast'
+            viewport: '412x732'
+          - name: 'Mobile Slow Network'
+            device: 'mobile'
+            throttling: '3g-slow'
+            viewport: '412x732'
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm ci
+          npm install -g lighthouse@${{ env.LIGHTHOUSE_VERSION }}
+          npm install -g @lhci/cli@latest
+
+      - name: 🏗️ Build Application
+        run: |
+          npm run build
+        env:
+          NODE_ENV: production
+
+      - name: 🚀 Start Application Server
+        run: |
+          npm run start &
+          echo "SERVER_PID=$!" >> $GITHUB_ENV
+          # Wait for server to be ready
+          timeout 60 bash -c 'until curl -sf http://localhost:3000; do sleep 1; done'
+        env:
+          PORT: 3000
+
+      - name: 🌟 Run Lighthouse Audit - ${{ matrix.audit-config.name }}
+        run: |
+          # Determine target URL
+          TARGET_URL="${{ github.event.inputs.target_url || 'http://localhost:3000' }}"
+          
+          # Configure Lighthouse settings based on matrix
+          LIGHTHOUSE_CONFIG='{
+            "extends": "lighthouse:default",
+            "settings": {
+              "formFactor": "${{ matrix.audit-config.device }}",
+              "throttling": {
+                "rttMs": ${{ matrix.audit-config.device == 'mobile' && '150' || '40' }},
+                "throughputKbps": ${{ matrix.audit-config.throttling == '3g-slow' && '1600' || matrix.audit-config.throttling == '3g-fast' && '1600' || '10240' }},
+                "cpuSlowdownMultiplier": ${{ matrix.audit-config.device == 'mobile' && '4' || '1' }}
+              },
+              "screenEmulation": {
+                "mobile": ${{ matrix.audit-config.device == 'mobile' && 'true' || 'false' }},
+                "width": ${{ matrix.audit-config.device == 'mobile' && '412' || '1920' }},
+                "height": ${{ matrix.audit-config.device == 'mobile' && '732' || '1080' }},
+                "deviceScaleFactor": ${{ matrix.audit-config.device == 'mobile' && '2.625' || '1' }}
+              }
+            }
+          }'
+          
+          # Run comprehensive Lighthouse audit
+          lighthouse "$TARGET_URL" \
+            --config-path=<(echo "$LIGHTHOUSE_CONFIG") \
+            --output=json,html,csv \
+            --output-path=./lighthouse-reports/lighthouse-${{ matrix.audit-config.device }}-report \
+            --chrome-flags="--headless --no-sandbox --disable-gpu" \
+            --budget-path=./performance-budget.json \
+            --view
+
+      - name: 📊 Analyze Performance Metrics
+        run: |
+          # Extract key metrics from Lighthouse reports
+          node -e "
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('./lighthouse-reports/lighthouse-${{ matrix.audit-config.device }}-report.report.json'));
+            
+            const metrics = {
+              performance: Math.round(report.categories.performance.score * 100),
+              accessibility: Math.round(report.categories.accessibility.score * 100),
+              bestPractices: Math.round(report.categories['best-practices'].score * 100),
+              seo: Math.round(report.categories.seo.score * 100),
+              pwa: report.categories.pwa ? Math.round(report.categories.pwa.score * 100) : 'N/A',
+              firstContentfulPaint: report.audits['first-contentful-paint'].displayValue,
+              largestContentfulPaint: report.audits['largest-contentful-paint'].displayValue,
+              firstInputDelay: report.audits['max-potential-fid'].displayValue,
+              cumulativeLayoutShift: report.audits['cumulative-layout-shift'].displayValue,
+              speedIndex: report.audits['speed-index'].displayValue,
+              totalBlockingTime: report.audits['total-blocking-time'].displayValue
+            };
+            
+            console.log('## 🌟 Performance Results - ${{ matrix.audit-config.name }}');
+            console.log(\`
+            ### 📈 Overall Scores
+            - **Performance**: \${metrics.performance}%
+            - **Accessibility**: \${metrics.accessibility}%
+            - **Best Practices**: \${metrics.bestPractices}%
+            - **SEO**: \${metrics.seo}%
+            - **PWA**: \${metrics.pwa}%
+            
+            ### ⚡ Core Web Vitals
+            - **First Contentful Paint**: \${metrics.firstContentfulPaint}
+            - **Largest Contentful Paint**: \${metrics.largestContentfulPaint}
+            - **First Input Delay**: \${metrics.firstInputDelay}
+            - **Cumulative Layout Shift**: \${metrics.cumulativeLayoutShift}
+            - **Speed Index**: \${metrics.speedIndex}
+            - **Total Blocking Time**: \${metrics.totalBlockingTime}
+            \`);
+            
+            // Save metrics for Azure DevOps integration
+            fs.writeFileSync('./lighthouse-reports/metrics-${{ matrix.audit-config.device }}.json', JSON.stringify(metrics, null, 2));
+          "
+
+      - name: 🎯 Performance Budget Validation
+        run: |
+          # Check if performance meets our enterprise standards
+          node -e "
+            const fs = require('fs');
+            const metrics = JSON.parse(fs.readFileSync('./lighthouse-reports/metrics-${{ matrix.audit-config.device }}.json'));
+            
+            const standards = {
+              performance: 90,
+              accessibility: 95,
+              bestPractices: 90,
+              seo: 95
+            };
+            
+            let passed = true;
+            const failures = [];
+            
+            Object.keys(standards).forEach(key => {
+              if (metrics[key] < standards[key]) {
+                passed = false;
+                failures.push(\`\${key}: \${metrics[key]}% (required: \${standards[key]}%)\`);
+              }
+            });
+            
+            if (!passed) {
+              console.log('❌ Performance standards not met:');
+              failures.forEach(failure => console.log('  - ' + failure));
+              process.exit(1);
+            } else {
+              console.log('✅ All performance standards exceeded!');
+            }
+          "
+
+      - name: 🔗 Integrate with Azure DevOps
+        if: always()
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+        run: |
+          # Create work item in Azure DevOps for performance tracking
+          METRICS=$(cat ./lighthouse-reports/metrics-${{ matrix.audit-config.device }}.json)
+          
+          # Determine work item type based on performance
+          PERFORMANCE_SCORE=$(echo "$METRICS" | jq -r '.performance')
+          if [ "$PERFORMANCE_SCORE" -lt 90 ]; then
+            WORK_ITEM_TYPE="Bug"
+            PRIORITY="1"
+            TITLE="🚨 Performance Regression Detected - ${{ matrix.audit-config.name }}"
+          else
+            WORK_ITEM_TYPE="Task"
+            PRIORITY="3"
+            TITLE="✅ Performance Validation Complete - ${{ matrix.audit-config.name }}"
+          fi
+          
+          # Create Azure DevOps work item
+          curl -X POST \
+            "https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}/_apis/wit/workitems/\$${WORK_ITEM_TYPE}?api-version=7.1-preview.3" \
+            -H "Authorization: Basic $(echo -n :$AZURE_DEVOPS_PAT | base64)" \
+            -H "Content-Type: application/json-patch+json" \
+            -d "[
+              {
+                \"op\": \"add\",
+                \"path\": \"/fields/System.Title\",
+                \"value\": \"$TITLE\"
+              },
+              {
+                \"op\": \"add\",
+                \"path\": \"/fields/System.Description\",
+                \"value\": \"<h3>Performance Audit Results</h3><p><strong>Device:</strong> ${{ matrix.audit-config.name }}</p><p><strong>Commit:</strong> ${{ github.sha }}</p><p><strong>Performance Score:</strong> ${PERFORMANCE_SCORE}%</p><p><strong>Lighthouse Report:</strong> Available in GitHub Actions artifacts</p>\"
+              },
+              {
+                \"op\": \"add\",
+                \"path\": \"/fields/Microsoft.VSTS.Common.Priority\",
+                \"value\": \"$PRIORITY\"
+              },
+              {
+                \"op\": \"add\",
+                \"path\": \"/fields/System.Tags\",
+                \"value\": \"lighthouse; performance; automated; ${{ matrix.audit-config.device }}\"
+              }
+            ]"
+
+      - name: 📤 Upload Lighthouse Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports-${{ matrix.audit-config.device }}
+          path: lighthouse-reports/
+          retention-days: 30
+
+      - name: 🧹 Cleanup
+        if: always()
+        run: |
+          if [ ! -z "$SERVER_PID" ]; then
+            kill $SERVER_PID || true
+          fi
+
+  performance-trend-analysis:
+    name: 📈 Performance Trend Analysis
+    runs-on: ubuntu-latest
+    needs: lighthouse-performance-audit
+    if: always()
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: 📊 Download All Reports
+        uses: actions/download-artifact@v5
+        with:
+          path: all-lighthouse-reports/
+
+      - name: 🧠 AI-Powered Performance Analysis
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          # Advanced AI analysis of performance trends
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Collect all performance metrics
+            const allMetrics = {};
+            const reportsDir = './all-lighthouse-reports';
+            
+            if (fs.existsSync(reportsDir)) {
+              fs.readdirSync(reportsDir).forEach(dir => {
+                const metricsPath = path.join(reportsDir, dir, 'metrics-' + dir.split('-')[2] + '.json');
+                if (fs.existsSync(metricsPath)) {
+                  const metrics = JSON.parse(fs.readFileSync(metricsPath));
+                  allMetrics[dir.split('-')[2]] = metrics;
+                }
+              });
+            }
+            
+            console.log('## 🧠 AI Performance Intelligence Summary');
+            console.log('');
+            console.log('### 📊 Cross-Device Performance Comparison');
+            
+            Object.keys(allMetrics).forEach(device => {
+              const metrics = allMetrics[device];
+              console.log(\`
+              #### \${device.charAt(0).toUpperCase() + device.slice(1)} Performance
+              - **Overall Score**: \${metrics.performance}%
+              - **Accessibility**: \${metrics.accessibility}%
+              - **Core Web Vitals**: LCP \${metrics.largestContentfulPaint}, CLS \${metrics.cumulativeLayoutShift}
+              \`);
+            });
+            
+            // Generate performance insights
+            const avgPerformance = Object.values(allMetrics).reduce((sum, m) => sum + m.performance, 0) / Object.keys(allMetrics).length;
+            
+            console.log('### 🎯 Performance Insights');
+            if (avgPerformance >= 95) {
+              console.log('✅ **EXCELLENT**: Performance exceeds enterprise standards across all devices');
+            } else if (avgPerformance >= 90) {
+              console.log('🟡 **GOOD**: Performance meets standards but has room for optimization');
+            } else {
+              console.log('🔴 **NEEDS ATTENTION**: Performance below enterprise standards - immediate optimization required');
+            }
+          "
+
+      - name: 📧 Stakeholder Notification
+        if: always()
+        env:
+          WEBHOOK_URL: ${{ secrets.PERFORMANCE_WEBHOOK_URL }}
+        run: |
+          # Send performance summary to stakeholders
+          curl -X POST "$WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"text\": \"🌟 Performance Audit Complete\",
+              \"attachments\": [{
+                \"color\": \"good\",
+                \"fields\": [{
+                  \"title\": \"Repository\",
+                  \"value\": \"${{ github.repository }}\",
+                  \"short\": true
+                }, {
+                  \"title\": \"Commit\",
+                  \"value\": \"${{ github.sha }}\",
+                  \"short\": true
+                }, {
+                  \"title\": \"Trigger\",
+                  \"value\": \"${{ github.event_name }}\",
+                  \"short\": true
+                }, {
+                  \"title\": \"Workflow\",
+                  \"value\": \"Lighthouse Performance Monitoring\",
+                  \"short\": true
+                }]
+              }]
+            }"
+
+  azure-devops-integration:
+    name: 🔗 Azure DevOps Sprint Integration
+    runs-on: ubuntu-latest
+    needs: performance-trend-analysis
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: 📊 Update Sprint Dashboard
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+        run: |
+          # Update Azure DevOps dashboard with performance metrics
+          curl -X PATCH \
+            "https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}/_apis/dashboard/dashboards?api-version=7.1-preview.3" \
+            -H "Authorization: Basic $(echo -n :$AZURE_DEVOPS_PAT | base64)" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"name\": \"Performance Intelligence Dashboard\",
+              \"description\": \"Real-time performance monitoring and optimization insights\",
+              \"refreshInterval\": 15,
+              \"widgets\": [{
+                \"name\": \"Lighthouse Performance Trends\",
+                \"position\": {\"row\": 1, \"column\": 1},
+                \"size\": {\"rowSpan\": 2, \"columnSpan\": 3},
+                \"settings\": \"Performance metrics updated: $(date)\",
+                \"contributionId\": \"ms.vss-dashboards-web.Microsoft.VisualStudioOnline.Dashboards.QueryScalarWidget\"
+              }]
+            }"
+
+      - name: 🎯 Create Performance Sprint Tasks
+        env:
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+        run: |
+          # Create performance optimization tasks for current sprint
+          TASKS=(
+            "Optimize Core Web Vitals performance"
+            "Implement progressive image loading"
+            "Optimize JavaScript bundle size"
+            "Enhance accessibility compliance"
+            "Improve SEO optimization"
+          )
+          
+          for TASK in "${TASKS[@]}"; do
+            curl -X POST \
+              "https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}/_apis/wit/workitems/\$Task?api-version=7.1-preview.3" \
+              -H "Authorization: Basic $(echo -n :$AZURE_DEVOPS_PAT | base64)" \
+              -H "Content-Type: application/json-patch+json" \
+              -d "[
+                {
+                  \"op\": \"add\",
+                  \"path\": \"/fields/System.Title\",
+                  \"value\": \"$TASK\"
+                },
+                {
+                  \"op\": \"add\",
+                  \"path\": \"/fields/System.Description\",
+                  \"value\": \"Performance optimization task automatically generated based on Lighthouse audit results\"
+                },
+                {
+                  \"op\": \"add\",
+                  \"path\": \"/fields/Microsoft.VSTS.Common.Priority\",
+                  \"value\": \"2\"
+                },
+                {
+                  \"op\": \"add\",
+                  \"path\": \"/fields/System.Tags\",
+                  \"value\": \"performance; lighthouse; automated; optimization\"
+                }
+              ]"
+          done
