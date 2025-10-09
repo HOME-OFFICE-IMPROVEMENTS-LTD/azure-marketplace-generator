@@ -173,6 +173,7 @@ Thumbs.db
 # Temporary folders
 tmp/
 temp/
+logs/
 
 # ARM-TTK cache (if any)
 cache/

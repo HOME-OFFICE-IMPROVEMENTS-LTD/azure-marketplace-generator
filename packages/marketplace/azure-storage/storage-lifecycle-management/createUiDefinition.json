@@ -132,8 +132,8 @@
                                 "toolTip": "Default document for your website root",
                                 "constraints": {
                                     "required": true,
-                                    "regex": "^.+\\.(html|htm)$",
-                                    "validationMessage": "Must be an HTML file"
+                                    "regex": "^.{1,100}\\.(html|htm)$",
+                                    "validationMessage": "Must be an HTML file (max 100 characters)"
                                 }
                             },
                             {
@@ -144,8 +144,8 @@
                                 "toolTip": "Custom error page for 404 errors",
                                 "constraints": {
                                     "required": true,
-                                    "regex": "^.+\\.(html|htm)$",
-                                    "validationMessage": "Must be an HTML file"
+                                    "regex": "^.{1,100}\\.(html|htm)$",
+                                    "validationMessage": "Must be an HTML file (max 100 characters)"
                                 }
                             }
                         ]

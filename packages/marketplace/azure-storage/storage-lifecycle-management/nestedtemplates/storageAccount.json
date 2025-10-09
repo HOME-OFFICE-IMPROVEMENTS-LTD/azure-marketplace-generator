@@ -98,13 +98,6 @@
             "metadata": {
                 "description": "Auto-tier blobs back to Hot when accessed"
             }
-        },
-        "enablePrivateEndpoints": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Enable private endpoints for security"
-            }
         }
     },
     "variables": {
