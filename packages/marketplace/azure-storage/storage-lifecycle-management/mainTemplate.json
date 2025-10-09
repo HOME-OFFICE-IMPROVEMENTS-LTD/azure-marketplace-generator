@@ -155,7 +155,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2023-07-01",
-            "name": "customerUsageAttribution",
+            "name": "storageDeployment",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
