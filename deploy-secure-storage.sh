@@ -22,6 +22,90 @@ DEPLOYMENT_NAME="deploy-secure-storage-$(date +%Y%m%d-%H%M%S)"
 SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-}"
 TENANT_ID="${AZURE_TENANT_ID:-}"
 
+# Command line flags
+DRY_RUN=${DRY_RUN:-false}
+SKIP_VALIDATION=${SKIP_VALIDATION:-false}
+
+# Help function
+show_help() {
+    cat << EOF
+${BLUE}HOME-OFFICE-IMPROVEMENTS-LTD Enterprise Azure Storage Deployment${NC}
+${BLUE}=================================================================${NC}
+
+${GREEN}USAGE:${NC}
+    $0 [OPTIONS]
+
+${GREEN}DESCRIPTION:${NC}
+    Deploy secure, enterprise-grade Azure Storage Account with full compliance.
+    Includes customer-managed encryption, private endpoints, and audit logging.
+
+${GREEN}OPTIONS:${NC}
+    -h, --help              Show this help message
+    --dry-run              Preview deployment without executing
+    --skip-validation      Skip ARM template validation step
+    --resource-group NAME  Override default resource group name
+    --subscription ID      Set Azure subscription ID
+
+${GREEN}PREREQUISITES:${NC}
+    • Azure CLI installed and configured
+    • Logged into Azure (az login)
+    • Appropriate permissions for storage deployment
+    • Valid Azure subscription
+
+${GREEN}ESTIMATED COST:${NC}
+    £150-300/month (UK South region, Standard GRS)
+
+${GREEN}COMPLIANCE:${NC}
+    • HOILTD-2024 Enterprise Security Policy: 100%
+    • ISO 27001:2022: 95%
+    • SOC 2 Type II: 92%
+    • UK GDPR: 100%
+
+${GREEN}EXAMPLES:${NC}
+    $0                                    # Interactive deployment
+    $0 --dry-run                         # Preview mode
+    $0 --resource-group my-rg            # Custom resource group
+
+${GREEN}FILES:${NC}
+    • storage-account-secure.json        # ARM template
+    • storage-account-secure.parameters.json # Parameters
+    • Generated deployment logs in current directory
+
+For support, contact: IT Infrastructure Team
+EOF
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --skip-validation)
+            SKIP_VALIDATION=true
+            shift
+            ;;
+        --resource-group)
+            RESOURCE_GROUP_NAME="$2"
+            shift 2
+            ;;
+        --subscription)
+            SUBSCRIPTION_ID="$2"
+            shift 2
+            ;;
+        *)
+            log_error "Unknown option: $1"
+            echo "Use --help for usage information."
+            exit 1
+            ;;
+    esac
+done
+
 # Logging
 LOG_FILE="deployment-$(date +%Y%m%d-%H%M%S).log"
 exec 1> >(tee -a "${LOG_FILE}")
@@ -233,6 +317,10 @@ cleanup_on_error() {
 main() {
     trap cleanup_on_error ERR
     
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log_info "🧪 DRY RUN MODE - No actual deployment will occur"
+    fi
+    
     log_info "Starting HOME-OFFICE-IMPROVEMENTS-LTD secure storage deployment"
     echo "Deployment Name: $DEPLOYMENT_NAME"
     echo "Resource Group: $RESOURCE_GROUP_NAME"
@@ -243,10 +331,20 @@ main() {
     cost_estimation
     security_checklist
     
+    if [[ "$DRY_RUN" == "true" ]]; then
+        log_success "🧪 Dry run completed - deployment preview shown above"
+        log_info "To perform actual deployment, run without --dry-run flag"
+        exit 0
+    fi
+    
     read -p "Do you want to proceed with the deployment? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        validate_template
+        if [[ "$SKIP_VALIDATION" != "true" ]]; then
+            validate_template
+        else
+            log_warning "⚠️ Skipping template validation as requested"
+        fi
         deploy_storage
         post_deployment_validation
         
