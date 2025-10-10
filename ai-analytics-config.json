@@ -1,0 +1,162 @@
+{
+  "enabled": true,
+  "models": [
+    {
+      "name": "performance-predictor",
+      "type": "predictive",
+      "configuration": {
+        "algorithm": "time-series-forecasting",
+        "features": [
+          "cpu",
+          "memory",
+          "requests",
+          "responseTime"
+        ],
+        "horizon": "7d",
+        "updateInterval": "1h"
+      }
+    },
+    {
+      "name": "cost-optimizer",
+      "type": "optimization",
+      "configuration": {
+        "algorithm": "resource-optimization",
+        "objectives": [
+          "minimize-cost",
+          "maintain-performance"
+        ],
+        "constraints": [
+          "availability-sla",
+          "performance-sla"
+        ]
+      }
+    },
+    {
+      "name": "anomaly-detector",
+      "type": "anomaly-detection",
+      "configuration": {
+        "algorithm": "isolation-forest",
+        "sensitivity": "medium",
+        "features": [
+          "cpu",
+          "memory",
+          "network",
+          "errors"
+        ]
+      }
+    }
+  ],
+  "insights": [
+    {
+      "type": "performance",
+      "enabled": true,
+      "schedule": "0 */6 * * *",
+      "parameters": {
+        "depth": "detailed",
+        "includeRecommendations": true
+      }
+    },
+    {
+      "type": "cost",
+      "enabled": true,
+      "schedule": "0 9 * * 1",
+      "parameters": {
+        "includeForecasts": true,
+        "optimizationSuggestions": true
+      }
+    },
+    {
+      "type": "trends",
+      "enabled": true,
+      "schedule": "0 8 * * *",
+      "parameters": {
+        "timeWindow": "30d",
+        "includeMarketData": true
+      }
+    }
+  ],
+  "predictions": [
+    {
+      "type": "load",
+      "horizon": "7d",
+      "confidence": 0.85,
+      "triggers": [
+        {
+          "condition": "predicted_load > current_capacity * 0.8",
+          "action": "alert",
+          "parameters": {
+            "severity": "high",
+            "recipients": [
+              "ops@company.com"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "cost",
+      "horizon": "30d",
+      "confidence": 0.9,
+      "triggers": [
+        {
+          "condition": "predicted_cost > budget * 1.1",
+          "action": "alert",
+          "parameters": {
+            "severity": "medium",
+            "includeBudgetBreakdown": true
+          }
+        }
+      ]
+    }
+  ],
+  "optimization": {
+    "enabled": true,
+    "strategies": [
+      {
+        "name": "right-sizing",
+        "type": "cost",
+        "algorithm": "resource-utilization-analysis",
+        "parameters": {
+          "utilizationThreshold": 0.7,
+          "costSavingThreshold": 0.1
+        },
+        "constraints": {
+          "maxDowntime": "5m",
+          "performanceImpact": "minimal"
+        }
+      },
+      {
+        "name": "auto-scaling",
+        "type": "performance",
+        "algorithm": "predictive-scaling",
+        "parameters": {
+          "predictionHorizon": "1h",
+          "scaleThreshold": 0.8
+        },
+        "constraints": {
+          "maxInstances": 10,
+          "minInstances": 2
+        }
+      }
+    ],
+    "autoApply": false,
+    "approvalRequired": true
+  },
+  "reporting": {
+    "enabled": true,
+    "formats": [
+      "pdf",
+      "html",
+      "json"
+    ],
+    "schedule": [
+      "daily",
+      "weekly",
+      "monthly"
+    ],
+    "recipients": [
+      "stakeholders@company.com"
+    ],
+    "includeVisualizations": true
+  }
+}

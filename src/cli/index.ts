@@ -9,6 +9,9 @@ import { promoteCommand, listPackagesCommand } from './commands/promote';
 import { statusCommand } from './commands/status';
 import { authCommand, testCommand } from './commands/auth';
 import { helpCommand } from './commands/help';
+import { deployCommand } from './commands/deploy';
+import { monitorCommand } from './commands/monitor';
+import { insightsCommand } from './commands/insights';
 import { registerGraphCommands } from './commands/graph';
 
 const program = new Command();
@@ -34,6 +37,9 @@ program
 program.addCommand(createCommand);
 program.addCommand(validateCommand);
 program.addCommand(packageCommand);
+program.addCommand(deployCommand);
+program.addCommand(monitorCommand);
+program.addCommand(insightsCommand);
 program.addCommand(promoteCommand);
 program.addCommand(listPackagesCommand);
 program.addCommand(statusCommand);
@@ -70,12 +76,21 @@ if (!process.argv.slice(2).length) {
   console.log(chalk.yellow('⚡ SMART PACKAGING (Phase 2):'));
   console.log(chalk.gray('   Auto-optimization, quality scoring, excellence tracking\n'));
   
+  console.log(chalk.yellow('🎯 AUTO-DEPLOYMENT (Phase 3):'));
+  console.log(chalk.gray('   Automated Azure deployment, testing, monitoring\n'));
+  
+  console.log(chalk.yellow('🧠 AI ANALYTICS (Phase 4):'));
+  console.log(chalk.gray('   Enterprise monitoring, AI insights, market intelligence\n'));
+  
   program.outputHelp();
   
   console.log(chalk.blue('\n💡 Quick start:'));
   console.log(chalk.blue('   azmp help --phase2                 # Learn about smart packaging'));
   console.log(chalk.blue('   azmp validate ./app --intelligent  # AI-powered validation'));
   console.log(chalk.blue('   azmp package ./app --optimize      # Smart packaging'));
+  console.log(chalk.blue('   azmp deploy ./app                  # Auto-deploy to Azure'));
+  console.log(chalk.blue('   azmp monitor --init                # Initialize monitoring'));
+  console.log(chalk.blue('   azmp insights                      # AI-powered analytics'));
   console.log(chalk.blue('   azmp status                        # Show portfolio status'));
   console.log(chalk.blue('   azmp list-packages                 # View all packages'));
   console.log(chalk.blue('   azmp promote <path> 1.0.0          # Promote to marketplace'));
