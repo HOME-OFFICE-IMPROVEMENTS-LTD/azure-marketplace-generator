@@ -95,7 +95,7 @@ async function initializeMonitoring(service: EnterpriseMonitoringService, subscr
 
   console.log(chalk.green('✅ Monitoring configuration initialized'));
   console.log(chalk.blue('📋 Configuration saved to: monitoring-config.json'));
-  
+
   console.log(chalk.yellow('\n🎯 Next steps:'));
   console.log(chalk.yellow('   1. azmp monitor --discover          # Auto-discover applications'));
   console.log(chalk.yellow('   2. azmp monitor                     # Run monitoring'));
@@ -113,7 +113,7 @@ async function discoverApplications(service: EnterpriseMonitoringService): Promi
   const applications = await service.discoverApplications();
 
   console.log(chalk.green(`✅ Discovered ${applications.length} applications:`));
-  
+
   // Display discovered applications
   for (const app of applications) {
     console.log(chalk.blue(`   📱 ${app.name} (${app.type}) in ${app.resourceGroup}`));
@@ -199,7 +199,7 @@ async function runContinuousMonitoring(service: EnterpriseMonitoringService, int
     try {
       cycle++;
       const timestamp = new Date().toLocaleString();
-      
+
       console.log(chalk.blue(`\n📊 Monitoring Cycle #${cycle} - ${timestamp}`));
       console.log(chalk.blue('-'.repeat(50)));
 
@@ -316,7 +316,7 @@ function displayAlerts(alerts: any[]): void {
                          severity === 'medium' ? chalk.blue : chalk.green;
 
     console.log(severityColor(`\n${severity.toUpperCase()} (${severityAlerts.length}):`));
-    
+
     for (const alert of severityAlerts) {
       console.log(severityColor(`   📋 ${alert.title}`));
       console.log(chalk.gray(`      App: ${alert.application}`));
@@ -421,7 +421,7 @@ function displayRecommendations(recommendations: any[]): void {
                          priority === 'medium' ? chalk.blue : chalk.green;
 
     console.log(priorityColor(`\n${priority.toUpperCase()} PRIORITY (${priorityRecs.length}):`));
-    
+
     for (const rec of priorityRecs) {
       console.log(priorityColor(`   📋 ${rec.title}`));
       console.log(chalk.gray(`      ${rec.description}`));
@@ -463,11 +463,11 @@ async function monitorWorkflows(options: any): Promise<void> {
   try {
     // Get current repository info from git
     const { execSync } = require('child_process');
-    
+
     let repoUrl: string;
     let owner: string;
     let repo: string;
-    
+
     try {
       repoUrl = execSync('git config --get remote.origin.url', { encoding: 'utf8' }).trim();
       const match = repoUrl.match(/github\.com[:/]([^/]+)\/([^/.]+)/);
@@ -517,10 +517,10 @@ async function monitorWorkflows(options: any): Promise<void> {
       const name = run.workflowName;
       const branch = run.headBranch;
       const createdAt = new Date(run.createdAt).toLocaleString();
-      
+
       let statusIcon = '';
       let statusColor = chalk.gray;
-      
+
       if (status === 'completed') {
         if (conclusion === 'success') {
           statusIcon = '✅';
@@ -557,7 +557,7 @@ async function monitorWorkflows(options: any): Promise<void> {
     console.log(chalk.green(`   ✅ Successful: ${healthyCount}`));
     console.log(chalk.red(`   ❌ Failed: ${failedCount}`));
     console.log(chalk.blue(`   🔄 In Progress: ${inProgressCount}`));
-    
+
     const totalCompleted = healthyCount + failedCount;
     if (totalCompleted > 0) {
       const successRate = Math.round((healthyCount / totalCompleted) * 100);
@@ -577,22 +577,22 @@ async function monitorWorkflows(options: any): Promise<void> {
     if (options.watch) {
       console.log(chalk.blue('\n🔄 Starting continuous workflow monitoring...'));
       console.log(chalk.gray('Press Ctrl+C to stop\n'));
-      
+
       while (true) {
         await new Promise(resolve => setTimeout(resolve, parseInt(options.interval) * 60 * 1000));
-        
+
         const timestamp = new Date().toLocaleString();
         console.log(chalk.blue(`\n🔄 Checking workflows - ${timestamp}`));
-        
+
         try {
           const newGhOutput = execSync(`gh run list --repo ${owner}/${repo} --limit 5 --json status,conclusion,workflowName,createdAt`, { encoding: 'utf8' });
           const newWorkflowData = JSON.parse(newGhOutput);
-          
+
           const running = newWorkflowData.filter((run: any) => run.status === 'in_progress').length;
-          const recentFailures = newWorkflowData.filter((run: any) => 
+          const recentFailures = newWorkflowData.filter((run: any) =>
             run.status === 'completed' && run.conclusion === 'failure'
           ).length;
-          
+
           if (recentFailures > 0) {
             console.log(chalk.red(`   ❌ ${recentFailures} recent failures detected`));
           } else if (running > 0) {
