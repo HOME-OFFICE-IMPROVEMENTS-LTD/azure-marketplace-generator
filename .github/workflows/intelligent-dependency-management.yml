@@ -63,11 +63,24 @@ jobs:
         run: |
           echo "🔒 Assessing security vulnerabilities..."
           
-          # Count vulnerabilities by severity
-          CRITICAL=$(cat /tmp/audit.json | jq '.metadata.vulnerabilities.critical // 0')
-          HIGH=$(cat /tmp/audit.json | jq '.metadata.vulnerabilities.high // 0')
-          MODERATE=$(cat /tmp/audit.json | jq '.metadata.vulnerabilities.moderate // 0')
-          LOW=$(cat /tmp/audit.json | jq '.metadata.vulnerabilities.low // 0')
+          # Count vulnerabilities by severity using Node.js
+          node -e "
+            const fs = require('fs');
+            let auditData = {};
+            try {
+              auditData = JSON.parse(fs.readFileSync('/tmp/audit.json', 'utf8'));
+            } catch (e) {
+              auditData = { metadata: { vulnerabilities: { critical: 0, high: 0, moderate: 0, low: 0 } } };
+            }
+            
+            const vulns = auditData.metadata?.vulnerabilities || { critical: 0, high: 0, moderate: 0, low: 0 };
+            console.log(\`CRITICAL=\${vulns.critical || 0}\`);
+            console.log(\`HIGH=\${vulns.high || 0}\`);
+            console.log(\`MODERATE=\${vulns.moderate || 0}\`);
+            console.log(\`LOW=\${vulns.low || 0}\`);
+          " > /tmp/vuln_vars.sh
+          
+          source /tmp/vuln_vars.sh
           
           echo "🚨 Critical: $CRITICAL"
           echo "⚠️ High: $HIGH"  
@@ -90,72 +103,115 @@ jobs:
           # Get all open Dependabot PRs
           gh pr list --author "app/dependabot" --json number,title,headRefName > /tmp/dependabot_prs.json
           
-          # Process each Dependabot PR
-          cat /tmp/dependabot_prs.json | jq -r '.[] | "\(.number)|\(.title)|\(.headRefName)"' | while IFS='|' read -r pr_number pr_title branch_name; do
-            echo "📋 Processing PR #$pr_number: $pr_title"
+          # Process each Dependabot PR using Node.js
+          node -e "
+            const fs = require('fs');
+            const { execSync } = require('child_process');
             
-            # Check if it's a patch or minor update
-            if echo "$pr_title" | grep -qE "(patch|minor)" && echo "$pr_title" | grep -qvE "(major|breaking)"; then
-              echo "✅ Auto-merging safe dependency update: PR #$pr_number"
+            let prs = [];
+            try {
+              prs = JSON.parse(fs.readFileSync('/tmp/dependabot_prs.json', 'utf8'));
+            } catch (e) {
+              console.log('No Dependabot PRs found');
+              process.exit(0);
+            }
+            
+            for (const pr of prs) {
+              console.log(\`📋 Processing PR #\${pr.number}: \${pr.title}\`);
               
-              # Wait for checks to complete
-              sleep 30
+              // Check if it's a patch or minor update
+              if (/patch|minor/i.test(pr.title) && !/major|breaking/i.test(pr.title)) {
+                console.log(\`✅ Auto-merging safe dependency update: PR #\${pr.number}\`);
+                
+                try {
+                  // Wait for checks to complete
+                  execSync('sleep 30');
+                  
+                  // Check PR status
+                  const prStatus = execSync(\`gh pr view \${pr.number} --json mergeable,mergeStateStatus\`, { encoding: 'utf8' });
+                  const status = JSON.parse(prStatus);
+                  
+                  if (status.mergeable === 'MERGEABLE' && status.mergeStateStatus === 'CLEAN') {
+                    execSync(\`gh pr merge \${pr.number} --auto --squash --delete-branch\`);
+                    console.log(\`🎉 Successfully auto-merged PR #\${pr.number}\`);
+                  } else {
+                    console.log(\`⏳ PR #\${pr.number} not ready for merge yet\`);
+                  }
+                } catch (error) {
+                  console.log(\`❌ Failed to merge PR #\${pr.number}: \${error.message}\`);
+                }
+              } else {
+                console.log(\`⚠️ Skipping major update PR #\${pr.number}\`);
+              }
+            }
+          "
               
-              # Check PR status
-              if gh pr view "$pr_number" --json mergeable,mergeStateStatus | jq -r '.mergeable == "MERGEABLE" and .mergeStateStatus == "CLEAN"' | grep -q true; then
-                gh pr merge "$pr_number" --auto --squash --delete-branch
-                echo "🎉 Successfully auto-merged PR #$pr_number"
-              else
-                echo "⏳ PR #$pr_number not ready for merge yet"
-              fi
-            else
-              echo "⚠️ Manual review required for PR #$pr_number (major update)"
-            fi
-          done
-
       - name: 📈 Dependency Health Report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "📊 Generating dependency health report..."
           
-          # Count packages
-          TOTAL_DEPS=$(npm list --json --depth=0 | jq '.dependencies | length')
-          OUTDATED_COUNT=$(cat /tmp/outdated.json | jq 'length')
-          
-          # Create health report
-          cat > /tmp/dependency-report.md << EOF
-          ## 📦 Dependency Health Report
-          
-          **Generated:** $(date)
-          **Repository:** ${{ github.repository }}
-          
-          ### 📊 Summary Statistics
-          - **Total Dependencies:** $TOTAL_DEPS
-          - **Outdated Packages:** $OUTDATED_COUNT
-          - **Security Vulnerabilities:** $(cat /tmp/audit.json | jq '.metadata.vulnerabilities.total // 0')
-          
-          ### 🛡️ Security Status
-          - **Critical:** $(cat /tmp/audit.json | jq '.metadata.vulnerabilities.critical // 0')
-          - **High:** $(cat /tmp/audit.json | jq '.metadata.vulnerabilities.high // 0')
-          - **Moderate:** $(cat /tmp/audit.json | jq '.metadata.vulnerabilities.moderate // 0')
-          - **Low:** $(cat /tmp/audit.json | jq '.metadata.vulnerabilities.low // 0')
-          
-          ### 🤖 Automated Actions Taken
-          - Dependabot PRs analyzed and processed
-          - Safe updates auto-merged
-          - Security vulnerabilities assessed
-          
-          ### 🎯 Recommendations
-          - Review any major version updates manually
-          - Monitor security advisory channels
-          - Keep dependencies up to date regularly
-          
-          **Status:** $(if [ $(cat /tmp/audit.json | jq '.metadata.vulnerabilities.critical // 0') -eq 0 ] && [ $(cat /tmp/audit.json | jq '.metadata.vulnerabilities.high // 0') -eq 0 ]; then echo "✅ Healthy"; else echo "⚠️ Attention Required"; fi)
-          EOF
-          
-          echo "📋 Dependency health report generated"
-          cat /tmp/dependency-report.md
+          # Count packages using Node.js
+          node -e "
+            const fs = require('fs');
+            
+            // Get dependency counts
+            let totalDeps = 0;
+            let outdatedCount = 0;
+            let auditData = {};
+            
+            try {
+              const packageData = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+              totalDeps = Object.keys(packageData.dependencies || {}).length + Object.keys(packageData.devDependencies || {}).length;
+            } catch (e) {
+              console.log('Could not read package.json');
+            }
+            
+            try {
+              const outdatedData = JSON.parse(fs.readFileSync('/tmp/outdated.json', 'utf8'));
+              outdatedCount = Object.keys(outdatedData).length;
+            } catch (e) {
+              outdatedCount = 0;
+            }
+            
+            try {
+              auditData = JSON.parse(fs.readFileSync('/tmp/audit.json', 'utf8'));
+            } catch (e) {
+              auditData = { metadata: { vulnerabilities: { total: 0, critical: 0, high: 0, moderate: 0, low: 0 } } };
+            }
+            
+            const vulns = auditData.metadata?.vulnerabilities || { total: 0, critical: 0, high: 0, moderate: 0, low: 0 };
+            const isHealthy = (vulns.critical || 0) === 0 && (vulns.high || 0) === 0;
+            
+            console.log('## 📦 Dependency Health Report');
+            console.log('');
+            console.log('**Generated:** ' + new Date().toISOString());
+            console.log('**Repository:** ${{ github.repository }}');
+            console.log('');
+            console.log('### 📊 Summary Statistics');
+            console.log('- **Total Dependencies:** ' + totalDeps);
+            console.log('- **Outdated Packages:** ' + outdatedCount);
+            console.log('- **Security Vulnerabilities:** ' + (vulns.total || 0));
+            console.log('');
+            console.log('### 🛡️ Security Status');
+            console.log('- **Critical:** ' + (vulns.critical || 0));
+            console.log('- **High:** ' + (vulns.high || 0));
+            console.log('- **Moderate:** ' + (vulns.moderate || 0));
+            console.log('- **Low:** ' + (vulns.low || 0));
+            console.log('');
+            console.log('### 🤖 Automated Actions Taken');
+            console.log('- Dependabot PRs analyzed and processed');
+            console.log('- Safe updates auto-merged');
+            console.log('- Security vulnerabilities assessed');
+            console.log('');
+            console.log('### 🎯 Recommendations');
+            console.log('- Review any major version updates manually');
+            console.log('- Monitor security advisory channels');
+            console.log('- Keep dependencies up to date regularly');
+            console.log('');
+            console.log('**Status:** ' + (isHealthy ? '✅ Healthy' : '⚠️ Attention Required'));
+          "
 
       - name: 🔄 Update Package Metadata
         run: |
@@ -181,6 +237,22 @@ jobs:
         run: |
           echo "🚨 Creating security alert issue..."
           
+          # Get vulnerability counts using Node.js
+          VULN_INFO=$(node -e "
+            const fs = require('fs');
+            let auditData = {};
+            try {
+              auditData = JSON.parse(fs.readFileSync('/tmp/audit.json', 'utf8'));
+            } catch (e) {
+              auditData = { metadata: { vulnerabilities: { critical: 0, high: 0 } } };
+            }
+            const vulns = auditData.metadata?.vulnerabilities || { critical: 0, high: 0 };
+            console.log('CRITICAL=' + (vulns.critical || 0));
+            console.log('HIGH=' + (vulns.high || 0));
+          ")
+          
+          eval "$VULN_INFO"
+          
           # Create security issue if vulnerabilities found
           gh issue create \
             --title "🚨 Security Alert: Dependency Vulnerabilities Detected" \
@@ -192,8 +264,8 @@ jobs:
           ### 📋 Details
           - **Detection Time:** $(date)
           - **Workflow:** ${{ github.workflow }}
-          - **Critical Vulnerabilities:** $(cat /tmp/audit.json | jq '.metadata.vulnerabilities.critical // 0')
-          - **High Vulnerabilities:** $(cat /tmp/audit.json | jq '.metadata.vulnerabilities.high // 0')
+          - **Critical Vulnerabilities:** $CRITICAL
+          - **High Vulnerabilities:** $HIGH
 
           ### 🎯 Required Actions
           - [ ] Review npm audit output
