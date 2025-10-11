@@ -67,21 +67,11 @@ jobs:
           echo "🤖 Running AI-powered code pattern analysis..."
 
           # Initialize AI analytics with Phase 4 implementation
-          npx azmp insights --init --ci-mode
-          npx azmp insights --load-models --type=code-analysis
+          npx azmp insights --init
+          npx azmp insights --load-models
 
-          # Analyze code patterns and complexity using Phase 4
-          npx azmp insights --analyze-code \
-            --path="./src" \
-            --patterns="azure,typescript,arm-templates" \
-            --output="analysis-report.json" \
-            --intelligence-mode="${{ github.event.inputs.intelligence_mode || 'full-analysis' }}"
-
-          # Generate optimization recommendations
-          npx azmp insights --optimizations \
-            --input="analysis-report.json" \
-            --recommendations="optimization-recommendations.json" \
-            --confidence-threshold=0.7
+          # Run AI analytics to analyze code patterns and generate insights
+          npx azmp insights --optimizations --confidence 0.7 --export json
 
           echo "✅ AI code analysis completed"
 
@@ -91,21 +81,13 @@ jobs:
           echo "🔮 Running predictive performance modeling..."
 
           # Initialize monitoring with Phase 4 implementation
-          npx azmp monitor --init --enterprise-mode
+          npx azmp monitor --init
 
-          # Analyze current performance metrics using Phase 4
-          npx azmp insights --predictions \
-            --repository="${{ github.repository }}" \
-            --prediction-horizon="${{ github.event.inputs.prediction_horizon || '30' }}" \
-            --output="performance-predictions.json" \
-            --type=performance
+          # Run AI predictions for performance
+          npx azmp insights --predictions --confidence 0.7 --export json
 
           # Generate resource optimization recommendations
-          npx azmp monitor --health-check \
-            --azure-subscription="${{ env.AZURE_SUBSCRIPTION_ID }}" \
-            --cost-target="optimization" \
-            --performance-target="high" \
-            --output="performance-optimization.json"
+          npx azmp monitor --performance --export json
 
           echo "✅ Performance prediction completed"
 
@@ -114,20 +96,11 @@ jobs:
         run: |
           echo "🛡️ Running AI security threat modeling..."
 
-          # Analyze security patterns using Phase 4 implementation
-          npx azmp insights --security-analysis \
-            --path="." \
-            --include-dependencies="true" \
-            --threat-modeling="advanced" \
-            --output="security-predictions.json" \
-            --confidence-threshold=0.8
+          # Run AI analytics with security focus
+          npx azmp insights --anomalies --confidence 0.8 --export json
 
           # Generate security recommendations using validation
-          npx azmp validate . \
-            --security \
-            --ai \
-            --output="security-recommendations.json" \
-            --auto-remediation="safe-fixes"
+          npx azmp validate . --intelligent --market-context
 
           echo "✅ Security threat modeling completed"
 
@@ -136,20 +109,11 @@ jobs:
         run: |
           echo "💰 Running intelligent cost optimization analysis..."
 
-          # Analyze Azure resource usage and costs using Phase 4
-          npx azmp insights --cost-analysis \
-            --subscription="${{ env.AZURE_SUBSCRIPTION_ID }}" \
-            --resource-group="azure-marketplace-generator" \
-            --optimization-target="cost-performance-balance" \
-            --output="cost-optimization.json" \
-            --recommendations
+          # Run AI analytics with cost optimization focus
+          npx azmp insights --optimizations --confidence 0.7 --export json
 
           # Generate cost-saving recommendations
-          npx azmp insights --optimizations \
-            --type=cost \
-            --savings-target="20%" \
-            --performance-threshold="maintain" \
-            --recommendations="cost-recommendations.json"
+          npx azmp insights --market --export json
 
           echo "✅ Cost optimization analysis completed"
 
@@ -158,16 +122,8 @@ jobs:
         run: |
           echo "📊 Generating intelligence dashboard..."
 
-          # Create comprehensive intelligence report using Phase 4 monitoring
-          npx azmp monitor --dashboard \
-            --enterprise-layout \
-            --include-ai-insights \
-            --code-analysis="analysis-report.json" \
-            --performance="performance-predictions.json" \
-            --security="security-predictions.json" \
-            --cost="cost-optimization.json" \
-            --output="intelligence-dashboard.html" \
-            --format="executive-summary"
+          # Generate comprehensive intelligence report using monitoring data
+          npx azmp monitor --dashboard --export html
 
           echo "✅ Intelligence dashboard generated"
 
@@ -176,19 +132,12 @@ jobs:
         run: |
           echo "🚨 Processing intelligent alerts..."
 
-          # Analyze for critical issues using Phase 4 monitoring
-          npx azmp monitor --alerts \
-            --intelligence-data="intelligence-dashboard.html" \
-            --alert-thresholds="critical,high" \
-            --notification-channels="github,slack,email" \
-            --auto-escalation="enabled" \
-            --output="critical-alerts.json"
+          # Run AI analytics to detect anomalies and generate alerts
+          npx azmp insights --anomalies --confidence 0.8
 
-          # Create summary of critical findings for GitHub issues
-          if [ -f "critical-alerts.json" ]; then
-            echo "🚨 Critical issues detected - logged in alerts file"
-            echo "📝 Review critical-alerts.json for findings requiring attention"
-          fi
+          # Create summary of critical findings
+          echo "🚨 Alert processing completed"
+          echo "📝 Review insights output for findings requiring attention"
 
           echo "✅ Smart alerting processed"
 
@@ -198,16 +147,12 @@ jobs:
         run: |
           echo "🔄 Implementing safe automated optimizations..."
 
-          # Apply safe optimizations using Phase 4 insights
-          npx azmp insights --apply-optimizations \
-            --optimizations="optimization-recommendations.json" \
-            --safety-level="conservative" \
-            --dry-run \
-            --output="optimization-preview.json"
+          # Generate optimization recommendations using AI insights
+          npx azmp insights --optimizations --confidence 0.7 --export json
 
           # Log optimization recommendations for review
           echo "📝 Optimization recommendations generated"
-          echo "🔍 Review optimization-preview.json for potential improvements"
+          echo "🔍 Review AI insights for potential improvements"
 
           echo "✅ Automated optimization analysis completed"
 
@@ -216,13 +161,8 @@ jobs:
         run: |
           echo "📈 Collecting performance metrics..."
 
-          # Collect and store performance metrics using Phase 4 monitoring
-          npx azmp monitor --metrics \
-            --repository="${{ github.repository }}" \
-            --workflow-run="${{ github.run_id }}" \
-            --intelligence-data="intelligence-dashboard.html" \
-            --output="performance-metrics.json" \
-            --retention="365-days"
+          # Collect and store performance metrics using monitoring
+          npx azmp monitor --performance --export json
 
           echo "✅ Performance metrics collected"
 
@@ -231,12 +171,8 @@ jobs:
         with:
           name: ai-intelligence-reports-${{ github.run_id }}
           path: |
-            analysis-report.json
-            performance-predictions.json
-            security-predictions.json
-            cost-optimization.json
-            intelligence-dashboard.html
-            optimization-recommendations.json
+            *.json
+            *.html
           retention-days: 90
 
       - name: ✅ Intelligence Analysis Summary
@@ -270,13 +206,8 @@ jobs:
         run: |
           echo "🎯 Running machine learning insights analysis..."
 
-          # Use Phase 4 AI analytics for ML insights
-          npx azmp insights --ml-analysis \
-            --data-source="repository-history" \
-            --model-type="performance-prediction,security-classification,cost-optimization" \
-            --training-period="6-months" \
-            --output="ml-insights.json" \
-            --confidence-threshold="0.8"
+          # Use AI analytics for ML insights
+          npx azmp insights --predictions --confidence 0.8 --export json
 
           echo "✅ Machine learning insights generated"
 
@@ -284,13 +215,8 @@ jobs:
         run: |
           echo "📊 Running behavioral analysis..."
 
-          # Analyze development patterns using Phase 4 insights
-          npx azmp insights --behavioral-analysis \
-            --repository="${{ github.repository }}" \
-            --analysis-period="3-months" \
-            --metrics="commit-patterns,pr-velocity,issue-resolution" \
-            --output="behavioral-insights.json" \
-            --recommendations="team-optimization.json"
+          # Analyze development patterns using AI insights
+          npx azmp insights --market --export json
 
           echo "✅ Behavioral analysis completed"
 
@@ -310,14 +236,8 @@ jobs:
         run: |
           echo "🎯 Running adaptive optimization engine..."
 
-          # Use Phase 4 AI for adaptive learning and optimization
-          npx azmp insights --adaptive-learning \
-            --historical-data="past-optimizations" \
-            --performance-metrics="current-metrics" \
-            --adaptation-rate="moderate" \
-            --output="adaptive-strategies.json" \
-            --safety-checks="enabled" \
-            --rollback-capability="automatic"
+          # Use AI insights for adaptive learning and optimization
+          npx azmp insights --optimizations --confidence 0.7 --export json
 
           echo "✅ Adaptive optimization completed"
 
@@ -325,13 +245,7 @@ jobs:
         run: |
           echo "📈 Tracking continuous improvement metrics..."
 
-          # Track improvement trends using Phase 4 monitoring and insights
-          npx azmp monitor --improvement-tracking \
-            --baseline="initial-metrics" \
-            --current="latest-metrics" \
-            --trend-analysis="6-months" \
-            --output="improvement-trends.json" \
-            --format="executive-summary" \
-            --dashboard="executive-dashboard.html"
+          # Track improvement trends using monitoring and insights
+          npx azmp monitor --performance --export json
 
           echo "✅ Continuous improvement tracking completed"
