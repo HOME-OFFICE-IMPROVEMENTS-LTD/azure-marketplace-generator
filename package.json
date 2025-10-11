@@ -13,6 +13,7 @@
     "test": "jest",
     "test:security": "./scripts/security-scan.sh",
     "test:all": "npm run test && npm run test:security",
+    "security-scan": "./scripts/security-scan.sh",
     "pre-launch": "./scripts/pre-launch-checklist.sh",
     "lint": "eslint src/**/*.ts --max-warnings 150",
     "audit:fix": "npm audit fix",

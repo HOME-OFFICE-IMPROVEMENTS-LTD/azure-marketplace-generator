@@ -4,7 +4,6 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import chalk from 'chalk';
 
-const execAsync = promisify(exec);
 
 // Types for AI analytics
 export interface AIAnalyticsConfig {
@@ -230,7 +229,7 @@ export class AIAnalyticsService {
       this.config = JSON.parse(configContent);
       return this.config!;
     } catch (_error) {
-      throw new Error(`Failed to load AI analytics configuration: ${error}`);
+      throw new Error(`Failed to load AI analytics configuration: ${_error}`);
     }
   }
 
@@ -239,7 +238,7 @@ export class AIAnalyticsService {
       await fs.writeFile(this.configPath, JSON.stringify(config, null, 2));
       this.config = config;
     } catch (_error) {
-      throw new Error(`Failed to save AI analytics configuration: ${error}`);
+      throw new Error(`Failed to save AI analytics configuration: ${_error}`);
     }
   }
 

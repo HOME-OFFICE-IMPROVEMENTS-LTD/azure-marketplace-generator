@@ -27,8 +27,8 @@ async function runAzureCommand(args: string[]): Promise<string> {
       }
     });
 
-    process.on('error', (error) => {
-      reject(error);
+    process.on('error', (_error) => {
+      reject(_error);
     });
   });
 }
@@ -399,7 +399,7 @@ export class EnterpriseMonitoringService {
 
       return this.config!;
     } catch (_error) {
-      throw new Error(`Failed to load monitoring configuration: ${error}`);
+      throw new Error(`Failed to load monitoring configuration: ${_error}`);
     }
   }
 
@@ -408,7 +408,7 @@ export class EnterpriseMonitoringService {
       await fs.writeFile(this.configPath, JSON.stringify(config, null, 2));
       this.config = config;
     } catch (_error) {
-      throw new Error(`Failed to save monitoring configuration: ${error}`);
+      throw new Error(`Failed to save monitoring configuration: ${_error}`);
     }
   }
 
@@ -491,7 +491,7 @@ export class EnterpriseMonitoringService {
 
       return applications;
     } catch (_error) {
-      throw new Error(`Failed to discover applications: ${error}`);
+      throw new Error(`Failed to discover applications: ${_error}`);
     }
   }
 
@@ -660,7 +660,7 @@ export class EnterpriseMonitoringService {
 
       return result;
     } catch (_error) {
-      throw new Error(`Failed to run monitoring: ${error}`);
+      throw new Error(`Failed to run monitoring: ${_error}`);
     }
   }
 
@@ -719,7 +719,7 @@ export class EnterpriseMonitoringService {
         name: check.name,
         status: responseTime >= check.timeout ? 'timeout' : 'fail',
         responseTime,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: (_error instanceof Error) ? (_error as Error).message : 'Unknown error',
         timestamp: new Date()
       };
     }
@@ -998,7 +998,7 @@ export class EnterpriseMonitoringService {
       await fs.writeFile(reportPath, JSON.stringify(result, null, 2));
       console.log(chalk.green(`📊 Monitoring report saved: ${reportPath}`));
     } catch (_error) {
-      console.error(chalk.red(`Failed to save monitoring report: ${error}`));
+      console.error(chalk.red(`Failed to save monitoring report: ${_error}`));
     }
   }
 

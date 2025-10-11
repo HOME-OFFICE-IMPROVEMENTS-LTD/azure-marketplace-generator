@@ -117,7 +117,7 @@ export class AutoDeploymentService {
       };
 
     } catch (error: any) {
-      console.error(chalk.red('❌ Auto-deployment failed:'), error.message);
+      console.error(chalk.red('❌ Auto-deployment failed:'), (_error as Error).message);
 
       return {
         success: false,
@@ -226,7 +226,7 @@ export class AutoDeploymentService {
 
       return finalPath;
     } catch (_error) {
-      console.warn(chalk.yellow(`⚠️ Error processing ZIP entry ${entryName}: ${error}`));
+      console.warn(chalk.yellow(`⚠️ Error processing ZIP entry ${entryName}: ${_error}`));
       return null;
     }
   }
@@ -321,8 +321,8 @@ export class AutoDeploymentService {
 
       return deployment.id;
     } catch (error: any) {
-      console.error(chalk.red('❌ Deployment failed:'), error.message);
-      throw new Error(`Deployment execution failed: ${error.message}`);
+      console.error(chalk.red('❌ Deployment failed:'), (_error as Error).message);
+      throw new Error(`Deployment execution failed: ${(_error as Error).message}`);
     }
   }
 
@@ -344,7 +344,7 @@ export class AutoDeploymentService {
         name: 'Resource Group Access',
         status: 'failed',
         message: 'Cannot access resource group',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: (_error instanceof Error) ? (_error as Error).message : 'Unknown error'
       });
     }
 
@@ -376,7 +376,7 @@ export class AutoDeploymentService {
         name: 'Managed Application Status',
         status: 'failed',
         message: 'Cannot retrieve application status',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: (_error instanceof Error) ? (_error as Error).message : 'Unknown error'
       });
     }
 
@@ -461,8 +461,8 @@ export class AutoDeploymentService {
         }
       });
 
-      process.on('error', (error) => {
-        reject(error);
+      process.on('error', (_error) => {
+        reject(_error);
       });
     });
   }

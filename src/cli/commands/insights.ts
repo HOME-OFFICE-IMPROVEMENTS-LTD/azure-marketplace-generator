@@ -349,12 +349,12 @@ function displayOptimizations(_optimizations: any[]): void {
   console.log(chalk.blue('⚡ AI OPTIMIZATIONS'));
   console.log(chalk.blue('-'.repeat(25)));
 
-  if (optimizations.length === 0) {
+  if (_optimizations.length === 0) {
     console.log(chalk.green('✅ No optimization opportunities identified'));
     return;
   }
 
-  for (const opt of optimizations) {
+  for (const opt of _optimizations) {
     console.log(chalk.yellow(`\n🚀 ${opt.strategy.toUpperCase()} OPTIMIZATION`));
     console.log(chalk.blue(`   🎯 Type: ${opt.type}`));
     
