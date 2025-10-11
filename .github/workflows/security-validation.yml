@@ -13,18 +13,18 @@ permissions:
 
 env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  
+
 jobs:
   security-compliance:
     name: 🏢 HOILTD Security Compliance
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # v4.1.7
       with:
         persist-credentials: false
-        
+
     - name: 🔍 Comprehensive Secrets Scanning
       run: |
         echo "🔍 Scanning entire repository for hardcoded secrets..."
@@ -34,7 +34,7 @@ jobs:
         ACCESS_PATTERN="accessKey"
         ACCOUNT_PATTERN="AccountKey"
         ENDPOINT_PATTERN="DefaultEndpointsProtocol=https"
-        
+
         if grep -r "${CONNECTION_PATTERN}\|${PRIMARY_PATTERN}\|${ACCESS_PATTERN}\|${ACCOUNT_PATTERN}\|${ENDPOINT_PATTERN}" \
              --include="*.json" --include="*.js" --include="*.ts" \
              --exclude-dir=".github" \
@@ -47,12 +47,12 @@ jobs:
         else
           echo "✅ No hardcoded secrets found - HOILTD compliant"
         fi
-    
-    - name: 🔐 Azure Login (SSO Integration) 
+
+    - name: 🔐 Azure Login (SSO Integration)
       uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS_MPN }}
-        
+
     - name: 🛡️ ARM-TTK Security Validation
       run: |
         echo "🛡️ Running ARM-TTK Security Validation..."
@@ -60,30 +60,30 @@ jobs:
         git clone https://github.com/Azure/arm-ttk.git /tmp/arm-ttk
         # Run ARM-TTK tests against azure-deployment directory
         if [ -d "./azure-deployment" ]; then
-          pwsh -c "Import-Module /tmp/arm-ttk/arm-ttk.psd1; Test-AzTemplate -TemplatePath './azure-deployment' -Test 'Outputs Must Not Contain Secrets'"
+          pwsh -c "Import-Module /tmp/arm-ttk/arm-ttk/arm-ttk.psd1; Test-AzTemplate -TemplatePath './azure-deployment' -Test 'Outputs Must Not Contain Secrets'"
         else
           echo "✅ No azure-deployment directory found - skipping ARM template validation"
         fi
-        
+
     - name: 📦 Node.js Setup
       uses: actions/setup-node@89d709d423dc495668cd762a18dd4a070611be3f # v4.0.4
       with:
         node-version: '18'
         cache: 'npm'
-        
+
     - name: 📋 Dependencies Security Audit
       run: |
         npm ci
         npm audit --audit-level moderate
-        
+
     - name: 🔧 TypeScript Strict Compilation
       run: |
         npm run build
-        
+
     - name: 🧪 Security Tests
       run: |
         npm test -- --passWithNoTests
-        
+
     - name: ✅ Enterprise Compliance Summary
       run: |
         echo "🏢 HOME-OFFICE-IMPROVEMENTS-LTD Security Validation Complete"
