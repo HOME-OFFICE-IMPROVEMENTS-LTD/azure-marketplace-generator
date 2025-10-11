@@ -39,7 +39,7 @@ global.testUtils = {
     jest.spyOn(console, 'error').mockImplementation()
     jest.spyOn(console, 'warn').mockImplementation()
   },
-  
+
   restoreConsole: () => {
     jest.restoreAllMocks()
   }
