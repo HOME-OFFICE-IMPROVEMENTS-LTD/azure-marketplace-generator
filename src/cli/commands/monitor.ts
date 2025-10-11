@@ -16,6 +16,7 @@ export const monitorCommand = new Command('monitor')
   .option('--performance', 'Show performance report')
   .option('--compliance', 'Show compliance report')
   .option('--recommendations', 'Show optimization recommendations')
+  .option('--workflows', 'Monitor GitHub Actions workflow status')
   .option('--export <format>', 'Export report (json|pdf|excel)', 'json')
   .option('--watch', 'Continuous monitoring mode')
   .option('--interval <minutes>', 'Monitoring interval in minutes', '5')
@@ -23,6 +24,12 @@ export const monitorCommand = new Command('monitor')
     try {
       console.log(chalk.blue.bold('🚀 Enterprise Monitoring & Analytics'));
       console.log(chalk.blue('='.repeat(50)));
+
+      // Handle workflow monitoring
+      if (options.workflows) {
+        await monitorWorkflows(options);
+        return;
+      }
 
       const monitoringService = new EnterpriseMonitoringService(options.config);
 
@@ -446,5 +453,161 @@ async function exportReport(result: any, format: string): Promise<void> {
     console.log(chalk.green(`✅ Report exported: ${filename}`));
   } catch (error) {
     console.error(chalk.red(`❌ Export failed: ${error}`));
+  }
+}
+
+async function monitorWorkflows(options: any): Promise<void> {
+  console.log(chalk.blue('🔄 GitHub Actions Workflow Monitor'));
+  console.log(chalk.blue('='.repeat(40)));
+
+  try {
+    // Get current repository info from git
+    const { execSync } = require('child_process');
+    
+    let repoUrl: string;
+    let owner: string;
+    let repo: string;
+    
+    try {
+      repoUrl = execSync('git config --get remote.origin.url', { encoding: 'utf8' }).trim();
+      const match = repoUrl.match(/github\.com[:/]([^/]+)\/([^/.]+)/);
+      if (match) {
+        owner = match[1];
+        repo = match[2];
+      } else {
+        throw new Error('Could not parse repository URL');
+      }
+    } catch (error) {
+      console.log(chalk.red('❌ Could not determine repository info from git'));
+      console.log(chalk.yellow('💡 Make sure you are in a git repository with GitHub remote'));
+      return;
+    }
+
+    console.log(chalk.blue(`📍 Repository: ${owner}/${repo}`));
+    console.log(chalk.blue('⏳ Fetching workflow runs...\n'));
+
+    // Use GitHub CLI if available
+    let workflowData: any;
+    try {
+      const ghOutput = execSync(`gh run list --repo ${owner}/${repo} --limit 10 --json status,conclusion,workflowName,createdAt,headBranch,url`, { encoding: 'utf8' });
+      workflowData = JSON.parse(ghOutput);
+    } catch (error) {
+      console.log(chalk.red('❌ GitHub CLI not available or not authenticated'));
+      console.log(chalk.yellow('💡 Install GitHub CLI: https://cli.github.com/'));
+      console.log(chalk.yellow('💡 Then run: gh auth login'));
+      return;
+    }
+
+    if (!workflowData || workflowData.length === 0) {
+      console.log(chalk.yellow('⚠️  No workflow runs found'));
+      return;
+    }
+
+    // Display workflow status
+    console.log(chalk.blue('📊 Recent Workflow Runs:'));
+    console.log(chalk.blue('-'.repeat(30)));
+
+    let healthyCount = 0;
+    let failedCount = 0;
+    let inProgressCount = 0;
+
+    for (const run of workflowData) {
+      const status = run.status;
+      const conclusion = run.conclusion;
+      const name = run.workflowName;
+      const branch = run.headBranch;
+      const createdAt = new Date(run.createdAt).toLocaleString();
+      
+      let statusIcon = '';
+      let statusColor = chalk.gray;
+      
+      if (status === 'completed') {
+        if (conclusion === 'success') {
+          statusIcon = '✅';
+          statusColor = chalk.green;
+          healthyCount++;
+        } else if (conclusion === 'failure') {
+          statusIcon = '❌';
+          statusColor = chalk.red;
+          failedCount++;
+        } else if (conclusion === 'cancelled') {
+          statusIcon = '⏹️';
+          statusColor = chalk.yellow;
+        } else {
+          statusIcon = '⚠️';
+          statusColor = chalk.yellow;
+          failedCount++;
+        }
+      } else {
+        statusIcon = '🔄';
+        statusColor = chalk.blue;
+        inProgressCount++;
+      }
+
+      console.log(statusColor(`${statusIcon} ${name}`));
+      console.log(chalk.gray(`   Branch: ${branch} | ${createdAt}`));
+      if (run.url) {
+        console.log(chalk.gray(`   URL: ${run.url}`));
+      }
+      console.log('');
+    }
+
+    // Summary
+    console.log(chalk.blue('📈 Summary:'));
+    console.log(chalk.green(`   ✅ Successful: ${healthyCount}`));
+    console.log(chalk.red(`   ❌ Failed: ${failedCount}`));
+    console.log(chalk.blue(`   🔄 In Progress: ${inProgressCount}`));
+    
+    const totalCompleted = healthyCount + failedCount;
+    if (totalCompleted > 0) {
+      const successRate = Math.round((healthyCount / totalCompleted) * 100);
+      const rateColor = successRate >= 80 ? chalk.green : successRate >= 50 ? chalk.yellow : chalk.red;
+      console.log(rateColor(`   📊 Success Rate: ${successRate}%`));
+    }
+
+    // Recommendations
+    if (failedCount > 0) {
+      console.log(chalk.yellow('\n💡 Recommendations:'));
+      console.log(chalk.yellow('   • Check failed workflow logs for specific errors'));
+      console.log(chalk.yellow('   • Verify all dependencies are up to date'));
+      console.log(chalk.yellow('   • Consider running workflows locally with act'));
+    }
+
+    // Continuous monitoring option
+    if (options.watch) {
+      console.log(chalk.blue('\n🔄 Starting continuous workflow monitoring...'));
+      console.log(chalk.gray('Press Ctrl+C to stop\n'));
+      
+      while (true) {
+        await new Promise(resolve => setTimeout(resolve, parseInt(options.interval) * 60 * 1000));
+        
+        const timestamp = new Date().toLocaleString();
+        console.log(chalk.blue(`\n🔄 Checking workflows - ${timestamp}`));
+        
+        try {
+          const newGhOutput = execSync(`gh run list --repo ${owner}/${repo} --limit 5 --json status,conclusion,workflowName,createdAt`, { encoding: 'utf8' });
+          const newWorkflowData = JSON.parse(newGhOutput);
+          
+          const running = newWorkflowData.filter((run: any) => run.status === 'in_progress').length;
+          const recentFailures = newWorkflowData.filter((run: any) => 
+            run.status === 'completed' && run.conclusion === 'failure'
+          ).length;
+          
+          if (recentFailures > 0) {
+            console.log(chalk.red(`   ❌ ${recentFailures} recent failures detected`));
+          } else if (running > 0) {
+            console.log(chalk.blue(`   🔄 ${running} workflows running`));
+          } else {
+            console.log(chalk.green('   ✅ All workflows healthy'));
+          }
+        } catch (error) {
+          console.log(chalk.red(`   ❌ Error checking workflows: ${error}`));
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error(chalk.red('❌ Workflow monitoring failed:'), error);
+    process.exit(1);
   }
 }
