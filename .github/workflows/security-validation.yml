@@ -56,9 +56,14 @@ jobs:
     - name: 🛡️ ARM-TTK Security Validation
       run: |
         echo "🛡️ Running ARM-TTK Security Validation..."
-        # Install ARM-TTK via PowerShell Gallery (secure)
-        pwsh -c "Install-Module -Name arm-ttk -Force -Scope CurrentUser"
-        pwsh -c "Import-Module arm-ttk; Test-AzTemplate -TemplatePath './azure-deployment' -Test 'Outputs Must Not Contain Secrets'"
+        # Clone ARM-TTK from official Microsoft repository
+        git clone https://github.com/Azure/arm-ttk.git /tmp/arm-ttk
+        # Run ARM-TTK tests against azure-deployment directory
+        if [ -d "./azure-deployment" ]; then
+          pwsh -c "Import-Module /tmp/arm-ttk/arm-ttk.psd1; Test-AzTemplate -TemplatePath './azure-deployment' -Test 'Outputs Must Not Contain Secrets'"
+        else
+          echo "✅ No azure-deployment directory found - skipping ARM template validation"
+        fi
         
     - name: 📦 Node.js Setup
       uses: actions/setup-node@89d709d423dc495668cd762a18dd4a070611be3f # v4.0.4
