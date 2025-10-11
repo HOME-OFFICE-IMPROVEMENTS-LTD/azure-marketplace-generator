@@ -50,17 +50,15 @@ jobs:
     
     - name: 🔐 Azure Login (SSO Integration) 
       uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
-      if: false  # Disabled until Azure credentials are configured
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
         
     - name: 🛡️ ARM-TTK Security Validation
-      if: false  # Disabled until Azure credentials are configured
       run: |
         echo "🛡️ Running ARM-TTK Security Validation..."
         # Install ARM-TTK via PowerShell Gallery (secure)
         pwsh -c "Install-Module -Name arm-ttk -Force -Scope CurrentUser"
-        pwsh -c "Import-Module arm-ttk; Test-AzTemplate -TemplatePath './packages/marketplace' -Test 'Outputs Must Not Contain Secrets'"
+        pwsh -c "Import-Module arm-ttk; Test-AzTemplate -TemplatePath './azure-deployment' -Test 'Outputs Must Not Contain Secrets'"
         
     - name: 📦 Node.js Setup
       uses: actions/setup-node@89d709d423dc495668cd762a18dd4a070611be3f # v4.0.4
@@ -84,7 +82,8 @@ jobs:
     - name: ✅ Enterprise Compliance Summary
       run: |
         echo "🏢 HOME-OFFICE-IMPROVEMENTS-LTD Security Validation Complete"
-        echo "✅ ARM-TTK Security Tests: Passed (will enable when Azure configured)"
+        echo "✅ ARM-TTK Security Tests: Enabled and Running"
+        echo "✅ Azure Authentication: Enterprise SSO Integrated"
         echo "✅ Secrets Scanning: Clean"
         echo "✅ Dependency Audit: Secure"
         echo "✅ TypeScript Compilation: Strict Mode"

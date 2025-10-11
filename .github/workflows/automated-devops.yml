@@ -25,7 +25,7 @@ jobs:
       pull-requests: write
       security-events: write
       actions: read
-      
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v5
@@ -42,20 +42,20 @@ jobs:
       - name: 📦 Install Dependencies
         run: |
           npm ci
-          npm install -g @microsoft/mcp-cli
+          npm run build
 
       - name: 🛡️ Enterprise Security Scan
         run: |
           echo "🔍 Running comprehensive security analysis..."
-          
+
           # Check for secrets exposure
           if command -v gitleaks &> /dev/null; then
             gitleaks detect --source . --verbose || echo "⚠️ Gitleaks not available"
           fi
-          
+
           # Audit npm dependencies
           npm audit --audit-level=moderate
-          
+
           # Check for outdated packages
           npm outdated || echo "📊 Dependency status checked"
 
@@ -64,13 +64,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "🩺 Validating MCP server configuration..."
-          
+
           # Validate MCP configuration schema
           if [ -f ".github/copilot-mcp-config.json" ]; then
             echo "✅ MCP configuration found"
-            # Basic JSON validation
-            cat .github/copilot-mcp-config.json | jq . > /dev/null
-            echo "✅ MCP configuration is valid JSON"
+            # Basic JSON validation using Node.js (already available)
+            node -e "JSON.parse(require('fs').readFileSync('.github/copilot-mcp-config.json', 'utf8')); console.log('✅ MCP configuration is valid JSON');"
           else
             echo "❌ MCP configuration missing"
             exit 1
@@ -81,16 +80,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "📈 Analyzing repository health..."
-          
+
           # Check branch protection status
           echo "🛡️ Branch protection status:"
           gh api repos/${{ github.repository }}/branches/main/protection || echo "⚠️ Branch protection check failed"
-          
-          # Count open PRs and issues
+
+          # Count open PRs and issues (using wc instead of jq)
           echo "📋 Open items summary:"
-          echo "Pull Requests: $(gh pr list --json number | jq length)"
-          echo "Issues: $(gh issue list --json number | jq length)"
-          
+          echo "Pull Requests: $(gh pr list --json number --jq length 2>/dev/null || gh pr list | wc -l)"
+          echo "Issues: $(gh issue list --json number --jq length 2>/dev/null || gh issue list | wc -l)"
+
           # Check workflow status
           echo "⚡ Recent workflow runs:"
           gh run list --limit 5 --json status,conclusion,name
@@ -100,14 +99,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "🧹 Performing automated cleanup..."
-          
-          # Clean up old workflow runs (keep last 50)
+
+          # Clean up old workflow runs (keep last 50) - simplified to avoid jq dependency
           echo "🗑️ Cleaning old workflow runs..."
-          gh run list --status success --limit 100 --json databaseId --jq '.[50:][].databaseId' | \
+          # Use basic gh command without jq dependency
+          gh run list --status success --limit 100 | tail -n +51 | awk '{print $7}' | \
           while read -r run_id; do
-            gh run delete "$run_id" 2>/dev/null || true
+            [ -n "$run_id" ] && gh run delete "$run_id" 2>/dev/null || true
           done
-          
+
           # Archive closed branches (except main/develop)
           echo "🗂️ Checking for stale branches..."
           git remote prune origin
@@ -115,15 +115,15 @@ jobs:
       - name: 📈 Performance Analytics
         run: |
           echo "⚡ Analyzing performance metrics..."
-          
+
           # Check repository size
           echo "💾 Repository size analysis:"
           du -sh .git
-          
+
           # Check for large files
           echo "📁 Large files check:"
           find . -type f -size +1M -not -path "./.git/*" | head -10 || echo "No large files found"
-          
+
           # Count lines of code
           echo "📝 Code metrics:"
           find . -name "*.ts" -o -name "*.js" -o -name "*.json" | grep -v node_modules | xargs wc -l | tail -1
@@ -133,7 +133,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "🎯 Managing automated tasks..."
-          
+
           # Create performance report issue if needed
           if ! gh issue list --label "automated-report" --state open | grep -q "Weekly Performance Report"; then
             gh issue create \
@@ -145,7 +145,7 @@ jobs:
 
           ### 📈 Key Metrics
           - Repository health: Analyzed
-          - Security status: Scanned  
+          - Security status: Scanned
           - Dependencies: Audited
           - MCP integration: Validated
 
@@ -155,8 +155,8 @@ jobs:
           - [ ] Update dependencies if needed
           - [ ] Optimize workflow performance
 
-          **Generated by:** Automated DevOps Workflow  
-          **Date:** $(date)  
+          **Generated by:** Automated DevOps Workflow
+          **Date:** $(date)
           **Frequency:** Weekly"
           fi
 
@@ -166,31 +166,31 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "📢 Generating notification summary..."
-          
+
           # Create summary
           cat > /tmp/devops-summary.md << 'EOF'
           ## 🤖 Automated DevOps Summary
-          
+
           **Execution Time:** $(date)
           **Repository:** ${{ github.repository }}
           **Workflow:** ${{ github.workflow }}
-          
+
           ### ✅ Completed Operations
           - Enterprise security scan
-          - MCP integration health check  
+          - MCP integration health check
           - Repository health metrics
           - Automated cleanup operations
           - Performance analytics
           - Issue management automation
-          
+
           ### 📊 Key Findings
           - Security status: Scanned successfully
           - MCP configuration: Validated
           - Dependencies: Audited
           - Performance: Analyzed
-          
+
           **Status:** All systems operational ✅
           EOF
-          
+
           echo "📋 DevOps automation completed successfully!"
           cat /tmp/devops-summary.md
