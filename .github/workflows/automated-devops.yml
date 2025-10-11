@@ -68,9 +68,8 @@ jobs:
           # Validate MCP configuration schema
           if [ -f ".github/copilot-mcp-config.json" ]; then
             echo "✅ MCP configuration found"
-            # Basic JSON validation
-            cat .github/copilot-mcp-config.json | jq . > /dev/null
-            echo "✅ MCP configuration is valid JSON"
+            # Basic JSON validation using Node.js (already available)
+            node -e "JSON.parse(require('fs').readFileSync('.github/copilot-mcp-config.json', 'utf8')); console.log('✅ MCP configuration is valid JSON');"
           else
             echo "❌ MCP configuration missing"
             exit 1
@@ -86,10 +85,10 @@ jobs:
           echo "🛡️ Branch protection status:"
           gh api repos/${{ github.repository }}/branches/main/protection || echo "⚠️ Branch protection check failed"
 
-          # Count open PRs and issues
+          # Count open PRs and issues (using wc instead of jq)
           echo "📋 Open items summary:"
-          echo "Pull Requests: $(gh pr list --json number | jq length)"
-          echo "Issues: $(gh issue list --json number | jq length)"
+          echo "Pull Requests: $(gh pr list --json number --jq length 2>/dev/null || gh pr list | wc -l)"
+          echo "Issues: $(gh issue list --json number --jq length 2>/dev/null || gh issue list | wc -l)"
 
           # Check workflow status
           echo "⚡ Recent workflow runs:"
@@ -101,11 +100,12 @@ jobs:
         run: |
           echo "🧹 Performing automated cleanup..."
 
-          # Clean up old workflow runs (keep last 50)
+          # Clean up old workflow runs (keep last 50) - simplified to avoid jq dependency
           echo "🗑️ Cleaning old workflow runs..."
-          gh run list --status success --limit 100 --json databaseId --jq '.[50:][].databaseId' | \
+          # Use basic gh command without jq dependency
+          gh run list --status success --limit 100 | tail -n +51 | awk '{print $7}' | \
           while read -r run_id; do
-            gh run delete "$run_id" 2>/dev/null || true
+            [ -n "$run_id" ] && gh run delete "$run_id" 2>/dev/null || true
           done
 
           # Archive closed branches (except main/develop)
