@@ -9,7 +9,7 @@ export const promoteCommand = new Command('promote')
   .argument('<package-path>', 'Path to validated package')
   .argument('<version>', 'Version number (e.g., 1.2.0)')
   .option('--force', 'Overwrite existing marketplace version')
-  .action(async (packagePath: string, version: string, options: any) => {
+  .action(async (packagePath: string, version: string, _options: any) => {
     console.log(chalk.blue('🚀 Azure Marketplace Generator - Package Promotion'));
     console.log(chalk.blue('='.repeat(60)));
     console.log(chalk.gray('  Package path:'), packagePath);
@@ -58,7 +58,7 @@ export const promoteCommand = new Command('promote')
 export const listPackagesCommand = new Command('list-packages')
   .description('List all packages in the packages directory')
   .option('--type <type>', 'Filter by package type: generated, validated, marketplace, archive')
-  .action(async (options: any) => {
+  .action(async (_options: any) => {
     console.log(chalk.blue('📦 Azure Marketplace Generator - Package Inventory'));
     console.log(chalk.blue('='.repeat(60)));
     

@@ -1,6 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import chalk from 'chalk';
+import { spawn } from 'child_process';
 
 export interface DeploymentConfiguration {
   subscriptionId: string;
@@ -35,30 +36,35 @@ export class AutoDeploymentService {
   async validatePrerequisites(): Promise<boolean> {
     console.log(chalk.blue('🔍 Validating deployment prerequisites...'));
 
-    // Check Azure CLI
+        // Check Azure CLI
     try {
-      await this.runCommand('az --version');
+      await this.runCommand('az', ['--version']);
       console.log(chalk.green('✅ Azure CLI installed'));
-    } catch (error) {
+    } catch (_error) {
       console.error(chalk.red('❌ Azure CLI not found. Please install Azure CLI.'));
       return false;
     }
 
-    // Check Azure login
+    // Check authentication
     try {
-      await this.runCommand('az account show');
+      await this.runCommand('az', ['account', 'show']);
       console.log(chalk.green('✅ Azure CLI authenticated'));
-    } catch (error) {
-      console.error(chalk.red('❌ Not authenticated with Azure. Run: az login'));
+    } catch (_error) {
+      console.error(chalk.red('❌ Not authenticated. Run: az login'));
       return false;
     }
 
-    // Check required permissions
+    // Check Microsoft.Solutions provider
     try {
-      await this.runCommand('az provider list --query "[?namespace==\'Microsoft.Solutions\'].registrationState" -o tsv');
-      console.log(chalk.green('✅ Azure Managed Applications provider available'));
-    } catch (error) {
-      console.warn(chalk.yellow('⚠️ Unable to verify Microsoft.Solutions provider'));
+      await this.runCommand('az', [
+        'provider', 'list',
+        '--query', "[?namespace=='Microsoft.Solutions'].registrationState",
+        '-o', 'tsv'
+      ]);
+      console.log(chalk.green('✅ Microsoft.Solutions provider available'));
+    } catch (_error) {
+      console.error(chalk.red('❌ Microsoft.Solutions provider not available'));
+      return false;
     }
 
     return true;
@@ -70,7 +76,7 @@ export class AutoDeploymentService {
     console.log(chalk.gray('  Target:'), `${config.resourceGroup} (${config.location})`);
 
     const startTime = Date.now();
-    
+
     try {
       // Validate prerequisites
       if (!await this.validatePrerequisites()) {
@@ -99,7 +105,7 @@ export class AutoDeploymentService {
       const deploymentTime = Date.now() - startTime;
 
       console.log(chalk.green('✅ Auto-deployment completed successfully!'));
-      
+
       return {
         success: true,
         deploymentId,
@@ -112,7 +118,7 @@ export class AutoDeploymentService {
 
     } catch (error: any) {
       console.error(chalk.red('❌ Auto-deployment failed:'), error.message);
-      
+
       return {
         success: false,
         deploymentId: '',
@@ -147,14 +153,31 @@ export class AutoDeploymentService {
 
   private async extractPackage(packagePath: string): Promise<string> {
     console.log(chalk.blue('📂 Extracting package for deployment...'));
-    
+
     const tempDir = path.join(process.cwd(), 'temp', 'deployment-' + Date.now());
     await fs.ensureDir(tempDir);
 
-    // Extract zip file
+    // Extract zip file with Zip Slip protection
     const AdmZip = require('adm-zip');
     const zip = new AdmZip(packagePath);
-    zip.extractAllTo(tempDir, true);
+    const entries = zip.getEntries();
+
+    // Safely extract each entry with path validation
+    for (const entry of entries) {
+      if (!entry.isDirectory) {
+        // Normalize and validate the entry path to prevent Zip Slip attacks
+        const entryPath = this.validateAndNormalizeZipPath(entry.entryName, tempDir);
+
+        if (entryPath) {
+          // Ensure directory exists
+          await fs.ensureDir(path.dirname(entryPath));
+
+          // Extract file securely
+          const data = entry.getData();
+          await fs.writeFile(entryPath, data);
+        }
+      }
+    }
 
     // Verify required files
     const requiredFiles = ['mainTemplate.json', 'createUiDefinition.json'];
@@ -166,6 +189,46 @@ export class AutoDeploymentService {
 
     console.log(chalk.green('✅ Package extracted successfully'));
     return tempDir;
+  }
+
+  /**
+   * Validate and normalize ZIP entry paths to prevent Zip Slip attacks
+   */
+  private validateAndNormalizeZipPath(entryName: string, tempDir: string): string | null {
+    try {
+      // Normalize path and resolve potential traversal attempts
+      const normalizedEntry = path.normalize(entryName).replace(/^(\.\.[/\\])+/, '');
+
+      // Reject paths that still contain traversal attempts or absolute paths
+      if (normalizedEntry.includes('..') || path.isAbsolute(normalizedEntry)) {
+        console.warn(chalk.yellow(`⚠️ Skipping potentially malicious ZIP entry: ${entryName}`));
+        return null;
+      }
+
+      // Ensure the final path is within the temp directory
+      const finalPath = path.join(tempDir, normalizedEntry);
+      const resolvedFinalPath = path.resolve(finalPath);
+      const resolvedTempDir = path.resolve(tempDir);
+
+      if (!resolvedFinalPath.startsWith(resolvedTempDir)) {
+        console.warn(chalk.yellow(`⚠️ Skipping ZIP entry outside temp directory: ${entryName}`));
+        return null;
+      }
+
+      // Additional validation for file extension and size
+      const ext = path.extname(normalizedEntry).toLowerCase();
+      const allowedExtensions = ['.json', '.txt', '.md', '.yml', '.yaml', '.ps1', '.sh', '.bicep', '.arm'];
+
+      if (ext && !allowedExtensions.includes(ext)) {
+        console.warn(chalk.yellow(`⚠️ Skipping file with disallowed extension: ${entryName}`));
+        return null;
+      }
+
+      return finalPath;
+    } catch (_error) {
+      console.warn(chalk.yellow(`⚠️ Error processing ZIP entry ${entryName}: ${error}`));
+      return null;
+    }
   }
 
   private async prepareDeployment(tempDir: string, config: DeploymentConfiguration): Promise<string> {
@@ -219,14 +282,17 @@ export class AutoDeploymentService {
 
     try {
       // Check if resource group exists
-      await this.runCommand(`az group show --name ${config.resourceGroup} --subscription ${config.subscriptionId}`);
+      await this.runCommand('az', ['group', 'show', '--name', config.resourceGroup, '--subscription', config.subscriptionId]);
       console.log(chalk.green('✅ Resource group exists'));
-    } catch (error) {
+    } catch (_error) {
       // Create resource group
       console.log(chalk.blue('📁 Creating resource group...'));
-      await this.runCommand(
-        `az group create --name ${config.resourceGroup} --location ${config.location} --subscription ${config.subscriptionId}`
-      );
+      await this.runCommand('az', [
+        'group', 'create',
+        '--name', config.resourceGroup,
+        '--location', config.location,
+        '--subscription', config.subscriptionId
+      ]);
       console.log(chalk.green('✅ Resource group created'));
     }
   }
@@ -235,24 +301,24 @@ export class AutoDeploymentService {
     console.log(chalk.blue('🚀 Executing managed application deployment...'));
 
     const deploymentName = `${config.applicationName}-deployment-${Date.now()}`;
-    
-    const deployCommand = [
-      'az', 'deployment', 'group', 'create',
+
+    const deployArgs = [
+      'deployment', 'group', 'create',
       '--resource-group', config.resourceGroup,
       '--subscription', config.subscriptionId,
       '--name', deploymentName,
       '--template-file', templatePath,
       '--parameters', `applicationName=${config.applicationName}`,
       '--output', 'json'
-    ].join(' ');
+    ];
 
     try {
-      const result = await this.runCommand(deployCommand);
+      const result = await this.runCommand('az', deployArgs);
       const deployment = JSON.parse(result);
-      
+
       console.log(chalk.green('✅ Deployment completed successfully'));
       console.log(chalk.gray('  Deployment ID:'), deployment.id);
-      
+
       return deployment.id;
     } catch (error: any) {
       console.error(chalk.red('❌ Deployment failed:'), error.message);
@@ -262,18 +328,18 @@ export class AutoDeploymentService {
 
   private async runDeploymentTests(config: DeploymentConfiguration): Promise<TestResult[]> {
     console.log(chalk.blue('🧪 Running post-deployment tests...'));
-    
+
     const tests: TestResult[] = [];
 
     // Test 1: Resource group accessibility
     try {
-      await this.runCommand(`az group show --name ${config.resourceGroup} --subscription ${config.subscriptionId}`);
+      await this.runCommand('az', ['group', 'show', '--name', config.resourceGroup, '--subscription', config.subscriptionId]);
       tests.push({
         name: 'Resource Group Access',
         status: 'passed',
         message: 'Resource group is accessible'
       });
-    } catch (error) {
+    } catch (_error) {
       tests.push({
         name: 'Resource Group Access',
         status: 'failed',
@@ -284,11 +350,14 @@ export class AutoDeploymentService {
 
     // Test 2: Managed application status
     try {
-      const result = await this.runCommand(
-        `az managedapp show --name ${config.applicationName} --resource-group ${config.resourceGroup} --subscription ${config.subscriptionId}`
-      );
+      const result = await this.runCommand('az', [
+        'managedapp', 'show',
+        '--name', config.applicationName,
+        '--resource-group', config.resourceGroup,
+        '--subscription', config.subscriptionId
+      ]);
       const app = JSON.parse(result);
-      
+
       if (app.properties.provisioningState === 'Succeeded') {
         tests.push({
           name: 'Managed Application Status',
@@ -302,7 +371,7 @@ export class AutoDeploymentService {
           message: `Application status: ${app.properties.provisioningState}`
         });
       }
-    } catch (error) {
+    } catch (_error) {
       tests.push({
         name: 'Managed Application Status',
         status: 'failed',
@@ -314,13 +383,13 @@ export class AutoDeploymentService {
     // Test 3: Managed resource group
     const managedRgName = config.managedResourceGroup || config.resourceGroup + '-managed';
     try {
-      await this.runCommand(`az group show --name ${managedRgName} --subscription ${config.subscriptionId}`);
+      await this.runCommand('az', ['group', 'show', '--name', managedRgName, '--subscription', config.subscriptionId]);
       tests.push({
         name: 'Managed Resource Group',
         status: 'passed',
         message: 'Managed resource group created'
       });
-    } catch (error) {
+    } catch (_error) {
       tests.push({
         name: 'Managed Resource Group',
         status: 'warning',
@@ -369,16 +438,31 @@ export class AutoDeploymentService {
     return recommendations;
   }
 
-  private async runCommand(command: string): Promise<string> {
+  private async runCommand(command: string, args: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
-      const { exec } = require('child_process');
-      
-      exec(command, { maxBuffer: 1024 * 1024 }, (error: any, stdout: string, stderr: string) => {
-        if (error) {
-          reject(new Error(stderr || error.message));
+      const process = spawn(command, args, { stdio: ['pipe', 'pipe', 'pipe'] });
+
+      let stdout = '';
+      let stderr = '';
+
+      process.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+
+      process.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+
+      process.on('close', (code) => {
+        if (code !== 0) {
+          reject(new Error(stderr || `Command failed with exit code ${code}`));
         } else {
           resolve(stdout.trim());
         }
+      });
+
+      process.on('error', (error) => {
+        reject(error);
       });
     });
   }

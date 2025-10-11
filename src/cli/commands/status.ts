@@ -66,7 +66,7 @@ export const statusCommand = new Command('status')
       
       console.log(chalk.blue('\n' + '='.repeat(50)));
       
-    } catch (error) {
+    } catch (_error) {
       console.error(chalk.red('❌ Error reading portfolio status:'), error);
     }
   });

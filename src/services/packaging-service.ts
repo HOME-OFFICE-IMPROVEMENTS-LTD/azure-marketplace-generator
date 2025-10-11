@@ -26,7 +26,7 @@ export class PackagingService {
     try {
       const content = await fs.readFile(templatePath, 'utf8');
       return JSON.parse(content);
-    } catch (error) {
+    } catch (_error) {
       console.warn(chalk.yellow(`⚠️ Could not analyze template: ${templatePath}`));
       return null;
     }
@@ -36,7 +36,7 @@ export class PackagingService {
     try {
       const content = await fs.readFile(uiPath, 'utf8');
       return JSON.parse(content);
-    } catch (error) {
+    } catch (_error) {
       console.warn(chalk.yellow(`⚠️ Could not analyze UI definition: ${uiPath}`));
       return null;
     }
@@ -202,7 +202,7 @@ export class PackagingService {
       try {
         const stat = await fs.stat(path.join(sourcePath, asset));
         totalSize += stat.size;
-      } catch (error) {
+      } catch (_error) {
         // Skip files that can't be accessed
       }
     }
@@ -314,7 +314,7 @@ export class PackagingService {
         optimizations.push('Suggested nested template structure for better organization');
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.warn(chalk.yellow('⚠️ Could not optimize template'));
     }
 
@@ -359,7 +359,7 @@ export class PackagingService {
         optimizations.push('Added input validation rules for better user experience');
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.warn(chalk.yellow('⚠️ Could not optimize UI definition'));
     }
 
@@ -426,7 +426,7 @@ export class PackagingService {
         if (stat.size > 1024 * 1024) { // > 1MB
           optimizations.push(`Recommended compression for large file: ${asset}`);
         }
-      } catch (error) {
+      } catch (_error) {
         // Skip files that can't be accessed
       }
     }
@@ -548,7 +548,7 @@ export class PackagingService {
         await fs.writeFile(templatePath, JSON.stringify(template, null, 2));
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.warn(chalk.yellow('⚠️ Could not apply template optimizations'));
     }
   }
@@ -575,7 +575,7 @@ export class PackagingService {
         await fs.writeFile(uiPath, JSON.stringify(uiDefinition, null, 2));
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.warn(chalk.yellow('⚠️ Could not apply UI optimizations'));
     }
   }

@@ -172,6 +172,25 @@ azmp insights --export json                # Export AI insights
 npm install -g @hoiltd/azure-marketplace-generator
 ```
 
+### **Environment Configuration**
+
+For security and flexibility, the platform uses environment variables for sensitive configuration:
+
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit the file with your Azure credentials
+# AZURE_TENANT_ID=your-tenant-id-here
+# AZURE_SUBSCRIPTION_ID=your-subscription-id-here
+```
+
+**Required Environment Variables:**
+- `AZURE_TENANT_ID` - Your Azure Active Directory tenant ID
+- `AZURE_SUBSCRIPTION_ID` - Your Azure subscription ID
+
+**Security Note:** Never commit hardcoded credentials to version control. Always use environment variables or Azure CLI authentication for production deployments.
+
 ### **Your First Project**
 
 ```bash

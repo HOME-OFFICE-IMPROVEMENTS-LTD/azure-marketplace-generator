@@ -1,10 +1,37 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { spawn } from 'child_process';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import chalk from 'chalk';
 
-const execAsync = promisify(exec);
+// Secure Azure CLI execution helper
+async function runAzureCommand(args: string[]): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const process = spawn('az', args, { stdio: ['pipe', 'pipe', 'pipe'] });
+
+    let stdout = '';
+    let stderr = '';
+
+    process.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    process.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    process.on('close', (code) => {
+      if (code !== 0) {
+        reject(new Error(stderr || `Azure CLI failed with exit code ${code}`));
+      } else {
+        resolve(stdout.trim());
+      }
+    });
+
+    process.on('error', (error) => {
+      reject(error);
+    });
+  });
+}
 
 // Types for enterprise monitoring
 export interface MonitoringConfig {
@@ -352,10 +379,26 @@ export class EnterpriseMonitoringService {
 
   async loadConfiguration(): Promise<MonitoringConfig> {
     try {
-      const configContent = await fs.readFile(this.configPath, 'utf-8');
+      let configContent = await fs.readFile(this.configPath, 'utf-8');
+
+      // Replace environment variable placeholders with actual values
+      configContent = configContent.replace(/\$\{([^}]+)\}/g, (match, envVar) => {
+        const value = process.env[envVar];
+        if (!value) {
+          throw new Error(`Required environment variable ${envVar} is not set. Please set ${envVar} before running monitoring.`);
+        }
+        return value;
+      });
+
       this.config = JSON.parse(configContent);
+
+      // Validate that subscription ID is present after substitution
+      if (!this.config!.subscriptionId || this.config!.subscriptionId.trim() === '') {
+        throw new Error('Subscription ID is required. Please set AZURE_SUBSCRIPTION_ID environment variable.');
+      }
+
       return this.config!;
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to load monitoring configuration: ${error}`);
     }
   }
@@ -364,7 +407,7 @@ export class EnterpriseMonitoringService {
     try {
       await fs.writeFile(this.configPath, JSON.stringify(config, null, 2));
       this.config = config;
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to save monitoring configuration: ${error}`);
     }
   }
@@ -447,19 +490,22 @@ export class EnterpriseMonitoringService {
       applications.push(...webApps);
 
       return applications;
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to discover applications: ${error}`);
     }
   }
 
   private async discoverManagedApplications(): Promise<ApplicationMonitoring[]> {
     try {
-      const { stdout } = await execAsync(
-        `az managedapp list --subscription "${this.config!.subscriptionId}" --query "[].{name:name,resourceGroup:resourceGroup,managedResourceGroupId:managedResourceGroupId}" --output json`
-      );
+      const stdout = await runAzureCommand([
+        'managedapp', 'list',
+        '--subscription', this.config!.subscriptionId,
+        '--query', '[].{name:name,resourceGroup:resourceGroup,managedResourceGroupId:managedResourceGroupId}',
+        '--output', 'json'
+      ]);
 
       const managedApps = JSON.parse(stdout);
-      return managedApps.map((app: any) => ({
+      return managedApps.map((_app: any) => ({
         name: app.name,
         resourceGroup: app.resourceGroup,
         type: 'managed-app' as const,
@@ -482,7 +528,7 @@ export class EnterpriseMonitoringService {
           availability: { warning: 99, critical: 95, unit: '%' }
         }
       }));
-    } catch (error) {
+    } catch (_error) {
       console.warn('Failed to discover managed applications:', error);
       return [];
     }
@@ -490,12 +536,15 @@ export class EnterpriseMonitoringService {
 
   private async discoverFunctionApps(): Promise<ApplicationMonitoring[]> {
     try {
-      const { stdout } = await execAsync(
-        `az functionapp list --subscription "${this.config!.subscriptionId}" --query "[].{name:name,resourceGroup:resourceGroup,defaultHostName:defaultHostName}" --output json`
-      );
+      const stdout = await runAzureCommand([
+        'functionapp', 'list',
+        '--subscription', this.config!.subscriptionId,
+        '--query', '[].{name:name,resourceGroup:resourceGroup,defaultHostName:defaultHostName}',
+        '--output', 'json'
+      ]);
 
       const functionApps = JSON.parse(stdout);
-      return functionApps.map((app: any) => ({
+      return functionApps.map((_app: any) => ({
         name: app.name,
         resourceGroup: app.resourceGroup,
         type: 'function-app' as const,
@@ -518,7 +567,7 @@ export class EnterpriseMonitoringService {
           availability: { warning: 99, critical: 95, unit: '%' }
         }
       }));
-    } catch (error) {
+    } catch (_error) {
       console.warn('Failed to discover function apps:', error);
       return [];
     }
@@ -526,12 +575,15 @@ export class EnterpriseMonitoringService {
 
   private async discoverWebApps(): Promise<ApplicationMonitoring[]> {
     try {
-      const { stdout } = await execAsync(
-        `az webapp list --subscription "${this.config!.subscriptionId}" --query "[].{name:name,resourceGroup:resourceGroup,defaultHostName:defaultHostName}" --output json`
-      );
+      const stdout = await runAzureCommand([
+        'webapp', 'list',
+        '--subscription', this.config!.subscriptionId,
+        '--query', '[].{name:name,resourceGroup:resourceGroup,defaultHostName:defaultHostName}',
+        '--output', 'json'
+      ]);
 
       const webApps = JSON.parse(stdout);
-      return webApps.map((app: any) => ({
+      return webApps.map((_app: any) => ({
         name: app.name,
         resourceGroup: app.resourceGroup,
         type: 'web-app' as const,
@@ -554,7 +606,7 @@ export class EnterpriseMonitoringService {
           availability: { warning: 99, critical: 95, unit: '%' }
         }
       }));
-    } catch (error) {
+    } catch (_error) {
       console.warn('Failed to discover web apps:', error);
       return [];
     }
@@ -607,7 +659,7 @@ export class EnterpriseMonitoringService {
       await this.generateAutomatedReports(result);
 
       return result;
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to run monitoring: ${error}`);
     }
   }
@@ -661,7 +713,7 @@ export class EnterpriseMonitoringService {
         statusCode: response.status,
         timestamp: new Date()
       };
-    } catch (error) {
+    } catch (_error) {
       const responseTime = Date.now() - startTime;
       return {
         name: check.name,
@@ -686,7 +738,7 @@ export class EnterpriseMonitoringService {
         const customMetrics = await this.collectCustomMetrics(app.customMetrics);
         metrics.push(...customMetrics);
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn(`Failed to collect metrics for ${app.name}:`, error);
     }
 
@@ -710,9 +762,14 @@ export class EnterpriseMonitoringService {
 
       for (const query of metricQueries) {
         try {
-          const { stdout } = await execAsync(
-            `az monitor metrics list --resource "${resourceId}" --metric "${query.metric}" --interval PT1M --query "value[0].timeseries[0].data[-1].average" --output tsv`
-          );
+          const stdout = await runAzureCommand([
+            'monitor', 'metrics', 'list',
+            '--resource', resourceId,
+            '--metric', query.metric,
+            '--interval', 'PT1M',
+            '--query', 'value[0].timeseries[0].data[-1].average',
+            '--output', 'tsv'
+          ]);
 
           const value = parseFloat(stdout.trim()) || 0;
           const status = this.evaluateMetricStatus(value, query.threshold);
@@ -725,11 +782,11 @@ export class EnterpriseMonitoringService {
             threshold: query.threshold,
             trend: 'stable' // Would need historical data for trend analysis
           });
-        } catch (error) {
+        } catch (_error) {
           console.warn(`Failed to collect metric ${query.name} for ${app.name}:`, error);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn(`Failed to collect Azure metrics for ${app.name}:`, error);
     }
 
@@ -741,9 +798,14 @@ export class EnterpriseMonitoringService {
                         app.type === 'function-app' ? 'Microsoft.Web/sites' :
                         'Microsoft.Web/sites';
 
-    const { stdout } = await execAsync(
-      `az resource show --name "${app.name}" --resource-group "${app.resourceGroup}" --resource-type "${resourceType}" --query "id" --output tsv`
-    );
+    const stdout = await runAzureCommand([
+      'resource', 'show',
+      '--name', app.name,
+      '--resource-group', app.resourceGroup,
+      '--resource-type', resourceType,
+      '--query', 'id',
+      '--output', 'tsv'
+    ]);
 
     return stdout.trim();
   }
@@ -935,7 +997,7 @@ export class EnterpriseMonitoringService {
       await fs.mkdir(path.dirname(reportPath), { recursive: true });
       await fs.writeFile(reportPath, JSON.stringify(result, null, 2));
       console.log(chalk.green(`📊 Monitoring report saved: ${reportPath}`));
-    } catch (error) {
+    } catch (_error) {
       console.error(chalk.red(`Failed to save monitoring report: ${error}`));
     }
   }
@@ -978,47 +1040,47 @@ export class EnterpriseMonitoringService {
         <h1>🚀 Enterprise Monitoring Dashboard</h1>
         <p>Real-time monitoring and analytics for Azure Marketplace applications</p>
     </div>
-    
+
     <div class="dashboard-grid">
         <div class="widget">
             <h3>📊 Application Status</h3>
             <div id="application-status">Loading...</div>
         </div>
-        
+
         <div class="widget">
             <h3>⚡ Performance Metrics</h3>
             <div id="performance-metrics">Loading...</div>
         </div>
-        
+
         <div class="widget">
             <h3>🚨 Active Alerts</h3>
             <div id="active-alerts">Loading...</div>
         </div>
-        
+
         <div class="widget">
             <h3>📈 Recommendations</h3>
             <div id="recommendations">Loading...</div>
         </div>
     </div>
-    
+
     <script>
         // Dashboard would be populated with real data via AJAX calls
         // This is a static template for demonstration
-        document.getElementById('application-status').innerHTML = 
+        document.getElementById('application-status').innerHTML =
             '<div class="metric"><span>Applications Monitored</span><span class="status-healthy">0</span></div>' +
             '<div class="metric"><span>Healthy</span><span class="status-healthy">0</span></div>' +
             '<div class="metric"><span>Warning</span><span class="status-warning">0</span></div>' +
             '<div class="metric"><span>Critical</span><span class="status-critical">0</span></div>';
-            
-        document.getElementById('performance-metrics').innerHTML = 
+
+        document.getElementById('performance-metrics').innerHTML =
             '<div class="metric"><span>Avg Response Time</span><span>0ms</span></div>' +
             '<div class="metric"><span>Availability</span><span>0%</span></div>' +
             '<div class="metric"><span>CPU Usage</span><span>0%</span></div>' +
             '<div class="metric"><span>Memory Usage</span><span>0%</span></div>';
-            
+
         document.getElementById('active-alerts').innerHTML = '<p>No active alerts</p>';
         document.getElementById('recommendations').innerHTML = '<p>No recommendations available</p>';
-        
+
         // Auto-refresh every 30 seconds
         setInterval(() => {
             // In a real implementation, this would fetch fresh data

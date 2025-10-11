@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { AutoDeploymentService, DeploymentConfiguration } from '../../services/auto-deployment-service.js';
+import { AutoDeploymentService, DeploymentConfiguration } from '../../services/auto-deployment-service';
 
 export const deployCommand = new Command('deploy')
   .description('Auto-deploy managed application to Azure')
@@ -16,7 +16,7 @@ export const deployCommand = new Command('deploy')
   .option('--auto-approve', 'Skip deployment confirmation prompts')
   .option('--parameters <json>', 'JSON string of deployment parameters')
   .option('--timeout <minutes>', 'Deployment timeout in minutes', '30')
-  .action(async (packagePath: string, options: any) => {
+  .action(async (packagePath: string, _options: any) => {
     console.log(chalk.blue.bold('🚀 PHASE 3: AUTO-DEPLOYMENT ACTIVE'));
     console.log(chalk.gray('  Package:'), packagePath);
     console.log(chalk.gray('  Target:'), options.resourceGroup || '[interactive]');
@@ -29,7 +29,7 @@ export const deployCommand = new Command('deploy')
 
       // Interactive configuration if not provided
       const config = await buildDeploymentConfig(packagePath, options);
-      
+
       // Display deployment plan
       await displayDeploymentPlan(config);
 
@@ -78,9 +78,9 @@ export const deployCommand = new Command('deploy')
     }
   });
 
-async function buildDeploymentConfig(packagePath: string, options: any): Promise<DeploymentConfiguration> {
+async function buildDeploymentConfig(packagePath: string, _options: any): Promise<DeploymentConfiguration> {
   const inquirer = require('inquirer');
-  
+
   // Get package name for defaults
   const packageName = path.basename(packagePath, '.zip');
   const defaultAppName = packageName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
@@ -98,7 +98,7 @@ async function buildDeploymentConfig(packagePath: string, options: any): Promise
   if (options.parameters) {
     try {
       config.parameters = JSON.parse(options.parameters);
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Invalid JSON format for parameters');
     }
   }
@@ -106,7 +106,7 @@ async function buildDeploymentConfig(packagePath: string, options: any): Promise
   // Interactive prompts for missing required fields
   if (!config.subscriptionId || !config.resourceGroup) {
     console.log(chalk.blue('\n📋 Deployment Configuration Setup:'));
-    
+
     const answers = await inquirer.prompt([
       {
         type: 'input',
@@ -167,17 +167,17 @@ async function displayDeploymentPlan(config: DeploymentConfiguration): Promise<v
   console.log(chalk.gray('  Application:'), config.applicationName);
   console.log(chalk.gray('  Managed RG:'), config.managedResourceGroup || `${config.resourceGroup}-managed`);
   console.log(chalk.gray('  Test Mode:'), config.testMode ? 'Enabled' : 'Disabled');
-  
+
   if (config.parameters) {
     console.log(chalk.gray('  Parameters:'), Object.keys(config.parameters).length + ' provided');
   }
-  
+
   console.log(chalk.blue('='.repeat(50)));
 }
 
 async function confirmDeployment(): Promise<boolean> {
   const inquirer = require('inquirer');
-  
+
   const answer = await inquirer.prompt([
     {
       type: 'confirm',
@@ -193,7 +193,7 @@ async function confirmDeployment(): Promise<boolean> {
 async function displayDeploymentResults(result: any): Promise<void> {
   console.log(chalk.blue('\n📊 DEPLOYMENT RESULTS:'));
   console.log(chalk.blue('='.repeat(50)));
-  
+
   if (result.success) {
     console.log(chalk.green('✅ Status:'), 'SUCCESS');
     console.log(chalk.gray('  Deployment ID:'), result.deploymentId);
@@ -211,7 +211,7 @@ async function displayDeploymentResults(result: any): Promise<void> {
     for (const test of result.testResults) {
       const statusIcon = test.status === 'passed' ? '✅' : test.status === 'failed' ? '❌' : '⚠️';
       const statusColor = test.status === 'passed' ? chalk.green : test.status === 'failed' ? chalk.red : chalk.yellow;
-      
+
       console.log(statusColor(`  ${statusIcon} ${test.name}: ${test.message}`));
       if (test.details) {
         console.log(chalk.gray(`     ${test.details}`));
@@ -222,7 +222,7 @@ async function displayDeploymentResults(result: any): Promise<void> {
   // Display recommendations
   if (result.recommendations && result.recommendations.length > 0) {
     console.log(chalk.yellow('\n💡 RECOMMENDATIONS:'));
-    result.recommendations.forEach((rec: string) => 
+    result.recommendations.forEach((rec: string) =>
       console.log(chalk.gray('    •'), rec)
     );
   }

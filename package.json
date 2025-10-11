@@ -11,7 +11,12 @@
     "copy-templates": "cp -r src/templates dist/",
     "dev": "ts-node src/cli/index.ts",
     "test": "jest",
-    "lint": "eslint src/**/*.ts",
+    "test:security": "./scripts/security-scan.sh",
+    "test:all": "npm run test && npm run test:security",
+    "pre-launch": "./scripts/pre-launch-checklist.sh",
+    "lint": "eslint src/**/*.ts --max-warnings 150",
+    "audit:fix": "npm audit fix",
+    "precommit": "npm run lint && npm run test:security && npm run build",
     "arm-ttk": "pwsh -File ../../../tools/arm-ttk/arm-ttk/Test-AzTemplate.ps1"
   },
   "keywords": [

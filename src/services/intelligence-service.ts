@@ -102,7 +102,7 @@ export class IntelligenceService {
       const mainTemplatePath = path.join(templatePath, 'mainTemplate.json');
       const content = await fs.readFile(mainTemplatePath, 'utf8');
       return JSON.parse(content);
-    } catch (error) {
+    } catch (_error) {
       console.log(chalk.yellow('⚠️  Could not load mainTemplate.json, using basic analysis'));
       return {};
     }
@@ -274,7 +274,7 @@ export class IntelligenceService {
         const mainTemplatePath = path.join(templatePath, 'mainTemplate.json');
         await fs.writeFile(mainTemplatePath, JSON.stringify(template, null, 2), 'utf8');
         console.log(chalk.green(`   ✅ Applied ${fixes.length} auto-fixes to template`));
-      } catch (error) {
+      } catch (_error) {
         console.log(chalk.yellow('   ⚠️  Could not save auto-fixes to template'));
       }
     }
@@ -306,8 +306,8 @@ export class IntelligenceService {
   private async analyzeBestPractices(template: any, armTtkResults: any): Promise<BestPracticeAnalysis> {
     // Calculate scores based on template analysis
     let securityScore = 85;
-    let performanceScore = 80;
-    let costOptimizationScore = 75;
+    const performanceScore = 80;
+    const costOptimizationScore = 75;
     let marketplaceReadinessScore = 70;
     
     // Adjust scores based on ARM-TTK results

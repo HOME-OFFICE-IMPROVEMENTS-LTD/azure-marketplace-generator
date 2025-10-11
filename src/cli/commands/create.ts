@@ -9,7 +9,7 @@ export const createCommand = new Command('create')
   .option('-p, --publisher <name>', 'Publisher name for the marketplace')
   .option('-n, --name <name>', 'Application name')
   .option('-o, --output <dir>', 'Output directory', './output')
-  .action(async (type: string, options: any) => {
+  .action(async (type: string, _options: any) => {
     console.log(chalk.blue('🚀 Creating managed application package...'));
     
     // Validate input
@@ -65,7 +65,7 @@ export const createCommand = new Command('create')
       console.log(chalk.gray('  • nestedtemplates/storageAccount.json'));
       console.log(chalk.yellow('💡 Next: Run'), chalk.cyan(`azmp validate ${config.output}`));
       
-    } catch (error) {
+    } catch (_error) {
       console.error(chalk.red('❌ Template generation failed:'), (error as Error).message);
       process.exit(1);
     }

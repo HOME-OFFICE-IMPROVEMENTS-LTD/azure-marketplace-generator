@@ -3,6 +3,7 @@ import chalk from 'chalk';
 import * as inquirer from 'inquirer';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { spawnSync } from 'child_process';
 import { EnterpriseMonitoringService, MonitoringConfig, ApplicationMonitoring } from '../../services/enterprise-monitoring-service';
 
 export const monitorCommand = new Command('monitor')
@@ -55,7 +56,7 @@ export const monitorCommand = new Command('monitor')
       let config: MonitoringConfig;
       try {
         config = await monitoringService.loadConfiguration();
-      } catch (error) {
+      } catch (_error) {
         console.log(chalk.yellow('⚠️  No monitoring configuration found.'));
         console.log(chalk.blue('💡 Run: azmp monitor --init to initialize monitoring'));
         return;
@@ -68,7 +69,7 @@ export const monitorCommand = new Command('monitor')
         await runSingleMonitoring(monitoringService, options);
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.error(chalk.red('❌ Monitoring failed:'), error);
       process.exit(1);
     }
@@ -157,7 +158,7 @@ async function generateDashboard(service: EnterpriseMonitoringService): Promise<
   console.log(chalk.blue('💡 Open in browser to view monitoring data'));
 }
 
-async function runSingleMonitoring(service: EnterpriseMonitoringService, options: any): Promise<void> {
+async function runSingleMonitoring(service: EnterpriseMonitoringService, _options: any): Promise<void> {
   console.log(chalk.blue('🔍 Running monitoring cycle...'));
 
   const startTime = Date.now();
@@ -219,7 +220,7 @@ async function runContinuousMonitoring(service: EnterpriseMonitoringService, int
         }
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.error(chalk.red(`❌ Monitoring cycle failed: ${error}`));
     }
 
@@ -234,7 +235,7 @@ function displayMonitoringSummary(result: any): void {
 
   // Application Status
   console.log(chalk.yellow('\n🎯 Application Status:'));
-  const statusCounts = result.applications.reduce((acc: any, app: any) => {
+  const statusCounts = result.applications.reduce((acc: any, _app: any) => {
     acc[app.status] = (acc[app.status] || 0) + 1;
     return acc;
   }, {});
@@ -281,7 +282,7 @@ function displayMonitoringSummary(result: any): void {
 }
 
 function displayBriefSummary(result: any, duration: number): void {
-  const healthy = result.applications.filter((app: any) => app.status === 'healthy').length;
+  const healthy = result.applications.filter((_app: any) => app.status === 'healthy').length;
   const total = result.applications.length;
   const criticalAlerts = result.alerts.filter((alert: any) => alert.severity === 'critical').length;
 
@@ -451,33 +452,42 @@ async function exportReport(result: any, format: string): Promise<void> {
     }
 
     console.log(chalk.green(`✅ Report exported: ${filename}`));
-  } catch (error) {
+  } catch (_error) {
     console.error(chalk.red(`❌ Export failed: ${error}`));
   }
 }
 
-async function monitorWorkflows(options: any): Promise<void> {
+async function monitorWorkflows(_options: any): Promise<void> {
   console.log(chalk.blue('🔄 GitHub Actions Workflow Monitor'));
   console.log(chalk.blue('='.repeat(40)));
 
   try {
     // Get current repository info from git
-    const { execSync } = require('child_process');
-
     let repoUrl: string;
     let owner: string;
     let repo: string;
 
     try {
-      repoUrl = execSync('git config --get remote.origin.url', { encoding: 'utf8' }).trim();
+      const gitResult = spawnSync('git', ['config', '--get', 'remote.origin.url'], { encoding: 'utf8' });
+      if (gitResult.error || gitResult.status !== 0) {
+        throw new Error('Failed to get git remote URL');
+      }
+
+      repoUrl = gitResult.stdout.trim();
       const match = repoUrl.match(/github\.com[:/]([^/]+)\/([^/.]+)/);
       if (match) {
         owner = match[1];
         repo = match[2];
+
+        // Validate owner and repo to prevent injection
+        const validPattern = /^[a-zA-Z0-9._-]+$/;
+        if (!validPattern.test(owner) || !validPattern.test(repo)) {
+          throw new Error('Invalid characters in repository owner or name');
+        }
       } else {
         throw new Error('Could not parse repository URL');
       }
-    } catch (error) {
+    } catch (_error) {
       console.log(chalk.red('❌ Could not determine repository info from git'));
       console.log(chalk.yellow('💡 Make sure you are in a git repository with GitHub remote'));
       return;
@@ -489,9 +499,23 @@ async function monitorWorkflows(options: any): Promise<void> {
     // Use GitHub CLI if available
     let workflowData: any;
     try {
-      const ghOutput = execSync(`gh run list --repo ${owner}/${repo} --limit 10 --json status,conclusion,workflowName,createdAt,headBranch,url`, { encoding: 'utf8' });
-      workflowData = JSON.parse(ghOutput);
-    } catch (error) {
+      const ghResult = spawnSync('gh', [
+        'run', 'list',
+        '--repo', `${owner}/${repo}`,
+        '--limit', '10',
+        '--json', 'status,conclusion,workflowName,createdAt,headBranch,url'
+      ], { encoding: 'utf8' });
+
+      if (ghResult.error) {
+        throw ghResult.error;
+      }
+
+      if (ghResult.status !== 0) {
+        throw new Error(`GitHub CLI failed with exit code ${ghResult.status}`);
+      }
+
+      workflowData = JSON.parse(ghResult.stdout);
+    } catch (_error) {
       console.log(chalk.red('❌ GitHub CLI not available or not authenticated'));
       console.log(chalk.yellow('💡 Install GitHub CLI: https://cli.github.com/'));
       console.log(chalk.yellow('💡 Then run: gh auth login'));
@@ -585,8 +609,22 @@ async function monitorWorkflows(options: any): Promise<void> {
         console.log(chalk.blue(`\n🔄 Checking workflows - ${timestamp}`));
 
         try {
-          const newGhOutput = execSync(`gh run list --repo ${owner}/${repo} --limit 5 --json status,conclusion,workflowName,createdAt`, { encoding: 'utf8' });
-          const newWorkflowData = JSON.parse(newGhOutput);
+          const newGhResult = spawnSync('gh', [
+            'run', 'list',
+            '--repo', `${owner}/${repo}`,
+            '--limit', '5',
+            '--json', 'status,conclusion,workflowName,createdAt'
+          ], { encoding: 'utf8' });
+
+          if (newGhResult.error) {
+            throw newGhResult.error;
+          }
+
+          if (newGhResult.status !== 0) {
+            throw new Error(`GitHub CLI failed with exit code ${newGhResult.status}`);
+          }
+
+          const newWorkflowData = JSON.parse(newGhResult.stdout);
 
           const running = newWorkflowData.filter((run: any) => run.status === 'in_progress').length;
           const recentFailures = newWorkflowData.filter((run: any) =>
@@ -600,13 +638,13 @@ async function monitorWorkflows(options: any): Promise<void> {
           } else {
             console.log(chalk.green('   ✅ All workflows healthy'));
           }
-        } catch (error) {
+        } catch (_error) {
           console.log(chalk.red(`   ❌ Error checking workflows: ${error}`));
         }
       }
     }
 
-  } catch (error) {
+  } catch (_error) {
     console.error(chalk.red('❌ Workflow monitoring failed:'), error);
     process.exit(1);
   }

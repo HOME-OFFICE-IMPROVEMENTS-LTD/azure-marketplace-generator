@@ -12,10 +12,20 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Configuration
-HOILTD_TENANT_ID="473c2116-bcd0-4936-8d3b-dea0f76371a5"
-PERSONAL_TENANT_ID="f9f893f9-2197-4e11-84e7-c848fa241788"
-DEFAULT_SUBSCRIPTION_ID="1001490f-c77c-403e-be9e-97eac578d1d6"
+# Configuration - Use environment variables for security
+HOILTD_TENANT_ID="${AZURE_TENANT_ID:-}"
+PERSONAL_TENANT_ID="${AZURE_PERSONAL_TENANT_ID:-}"
+DEFAULT_SUBSCRIPTION_ID="${AZURE_SUBSCRIPTION_ID:-}"
+
+# Validate that required environment variables are set
+if [[ -z "$HOILTD_TENANT_ID" || -z "$DEFAULT_SUBSCRIPTION_ID" ]]; then
+    echo -e "${RED}❌ Required environment variables not set!${NC}"
+    echo -e "${YELLOW}Please set the following environment variables:${NC}"
+    echo -e "${YELLOW}  export AZURE_TENANT_ID=\"your-tenant-id\"${NC}"
+    echo -e "${YELLOW}  export AZURE_SUBSCRIPTION_ID=\"your-subscription-id\"${NC}"
+    echo -e "${YELLOW}  export AZURE_PERSONAL_TENANT_ID=\"your-personal-tenant-id\" (optional)${NC}"
+    exit 1
+fi
 
 echo -e "${BLUE}🚀 Azure Authentication Helper for HOILTD${NC}"
 echo -e "${BLUE}================================================${NC}"
@@ -23,18 +33,18 @@ echo -e "${BLUE}================================================${NC}"
 # Function to check if already authenticated
 check_current_auth() {
     echo -e "${YELLOW}🔍 Checking current authentication status...${NC}"
-    
+
     if az account show &>/dev/null; then
         echo -e "${GREEN}✅ Currently authenticated with Azure CLI${NC}"
-        
+
         CURRENT_USER=$(az account show --query user.name -o tsv 2>/dev/null || echo "Unknown")
         CURRENT_TENANT=$(az account show --query tenantId -o tsv 2>/dev/null || echo "Unknown")
         CURRENT_SUBSCRIPTION=$(az account show --query name -o tsv 2>/dev/null || echo "Unknown")
-        
+
         echo -e "${BLUE}   User: ${CURRENT_USER}${NC}"
         echo -e "${BLUE}   Tenant: ${CURRENT_TENANT}${NC}"
         echo -e "${BLUE}   Subscription: ${CURRENT_SUBSCRIPTION}${NC}"
-        
+
         return 0
     else
         echo -e "${RED}❌ Not currently authenticated with Azure CLI${NC}"
@@ -45,55 +55,55 @@ check_current_auth() {
 # Function to clear cached credentials
 clear_cached_credentials() {
     echo -e "${YELLOW}🧹 Clearing cached Azure CLI credentials...${NC}"
-    
+
     # Clear all cached accounts
     az account clear &>/dev/null || true
-    
+
     # Clear Azure CLI cache
     rm -rf ~/.azure/accessTokens.json &>/dev/null || true
     rm -rf ~/.azure/azureProfile.json &>/dev/null || true
-    
+
     echo -e "${GREEN}✅ Cached credentials cleared${NC}"
 }
 
 # Function to perform service principal login (non-interactive)
 service_principal_login() {
     echo -e "${YELLOW}🔑 Attempting service principal authentication...${NC}"
-    
+
     if [[ -z "$AZURE_CLIENT_ID" || -z "$AZURE_CLIENT_SECRET" || -z "$AZURE_TENANT_ID" ]]; then
         echo -e "${RED}❌ Service principal credentials not found in environment${NC}"
         echo -e "${BLUE}   Required: AZURE_CLIENT_ID, AZURE_CLIENT_SECRET, AZURE_TENANT_ID${NC}"
         return 1
     fi
-    
+
     az login --service-principal \
         --username "$AZURE_CLIENT_ID" \
         --password "$AZURE_CLIENT_SECRET" \
         --tenant "$AZURE_TENANT_ID" \
         --output table
-    
+
     echo -e "${GREEN}✅ Service principal authentication successful${NC}"
 }
 
 # Function to perform device code login (avoids MFA browser issues)
 device_code_login() {
     echo -e "${YELLOW}📱 Using device code authentication to avoid MFA browser issues...${NC}"
-    
+
     # Use device code flow which often works better with MFA
     az login --use-device-code --tenant "$HOILTD_TENANT_ID"
-    
+
     echo -e "${GREEN}✅ Device code authentication completed${NC}"
 }
 
 # Function to select correct tenant and subscription
 select_hoiltd_context() {
     echo -e "${YELLOW}🎯 Setting HOILTD context...${NC}"
-    
+
     # Set the correct tenant
     az account set --subscription "$DEFAULT_SUBSCRIPTION_ID"
-    
+
     echo -e "${GREEN}✅ Set to Microsoft Partner Network subscription${NC}"
-    
+
     # Verify the context
     echo -e "${BLUE}🔍 Current context:${NC}"
     az account show --output table
@@ -102,7 +112,7 @@ select_hoiltd_context() {
 # Function to test Azure connectivity
 test_azure_connectivity() {
     echo -e "${YELLOW}🧪 Testing Azure connectivity...${NC}"
-    
+
     # Test basic Azure operations
     echo -e "${BLUE}   Testing resource group access...${NC}"
     if az group list --output table --query "[0:2]" &>/dev/null; then
@@ -111,7 +121,7 @@ test_azure_connectivity() {
         echo -e "${RED}   ❌ Resource group access: FAILED${NC}"
         return 1
     fi
-    
+
     # Test marketplace access
     echo -e "${BLUE}   Testing marketplace access...${NC}"
     if az vm image list --output table --all --query "[0:2]" &>/dev/null; then
@@ -119,7 +129,7 @@ test_azure_connectivity() {
     else
         echo -e "${YELLOW}   ⚠️  Marketplace access: Limited${NC}"
     fi
-    
+
     echo -e "${GREEN}✅ Azure connectivity test completed${NC}"
 }
 

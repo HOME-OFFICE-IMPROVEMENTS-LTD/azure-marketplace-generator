@@ -229,7 +229,7 @@ export class AIAnalyticsService {
       const configContent = await fs.readFile(this.configPath, 'utf-8');
       this.config = JSON.parse(configContent);
       return this.config!;
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to load AI analytics configuration: ${error}`);
     }
   }
@@ -238,7 +238,7 @@ export class AIAnalyticsService {
     try {
       await fs.writeFile(this.configPath, JSON.stringify(config, null, 2));
       this.config = config;
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Failed to save AI analytics configuration: ${error}`);
     }
   }

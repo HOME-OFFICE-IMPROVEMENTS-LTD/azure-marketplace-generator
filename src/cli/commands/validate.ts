@@ -14,7 +14,7 @@ export const validateCommand = new Command('validate')
   .option('-i, --intelligent', '🧠 Enable MCP/RAG-powered intelligent analysis')
   .option('-f, --fix', '🔧 Auto-fix common issues using organizational patterns')
   .option('--market-context', '🏪 Include marketplace-specific validation rules')
-  .action(async (templatePath: string, options: any) => {
+  .action(async (templatePath: string, _options: any) => {
     // Enhanced header with intelligent features
     if (options.intelligent) {
       console.log(chalk.blue('🧠 Azure Marketplace Generator - Intelligent Validation'));

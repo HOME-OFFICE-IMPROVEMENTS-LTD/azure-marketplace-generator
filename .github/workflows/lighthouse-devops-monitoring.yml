@@ -98,40 +98,40 @@ jobs:
       - name: 🧪 Test CLI Tool Functionality (instead of web server)
         run: |
           echo "🧪 Testing Azure Marketplace Generator CLI functionality..."
-          
+
           # Test CLI help command
           npx azmp --help
-          
-          # Test CLI version command  
+
+          # Test CLI version command
           npx azmp --version
-          
+
           # Test validate command with help
           npx azmp validate --help
-          
+
           # Test package command with help
           npx azmp package --help
-          
+
           echo "✅ CLI functionality tests completed"
 
       - name: 🌟 Performance Analysis for CLI Tool - ${{ matrix.audit-config.name }}
         run: |
           echo "🌟 Running CLI performance analysis instead of web Lighthouse..."
-          
+
           # Measure CLI command execution times
           start_time=$(date +%s%N)
           npx azmp --help > /dev/null
           end_time=$(date +%s%N)
           help_time=$(( (end_time - start_time) / 1000000 ))
-          
+
           start_time=$(date +%s%N)
           npx azmp validate --help > /dev/null
           end_time=$(date +%s%N)
           validate_time=$(( (end_time - start_time) / 1000000 ))
-          
+
           echo "📊 CLI Performance Metrics:"
           echo "- Help command: ${help_time}ms"
           echo "- Validate help: ${validate_time}ms"
-          
+
           # Create performance report
           cat > lighthouse-cli-performance.json << EOF
           {
@@ -144,40 +144,40 @@ jobs:
             "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
           }
           EOF
-          
+
           # Run comprehensive CLI performance testing
           echo "🔄 Running comprehensive CLI performance tests..."
           mkdir -p ./lighthouse-reports
-          
+
           # Test various CLI commands and measure performance
           deploy_time=$(time (npx azmp deploy --help > /dev/null 2>&1) 2>&1 | grep real | awk '{print $2}')
           monitor_time=$(time (npx azmp monitor --help > /dev/null 2>&1) 2>&1 | grep real | awk '{print $2}')
           insights_time=$(time (npx azmp insights --help > /dev/null 2>&1) 2>&1 | grep real | awk '{print $2}')
           validate_time=$(time (npx azmp validate --help > /dev/null 2>&1) 2>&1 | grep real | awk '{print $2}')
-          
+
           echo "✅ CLI Performance Test Results:"
           echo "- Deploy command: $deploy_time"
           echo "- Monitor command: $monitor_time"
           echo "- Insights command: $insights_time"
           echo "- Validate command: $validate_time"
-          
+
       - name: 📊 Analyze Performance Metrics
         run: |
           # Extract key metrics from CLI performance tests
           mkdir -p ./lighthouse-reports
-          
+
           echo "📊 Generating performance metrics for ${{ matrix.audit-config.device }}..."
-          
+
           # Convert time strings to milliseconds for analysis
           node -e "
             const fs = require('fs');
-            
+
             // Simulate CLI performance metrics based on actual command execution
             const performance_score = Math.floor(Math.random() * 20) + 80; // 80-100%
             const accessibility_score = 95; // CLI tools are inherently accessible
             const best_practices_score = Math.floor(Math.random() * 15) + 85; // 85-100%
             const seo_score = 100; // N/A for CLI but perfect score
-            
+
             const metrics = {
               performance: performance_score,
               accessibility: accessibility_score,
@@ -194,7 +194,7 @@ jobs:
               timestamp: new Date().toISOString(),
               commit: '${{ github.sha }}'.substring(0, 7)
             };
-            
+
             console.log('## 🌟 CLI Performance Results - ${{ matrix.audit-config.name }}');
             console.log(\`
             ### 📈 Overall Scores
@@ -203,7 +203,7 @@ jobs:
             - **Best Practices**: \${metrics.bestPractices}%
             - **SEO**: \${metrics.seo}% (N/A for CLI)
             - **PWA**: \${metrics.pwa} (Not applicable)
-            
+
             ### ⚡ CLI Performance Metrics
             - **Command Execution Time**: \${metrics.commandExecutionTime}
             - **Help Response Time**: \${metrics.helpResponseTime}
@@ -212,17 +212,17 @@ jobs:
             - **CLI Startup Time**: \${metrics.cliStartupTime}
             - **Error Rate**: \${metrics.errorRate}
             \`);
-            
+
             // Ensure directory exists
             if (!fs.existsSync('./lighthouse-reports')) {
               fs.mkdirSync('./lighthouse-reports', { recursive: true });
             }
-            
+
             // Save metrics for Azure DevOps integration
             const filename = './lighthouse-reports/metrics-${{ matrix.audit-config.device }}.json';
             fs.writeFileSync(filename, JSON.stringify(metrics, null, 2));
             console.log('✅ Metrics saved to:', filename);
-            
+
             // Verify file was created
             if (fs.existsSync(filename)) {
               console.log('✅ File verification successful');
@@ -239,24 +239,24 @@ jobs:
           node -e "
             const fs = require('fs');
             const metrics = JSON.parse(fs.readFileSync('./lighthouse-reports/metrics-${{ matrix.audit-config.device }}.json'));
-            
+
             const standards = {
               performance: 90,
               accessibility: 95,
               bestPractices: 90,
               seo: 95
             };
-            
+
             let passed = true;
             const failures = [];
-            
+
             Object.keys(standards).forEach(key => {
               if (metrics[key] < standards[key]) {
                 passed = false;
                 failures.push(\`\${key}: \${metrics[key]}% (required: \${standards[key]}%)\`);
               }
             });
-            
+
             if (!passed) {
               console.log('❌ Performance standards not met:');
               failures.forEach(failure => console.log('  - ' + failure));
@@ -273,7 +273,7 @@ jobs:
         run: |
           # Ensure the metrics file exists before reading it
           METRICS_FILE="./lighthouse-reports/metrics-${{ matrix.audit-config.device }}.json"
-          
+
           if [ ! -f "$METRICS_FILE" ]; then
             echo "⚠️ Metrics file not found at $METRICS_FILE, creating default metrics..."
             mkdir -p ./lighthouse-reports
@@ -290,10 +290,10 @@ jobs:
               "errorRate": "0%"
             }' > "$METRICS_FILE"
           fi
-          
+
           # Create work item in Azure DevOps for performance tracking
           METRICS=$(cat "$METRICS_FILE")
-          
+
           # Determine work item type based on performance
           PERFORMANCE_SCORE=$(echo "$METRICS" | jq -r '.performance')
           if [ "$PERFORMANCE_SCORE" -lt 90 ]; then
@@ -305,7 +305,7 @@ jobs:
             PRIORITY="3"
             TITLE="✅ Performance Validation Complete - ${{ matrix.audit-config.name }}"
           fi
-          
+
           # Create Azure DevOps work item
           curl -X POST \
             "https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}/_apis/wit/workitems/\$${WORK_ITEM_TYPE}?api-version=7.1-preview.3" \
@@ -373,17 +373,17 @@ jobs:
           node -e "
             const fs = require('fs');
             const path = require('path');
-            
+
             // Collect all performance metrics
             const allMetrics = {};
             const reportsDir = './all-lighthouse-reports';
-            
+
             console.log('📊 Searching for performance reports...');
-            
+
             if (fs.existsSync(reportsDir)) {
               const subdirs = fs.readdirSync(reportsDir);
               console.log('Found report directories:', subdirs);
-              
+
               subdirs.forEach(dir => {
                 const dirPath = path.join(reportsDir, dir);
                 if (fs.statSync(dirPath).isDirectory()) {
@@ -391,10 +391,10 @@ jobs:
                   const possibleFiles = [
                     path.join(dirPath, 'metrics-desktop.json'),
                     path.join(dirPath, 'metrics-mobile.json'),
-                    // Extract device name from directory name 
+                    // Extract device name from directory name
                     path.join(dirPath, \`metrics-\${dir.split('-').pop()}.json\`)
                   ];
-                  
+
                   possibleFiles.forEach(filePath => {
                     if (fs.existsSync(filePath)) {
                       console.log('Loading metrics from:', filePath);
@@ -421,11 +421,11 @@ jobs:
                 seo: 98
               };
             }
-            
+
             console.log('## 🧠 AI Performance Intelligence Summary');
             console.log('');
             console.log('### 📊 Cross-Device Performance Comparison');
-            
+
             Object.keys(allMetrics).forEach(device => {
               const metrics = allMetrics[device];
               console.log(\`
@@ -436,12 +436,12 @@ jobs:
               - **SEO**: \${metrics.seo}%
               \`);
             });
-            
+
             // Generate performance insights
             const deviceCount = Object.keys(allMetrics).length;
             if (deviceCount > 0) {
               const avgPerformance = Object.values(allMetrics).reduce((sum, m) => sum + m.performance, 0) / deviceCount;
-              
+
               console.log('### 🎯 Performance Insights');
               if (avgPerformance >= 95) {
                 console.log('✅ **EXCELLENT**: Performance exceeds enterprise standards across all devices');
@@ -450,7 +450,7 @@ jobs:
               } else {
                 console.log('🔴 **NEEDS ATTENTION**: Performance below enterprise standards - immediate optimization required');
               }
-              
+
               console.log(\`**Average Performance Score**: \${avgPerformance.toFixed(1)}%\`);
             } else {
               console.log('⚠️ No performance data available for analysis');
@@ -535,7 +535,7 @@ jobs:
             "Enhance accessibility compliance"
             "Improve SEO optimization"
           )
-          
+
           for TASK in "${TASKS[@]}"; do
             curl -X POST \
               "https://dev.azure.com/${{ env.AZURE_DEVOPS_ORG }}/${{ env.AZURE_DEVOPS_PROJECT }}/_apis/wit/workitems/\$Task?api-version=7.1-preview.3" \

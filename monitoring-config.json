@@ -1,5 +1,5 @@
 {
-  "subscriptionId": "1001490f-c77c-403e-be9e-97eac578d1d6",
+  "subscriptionId": "${AZURE_SUBSCRIPTION_ID}",
   "resourceGroups": [],
   "applications": [],
   "alerting": {

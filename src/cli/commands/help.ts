@@ -6,7 +6,7 @@ export const helpCommand = new Command('help')
   .option('--commands', 'Show detailed command help')
   .option('--examples', 'Show usage examples')
   .option('--phase2', 'Show Phase 2 smart packaging features')
-  .action((options: any) => {
+  .action((_options: any) => {
     console.log(chalk.blue.bold('\n🚀 Azure Marketplace Generator (azmp)'));
     console.log(chalk.gray('   Enterprise-grade Azure Marketplace solution builder\n'));
 

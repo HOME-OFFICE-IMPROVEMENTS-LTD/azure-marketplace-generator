@@ -40,7 +40,7 @@ export const insightsCommand = new Command('insights')
       let config;
       try {
         config = await aiService.loadConfiguration();
-      } catch (error) {
+      } catch (_error) {
         console.log(chalk.yellow('⚠️  No AI analytics configuration found.'));
         console.log(chalk.blue('💡 Run: azmp insights --init to initialize AI analytics'));
         return;
@@ -77,7 +77,7 @@ export const insightsCommand = new Command('insights')
         await exportInsights(aiService, result, options.export);
       }
 
-    } catch (error) {
+    } catch (_error) {
       console.error(chalk.red('❌ AI insights failed:'), error);
       process.exit(1);
     }
@@ -126,7 +126,7 @@ async function getMonitoringData(): Promise<any> {
     const config = await monitoringService.loadConfiguration();
     const result = await monitoringService.runMonitoring();
     return result;
-  } catch (error) {
+  } catch (_error) {
     console.log(chalk.yellow('⚠️  No monitoring data available, using sample data'));
     return getSampleMonitoringData();
   }
@@ -196,7 +196,7 @@ async function getSampleMonitoringData(): Promise<any> {
 async function runAIAnalytics(
   service: AIAnalyticsService,
   monitoringData: any,
-  options: any
+  _options: any
 ): Promise<AIAnalyticsResult> {
   console.log(chalk.blue('🧠 Running AI analytics...'));
 
@@ -345,7 +345,7 @@ function displayPredictions(predictions: any[], confidenceThreshold: number): vo
   }
 }
 
-function displayOptimizations(optimizations: any[]): void {
+function displayOptimizations(_optimizations: any[]): void {
   console.log(chalk.blue('⚡ AI OPTIMIZATIONS'));
   console.log(chalk.blue('-'.repeat(25)));
 
@@ -525,7 +525,7 @@ async function exportInsights(service: AIAnalyticsService, result: AIAnalyticsRe
     } else {
       console.log(chalk.red(`❌ Unsupported export format: ${format}`));
     }
-  } catch (error) {
+  } catch (_error) {
     console.error(chalk.red(`❌ Export failed: ${error}`));
   }
 }

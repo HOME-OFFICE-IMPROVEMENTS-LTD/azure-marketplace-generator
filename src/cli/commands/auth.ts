@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
@@ -16,7 +16,7 @@ export const authCommand = new Command('auth')
     console.log(chalk.blue('='.repeat(40)));
 
     const scriptPath = join(process.cwd(), 'scripts', 'azure-auth-helper.sh');
-    
+
     if (!existsSync(scriptPath)) {
       console.error(chalk.red('❌ Authentication helper script not found'));
       console.log(chalk.yellow('💡 Make sure you are in the project root directory'));
@@ -25,7 +25,7 @@ export const authCommand = new Command('auth')
 
     try {
       let command = 'check'; // default
-      
+
       if (options.fixMfa) {
         command = 'fix-mfa';
         console.log(chalk.yellow('🔧 Fixing MFA authentication issues...'));
@@ -43,24 +43,33 @@ export const authCommand = new Command('auth')
         console.log(chalk.yellow('🔍 Checking authentication status...'));
       }
 
-      // Execute the authentication helper script
-      const result = execSync(`bash "${scriptPath}" ${command}`, {
+      // Execute the authentication helper script securely
+      const result = spawnSync('bash', [scriptPath, command], {
         encoding: 'utf8',
         stdio: 'inherit'
       });
 
+      if (result.error) {
+        throw result.error;
+      }
+
+      if (result.status !== 0) {
+        console.error(chalk.red(`❌ Authentication operation failed with exit code ${result.status}`));
+        process.exit(result.status || 1);
+      }
+
       console.log(chalk.green('\n✅ Authentication operation completed'));
-      
+
     } catch (error: any) {
       console.error(chalk.red('❌ Authentication operation failed'));
       console.error(chalk.red(error.message));
-      
+
       console.log(chalk.blue('\n💡 Troubleshooting tips:'));
       console.log(chalk.blue('   • Check if Azure CLI is installed: az --version'));
       console.log(chalk.blue('   • Verify environment variables are set'));
       console.log(chalk.blue('   • Try clearing cache: azmp auth --clear'));
       console.log(chalk.blue('   • Use MFA fix: azmp auth --fix-mfa'));
-      
+
       process.exit(1);
     }
   });
@@ -76,8 +85,16 @@ export const testCommand = new Command('test-mcp')
     console.log(chalk.blue('='.repeat(30)));
     console.log(chalk.yellow(`Testing for: ${email}`));
 
+    // Validate email format to prevent injection
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(email)) {
+      console.error(chalk.red('❌ Invalid email format provided'));
+      console.log(chalk.yellow('💡 Please provide a valid email address'));
+      process.exit(1);
+    }
+
     const scriptPath = join(process.cwd(), 'scripts', 'test-devops-lighthouse.sh');
-    
+
     if (!existsSync(scriptPath)) {
       console.error(chalk.red('❌ MCP testing script not found'));
       console.log(chalk.yellow('💡 Make sure you are in the project root directory'));
@@ -86,7 +103,7 @@ export const testCommand = new Command('test-mcp')
 
     try {
       let command = 'all'; // default
-      
+
       if (options.devopsOnly) {
         command = 'devops';
       } else if (options.lighthouseOnly) {
@@ -95,24 +112,33 @@ export const testCommand = new Command('test-mcp')
         command = 'workitem';
       }
 
-      // Execute the MCP testing script
-      const result = execSync(`bash "${scriptPath}" ${command} ${email}`, {
+      // Execute the MCP testing script securely using argument arrays
+      const result = spawnSync('bash', [scriptPath, command, email], {
         encoding: 'utf8',
         stdio: 'inherit'
       });
 
+      if (result.error) {
+        throw result.error;
+      }
+
+      if (result.status !== 0) {
+        console.error(chalk.red(`❌ MCP testing failed with exit code ${result.status}`));
+        process.exit(result.status || 1);
+      }
+
       console.log(chalk.green('\n✅ MCP testing completed'));
-      
+
     } catch (error: any) {
       console.error(chalk.red('❌ MCP testing failed'));
       console.error(chalk.red(error.message));
-      
+
       console.log(chalk.blue('\n💡 Troubleshooting tips:'));
       console.log(chalk.blue('   • Check Azure DevOps environment variables'));
       console.log(chalk.blue('   • Verify PAT token permissions'));
       console.log(chalk.blue('   • Test authentication first: azmp auth --check'));
       console.log(chalk.blue('   • Install Lighthouse: npm install -g lighthouse'));
-      
+
       process.exit(1);
     }
   });
