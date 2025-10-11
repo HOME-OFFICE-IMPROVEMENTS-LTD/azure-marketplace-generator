@@ -56,37 +56,37 @@ jobs:
           node-version: '20'
           cache: 'npm'
       
-      - name: 📦 Install Predictive Analytics Dependencies
+      - name: 📦 Install and Build Platform
         run: |
-          npm install -g @predictive/security-analyzer @azure/openai-intelligence
-          npm install --save-dev @types/predictive-analytics
+          npm ci
+          npm run build
       
       - name: 🛡️ Security Threat Prediction
         id: security-prediction
         run: |
           echo "🛡️ Running security threat prediction analysis..."
           
-          # Analyze historical security patterns
-          security-predictor analyze \
+          # Initialize AI analytics for security predictions
+          npx azmp insights --init --ci-mode
+          npx azmp insights --load-models --type=security
+          
+          # Analyze security patterns using Phase 4 AI
+          npx azmp insights --security-analysis \
             --repository="${{ github.repository }}" \
             --historical-period="12-months" \
             --threat-vectors="dependency,code,infrastructure" \
             --prediction-horizon="${{ github.event.inputs.forecast_period || '90-days' }}" \
-            --output="security-predictions.json"
+            --output="security-predictions.json" \
+            --confidence-threshold="0.7"
           
-          # Generate threat probability matrix
-          security-predictor model \
-            --input="security-predictions.json" \
-            --model-type="threat-probability" \
-            --confidence-threshold="0.7" \
-            --output="threat-matrix.json"
-          
-          # Create predictive security recommendations
-          security-predictor recommend \
-            --threats="threat-matrix.json" \
-            --priority="critical,high,medium" \
-            --prevention-strategies="proactive" \
+          # Generate security recommendations using validation
+          npx azmp validate . \
+            --security \
+            --ai \
+            --predictive \
             --output="security-recommendations.json"
+          
+          echo "✅ Security threat prediction completed"
           
           echo "✅ Security threat prediction completed"
       
@@ -149,25 +149,33 @@ jobs:
         run: |
           echo "⚡ Running performance forecasting analysis..."
           
-          # Analyze performance trends and patterns
-          performance-predictor analyze \
+          # Initialize monitoring and AI for performance predictions
+          npx azmp monitor --init --enterprise-mode
+          npx azmp insights --load-models --type=performance
+          
+          # Analyze performance trends using Phase 4 AI
+          npx azmp insights --predictions \
             --repository="${{ github.repository }}" \
             --metrics="build-time,test-execution,deployment-speed,resource-usage" \
             --historical-data="6-months" \
             --forecast-period="${{ github.event.inputs.forecast_period || '90-days' }}" \
-            --output="performance-forecast.json"
+            --output="performance-forecast.json" \
+            --type=performance
           
           # Generate performance optimization recommendations
-          performance-predictor optimize \
-            --forecast="performance-forecast.json" \
+          npx azmp insights --optimizations \
+            --type=performance \
             --optimization-targets="speed,efficiency,cost" \
             --constraints="quality,security" \
             --output="performance-optimizations.json"
           
-          # Predict resource scaling needs
-          performance-predictor scale \
+          # Monitor current performance metrics
+          npx azmp monitor --performance \
             --current-usage="resource-metrics.json" \
             --growth-predictions="performance-forecast.json" \
+            --output="scaling-recommendations.json"
+          
+          echo "✅ Performance forecasting completed" \
             --scaling-strategy="predictive" \
             --output="scaling-recommendations.json"
           
@@ -211,20 +219,26 @@ jobs:
         run: |
           echo "📈 Running Azure Marketplace trend analysis..."
           
-          # Analyze Azure Marketplace trends and opportunities
-          market-intelligence analyze \
+          # Initialize AI analytics for market intelligence
+          npx azmp insights --load-models --type=market
+          
+          # Analyze Azure Marketplace trends using Phase 4 AI
+          npx azmp insights --market-intelligence \
             --marketplace="azure" \
             --category="development-tools,infrastructure,security" \
             --trend-period="12-months" \
             --competitive-analysis="enabled" \
-            --output="market-trends.json"
+            --output="market-trends.json" \
+            --prediction-horizon="${{ github.event.inputs.forecast_period || '90-days' }}"
           
-          # Generate market opportunity predictions
-          market-intelligence predict \
+          # Generate market opportunity analysis
+          npx azmp insights --optimizations \
+            --type=market \
             --trends="market-trends.json" \
-            --prediction-horizon="${{ github.event.inputs.forecast_period || '90-days' }}" \
             --opportunity-scoring="enabled" \
             --output="market-opportunities.json"
+          
+          echo "✅ Market trend analysis completed"
           
           # Create strategic recommendations
           market-intelligence recommend \
