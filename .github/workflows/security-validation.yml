@@ -51,7 +51,7 @@ jobs:
     - name: 🔐 Azure Login (SSO Integration) 
       uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5 # v2.3.0
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ secrets.AZURE_CREDENTIALS_MPN }}
         
     - name: 🛡️ ARM-TTK Security Validation
       run: |
