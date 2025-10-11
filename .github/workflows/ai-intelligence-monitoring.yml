@@ -42,185 +42,190 @@ jobs:
     permissions:
       contents: read
       actions: read
-    
+
     steps:
       - name: 🔄 Checkout Repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: 🧠 Setup AI Analytics Environment
         uses: actions/setup-node@v5
         with:
           node-version: '20'
           cache: 'npm'
-      
-      - name: 📊 Install AI Analysis Dependencies
+
+      - name: 📊 Install and Build Platform
         run: |
-          npm install -g @ai/code-analyzer @performance/intelligence-engine
-          npm install --save-dev @types/ai-analytics
-      
+          npm ci
+          npm run build
+
       - name: 🔍 AI Code Pattern Analysis
         id: code-analysis
         run: |
           echo "🤖 Running AI-powered code pattern analysis..."
-          
-          # Analyze code patterns and complexity
-          ai-analyzer scan \
+
+          # Initialize AI analytics with Phase 4 implementation
+          npx azmp insights --init --ci-mode
+          npx azmp insights --load-models --type=code-analysis
+
+          # Analyze code patterns and complexity using Phase 4
+          npx azmp insights --analyze-code \
             --path="./src" \
             --patterns="azure,typescript,arm-templates" \
             --output="analysis-report.json" \
             --intelligence-mode="${{ github.event.inputs.intelligence_mode || 'full-analysis' }}"
-          
+
           # Generate optimization recommendations
-          ai-analyzer optimize \
+          npx azmp insights --optimizations \
             --input="analysis-report.json" \
             --recommendations="optimization-recommendations.json" \
-            --auto-fix="safe-optimizations"
-          
+            --confidence-threshold=0.7
+
           echo "✅ AI code analysis completed"
-      
+
       - name: 🔮 Predictive Performance Modeling
         id: performance-prediction
         run: |
           echo "🔮 Running predictive performance modeling..."
-          
-          # Analyze current performance metrics
-          performance-intelligence analyze \
+
+          # Initialize monitoring with Phase 4 implementation
+          npx azmp monitor --init --enterprise-mode
+
+          # Analyze current performance metrics using Phase 4
+          npx azmp insights --predictions \
             --repository="${{ github.repository }}" \
             --prediction-horizon="${{ github.event.inputs.prediction_horizon || '30' }}" \
-            --output="performance-predictions.json"
-          
+            --output="performance-predictions.json" \
+            --type=performance
+
           # Generate resource optimization recommendations
-          performance-intelligence optimize \
+          npx azmp monitor --health-check \
             --azure-subscription="${{ env.AZURE_SUBSCRIPTION_ID }}" \
             --cost-target="optimization" \
-            --performance-target="high"
-          
+            --performance-target="high" \
+            --output="performance-optimization.json"
+
           echo "✅ Performance prediction completed"
-      
+
       - name: 🛡️ AI Security Threat Modeling
         id: security-modeling
         run: |
           echo "🛡️ Running AI security threat modeling..."
-          
-          # Analyze security patterns and vulnerabilities
-          security-ai-analyzer scan \
+
+          # Analyze security patterns using Phase 4 implementation
+          npx azmp insights --security-analysis \
             --path="." \
             --include-dependencies="true" \
             --threat-modeling="advanced" \
-            --output="security-predictions.json"
-          
-          # Generate security recommendations
-          security-ai-analyzer recommend \
-            --input="security-predictions.json" \
-            --priority="critical,high" \
+            --output="security-predictions.json" \
+            --confidence-threshold=0.8
+
+          # Generate security recommendations using validation
+          npx azmp validate . \
+            --security \
+            --ai \
+            --output="security-recommendations.json" \
             --auto-remediation="safe-fixes"
-          
+
           echo "✅ Security threat modeling completed"
-      
+
       - name: 💰 Intelligent Cost Optimization
         id: cost-optimization
         run: |
           echo "💰 Running intelligent cost optimization analysis..."
-          
-          # Analyze Azure resource usage and costs
-          cost-intelligence analyze \
+
+          # Analyze Azure resource usage and costs using Phase 4
+          npx azmp insights --cost-analysis \
             --subscription="${{ env.AZURE_SUBSCRIPTION_ID }}" \
             --resource-group="azure-marketplace-generator" \
             --optimization-target="cost-performance-balance" \
-            --output="cost-optimization.json"
-          
+            --output="cost-optimization.json" \
+            --recommendations
+
           # Generate cost-saving recommendations
-          cost-intelligence recommend \
+          npx azmp insights --optimizations \
+            --type=cost \
             --savings-target="20%" \
             --performance-threshold="maintain" \
             --recommendations="cost-recommendations.json"
-          
+
           echo "✅ Cost optimization analysis completed"
-      
+
       - name: 📊 Generate Intelligence Dashboard
         id: dashboard
         run: |
           echo "📊 Generating intelligence dashboard..."
-          
-          # Create comprehensive intelligence report
-          intelligence-dashboard generate \
+
+          # Create comprehensive intelligence report using Phase 4 monitoring
+          npx azmp monitor --dashboard \
+            --enterprise-layout \
+            --include-ai-insights \
             --code-analysis="analysis-report.json" \
             --performance="performance-predictions.json" \
             --security="security-predictions.json" \
             --cost="cost-optimization.json" \
             --output="intelligence-dashboard.html" \
             --format="executive-summary"
-          
+
           echo "✅ Intelligence dashboard generated"
-      
+
       - name: 🚨 Smart Alerting System
         id: smart-alerts
         run: |
           echo "🚨 Processing intelligent alerts..."
-          
-          # Analyze for critical issues requiring immediate attention
-          smart-alerting process \
+
+          # Analyze for critical issues using Phase 4 monitoring
+          npx azmp monitor --alerts \
             --intelligence-data="intelligence-dashboard.html" \
             --alert-thresholds="critical,high" \
             --notification-channels="github,slack,email" \
-            --auto-escalation="enabled"
-          
-          # Create GitHub issues for critical findings
+            --auto-escalation="enabled" \
+            --output="critical-alerts.json"
+
+          # Create summary of critical findings for GitHub issues
           if [ -f "critical-alerts.json" ]; then
-            echo "🚨 Critical issues detected - creating GitHub issues"
-            smart-alerting create-issues \
-              --repository="${{ github.repository }}" \
-              --token="${{ secrets.GITHUB_TOKEN }}" \
-              --alerts="critical-alerts.json" \
-              --assign-to="@maintainers"
+            echo "🚨 Critical issues detected - logged in alerts file"
+            echo "📝 Review critical-alerts.json for findings requiring attention"
           fi
-          
+
           echo "✅ Smart alerting processed"
-      
+
       - name: 🔄 Automated Optimization Implementation
         id: auto-optimization
         if: github.event.inputs.intelligence_mode == 'full-analysis' || github.event_name == 'schedule'
         run: |
           echo "🔄 Implementing safe automated optimizations..."
-          
-          # Apply safe optimizations automatically
-          auto-optimizer implement \
+
+          # Apply safe optimizations using Phase 4 insights
+          npx azmp insights --apply-optimizations \
             --optimizations="optimization-recommendations.json" \
             --safety-level="conservative" \
-            --auto-commit="true" \
-            --branch="feature/ai-optimizations-$(date +%Y%m%d-%H%M%S)"
-          
-          # Create PR for optimizations if changes were made
-          if [ "$(git status --porcelain)" ]; then
-            echo "📝 Creating PR for AI optimizations"
-            gh pr create \
-              --title "🤖 AI-Driven Code Optimizations - $(date +%Y-%m-%d)" \
-              --body "Automated optimizations generated by AI Intelligence Layer" \
-              --head "feature/ai-optimizations-$(date +%Y%m%d-%H%M%S)" \
-              --base "main" \
-              --assignee "@me"
-          fi
-          
-          echo "✅ Automated optimization completed"
-      
+            --dry-run \
+            --output="optimization-preview.json"
+
+          # Log optimization recommendations for review
+          echo "📝 Optimization recommendations generated"
+          echo "🔍 Review optimization-preview.json for potential improvements"
+
+          echo "✅ Automated optimization analysis completed"
+
       - name: 📈 Performance Metrics Collection
         id: metrics
         run: |
           echo "📈 Collecting performance metrics..."
-          
-          # Collect and store performance metrics
-          metrics-collector gather \
+
+          # Collect and store performance metrics using Phase 4 monitoring
+          npx azmp monitor --metrics \
             --repository="${{ github.repository }}" \
             --workflow-run="${{ github.run_id }}" \
             --intelligence-data="intelligence-dashboard.html" \
-            --storage="azure-analytics" \
+            --output="performance-metrics.json" \
             --retention="365-days"
-          
+
           echo "✅ Performance metrics collected"
-      
+
       - name: 📋 Upload Intelligence Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -233,7 +238,7 @@ jobs:
             intelligence-dashboard.html
             optimization-recommendations.json
           retention-days: 90
-      
+
       - name: ✅ Intelligence Analysis Summary
         run: |
           echo "🎉 AI Intelligence Monitoring Completed Successfully!"
@@ -256,48 +261,37 @@ jobs:
     permissions:
       contents: read
       actions: read
-    
+
     steps:
       - name: 🔄 Checkout Repository
         uses: actions/checkout@v5
-      
+
       - name: 🧠 ML Model Training & Inference
         run: |
           echo "🎯 Running machine learning insights analysis..."
-          
-          # Train models on repository data
-          ml-engine train \
+
+          # Use Phase 4 AI analytics for ML insights
+          npx azmp insights --ml-analysis \
             --data-source="repository-history" \
             --model-type="performance-prediction,security-classification,cost-optimization" \
             --training-period="6-months" \
-            --validation-split="0.2"
-          
-          # Generate insights using trained models
-          ml-engine infer \
-            --model="performance-prediction" \
-            --input="current-repository-state" \
             --output="ml-insights.json" \
             --confidence-threshold="0.8"
-          
+
           echo "✅ Machine learning insights generated"
-      
+
       - name: 📊 Behavioral Analysis
         run: |
           echo "📊 Running behavioral analysis..."
-          
-          # Analyze development patterns and team behavior
-          behavior-analyzer analyze \
+
+          # Analyze development patterns using Phase 4 insights
+          npx azmp insights --behavioral-analysis \
             --repository="${{ github.repository }}" \
             --analysis-period="3-months" \
             --metrics="commit-patterns,pr-velocity,issue-resolution" \
-            --output="behavioral-insights.json"
-          
-          # Generate team efficiency recommendations
-          behavior-analyzer recommend \
-            --insights="behavioral-insights.json" \
-            --optimization-target="team-efficiency" \
+            --output="behavioral-insights.json" \
             --recommendations="team-optimization.json"
-          
+
           echo "✅ Behavioral analysis completed"
 
   adaptive-optimization:
@@ -307,46 +301,37 @@ jobs:
     permissions:
       contents: read
       actions: read
-    
+
     steps:
       - name: 🔄 Checkout Repository
         uses: actions/checkout@v5
-      
+
       - name: 🎯 Continuous Learning & Adaptation
         run: |
           echo "🎯 Running adaptive optimization engine..."
-          
-          # Update optimization strategies based on historical results
-          adaptive-engine learn \
+
+          # Use Phase 4 AI for adaptive learning and optimization
+          npx azmp insights --adaptive-learning \
             --historical-data="past-optimizations" \
             --performance-metrics="current-metrics" \
             --adaptation-rate="moderate" \
-            --output="adaptive-strategies.json"
-          
-          # Apply adaptive optimizations
-          adaptive-engine optimize \
-            --strategies="adaptive-strategies.json" \
-            --target="repository-performance" \
+            --output="adaptive-strategies.json" \
             --safety-checks="enabled" \
             --rollback-capability="automatic"
-          
+
           echo "✅ Adaptive optimization completed"
-      
+
       - name: 📈 Continuous Improvement Tracking
         run: |
           echo "📈 Tracking continuous improvement metrics..."
-          
-          # Track improvement trends and effectiveness
-          improvement-tracker analyze \
+
+          # Track improvement trends using Phase 4 monitoring and insights
+          npx azmp monitor --improvement-tracking \
             --baseline="initial-metrics" \
             --current="latest-metrics" \
             --trend-analysis="6-months" \
-            --output="improvement-trends.json"
-          
-          # Generate executive dashboard
-          improvement-tracker dashboard \
-            --trends="improvement-trends.json" \
+            --output="improvement-trends.json" \
             --format="executive-summary" \
-            --output="executive-dashboard.html"
-          
+            --dashboard="executive-dashboard.html"
+
           echo "✅ Continuous improvement tracking completed"
