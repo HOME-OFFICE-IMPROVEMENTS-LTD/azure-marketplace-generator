@@ -23,7 +23,7 @@ export const createCommand = new Command('create')
     // Validate and normalize type
     const normalizedType = type.toLowerCase().trim();
     const supportedTypes = ['storage', 'vm', 'webapp'];
-    
+
     if (!supportedTypes.includes(normalizedType)) {
       console.error(chalk.red('❌ Unsupported application type:'), type);
       console.log(chalk.gray('Supported types:'), supportedTypes.join(', '));
