@@ -257,9 +257,77 @@ azmp pr --merge <number>                   # Merge when ready
 
 ---
 
+## 🧠 **AI Assistant Collaboration & MCP Framework**
+
+### **🌐 Model Context Protocol (MCP) Integration**
+
+Our platform provides access to **10+ remote MCP servers** and **4 local RAG capabilities** for enhanced AI assistant collaboration. This enables any AI assistant to leverage our comprehensive toolset effectively.
+
+**📚 [Complete MCP & RAG Documentation](./docs/MCP_AND_RAG_CAPABILITIES.md)**
+
+#### **Key MCP Capabilities**
+
+**Azure Management:**
+
+- **Resource Management**: Subscription and resource group operations
+- **Service Integration**: SignalR, Storage, Databases, Container services
+- **Security & Compliance**: Key Vault, RBAC, security analysis
+- **Monitoring & Analytics**: Application Insights, Azure Monitor, AI services
+
+**GitHub Integration:**
+
+- **Repository Management**: Commits, releases, tags, file operations
+- **Project Management**: Issues, labels, pull requests, project boards
+- **Workflow Automation**: GitHub Actions, CI/CD pipeline monitoring
+- **AI-Powered Search**: Contextual web search with citations
+
+**Documentation & Best Practices:**
+
+- **Microsoft Documentation**: Official Azure/Microsoft docs search and retrieval
+- **Azure Bicep**: Resource schemas, best practices, Azure Verified Modules
+- **Code Samples**: Official Microsoft Learn code examples
+
+#### **Local RAG Capabilities**
+
+- **🔍 Semantic Search**: Natural language code understanding across workspace
+- **🎯 Pattern Search**: Fast regex/text search with alternation support  
+- **📁 File Discovery**: Glob pattern-based file location
+- **🌐 Web Retrieval**: External documentation and resource fetching
+
+### **🤖 AI Assistant Collaboration Framework**
+
+**For AI Assistants Working with This Platform:**
+
+```bash
+# 1. Azure Resource Discovery Workflow
+mcp_azure_mcp_subscription_list              # List available subscriptions
+mcp_azure_mcp_group_list                     # List resource groups
+activate_azure_storage_and_databases         # Activate specialized MCPs
+mcp_azure_azure-m_documentation              # Search official guidance
+
+# 2. Code Understanding Workflow  
+semantic_search("AI provider implementation") # High-level understanding
+file_search("**/*ai-provider*.ts")          # Find relevant files
+grep_search("class.*Provider", isRegexp=true) # Pattern-based discovery
+
+# 3. GitHub Project Management Workflow
+mcp_github_github_list_commits               # Get recent changes context
+mcp_github_github_list_label                 # Check current labels
+mcp_github_github_web_search                 # AI-powered research
+```
+
+**Tool Selection Guidelines:**
+
+- **Azure Operations**: Start with core MCPs, activate specialized categories as needed
+- **Code Analysis**: Combine semantic search with pattern search for comprehensive coverage
+- **GitHub Management**: Chain list operations with detail operations for full context
+- **Documentation**: Use Microsoft Docs MCPs for official guidance and best practices
+
+---
+
 ## �️ **Advanced Features**
 
-### **� Workflow Monitoring**
+### **🧠 Workflow Monitoring**
 
 Monitor your GitHub Actions workflows automatically:
 
@@ -301,6 +369,7 @@ azmp workflow feature/oauth "Add OAuth2"   # Complete GitFlow automation
 ```
 
 **GitFlow Integration:**
+
 - Automatic feature branch creation
 - Integrated PR lifecycle management
 - CI/CD monitoring and status checks
@@ -410,14 +479,12 @@ Special thanks to:
 
 ---
 
-<div align="center">
+---
 
-**🚀 Built with ❤️ for the Azure Community**
+## 🚀 Built with ❤️ for the Azure Community
 
-**Welcome aboard! Let's build something amazing together! 🌟**
+Welcome aboard! Let's build something amazing together! 🌟
 
 ---
 
 *© 2025 HOME & OFFICE IMPROVEMENTS LTD. All rights reserved.*
-
-</div>
