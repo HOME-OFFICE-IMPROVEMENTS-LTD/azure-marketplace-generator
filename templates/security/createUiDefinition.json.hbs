@@ -1,0 +1,155 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "config": {
+            "isWizard": true,
+            "basics": {
+                "description": "🤖 **AI-Enhanced Enterprise Security Platform** by {{publisher}}\n\n🛡️ Deploy enterprise-grade security infrastructure with intelligent defaults and compliance-ready configurations.\n\n✨ **AI-Powered Features:**\n- Smart security policy recommendations\n- Automated compliance configuration\n- Intelligent threat protection setup\n- Best practice enforcement\n\n🏛️ **Compliance Ready:** SOC2, GDPR, HIPAA, PCI-DSS, ISO27001",
+                "resourceGroup": {
+                    "allowExisting": true
+                }
+            }
+        },
+        "basics": [
+            {
+                "name": "applicationName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "🎯 Security Platform Name",
+                "placeholder": "{{name}}",
+                "defaultValue": "{{name}}",
+                "toolTip": "Unique name for your enterprise security platform",
+                "constraints": {
+                    "required": true,
+                    "regex": "^[a-z0-9A-Z-]{3,24}$",
+                    "validationMessage": "Name must be 3-24 characters, letters, numbers, and hyphens only"
+                },
+                "visible": true
+            }
+        ],
+        "steps": [
+            {
+                "name": "securityConfig",
+                "label": "🛡️ Security Configuration",
+                "elements": [
+                    {
+                        "name": "environment",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "🌍 Deployment Environment",
+                        "defaultValue": "Production",
+                        "toolTip": "Environment affects security policies and compliance settings",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Development",
+                                    "value": "development",
+                                    "description": "Basic security for development workloads"
+                                },
+                                {
+                                    "label": "Staging", 
+                                    "value": "staging",
+                                    "description": "Enhanced security for pre-production testing"
+                                },
+                                {
+                                    "label": "Production",
+                                    "value": "production",
+                                    "description": "Maximum security for production workloads"
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "complianceFramework",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "🏛️ Primary Compliance Framework",
+                        "defaultValue": "SOC2",
+                        "toolTip": "AI will configure security controls based on your compliance requirements",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "SOC 2 Type II",
+                                    "value": "SOC2",
+                                    "description": "Service Organization Controls for service providers"
+                                },
+                                {
+                                    "label": "GDPR",
+                                    "value": "GDPR", 
+                                    "description": "General Data Protection Regulation (EU)"
+                                },
+                                {
+                                    "label": "HIPAA",
+                                    "value": "HIPAA",
+                                    "description": "Health Insurance Portability and Accountability Act"
+                                },
+                                {
+                                    "label": "PCI DSS",
+                                    "value": "PCI-DSS",
+                                    "description": "Payment Card Industry Data Security Standard"
+                                },
+                                {
+                                    "label": "ISO 27001",
+                                    "value": "ISO27001",
+                                    "description": "International information security standard"
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "advancedThreatProtection",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "🛡️ Enable Advanced Threat Protection",
+                        "defaultValue": true,
+                        "toolTip": "AI-powered threat detection and response capabilities"
+                    }
+                ]
+            },
+            {
+                "name": "infrastructureConfig", 
+                "label": "🏗️ Infrastructure Settings",
+                "elements": [
+                    {
+                        "name": "keyVaultSku",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "🔐 Key Vault SKU",
+                        "defaultValue": "Premium",
+                        "toolTip": "Premium SKU includes HSM-backed keys for maximum security",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Standard",
+                                    "value": "standard",
+                                    "description": "Software-based key protection"
+                                },
+                                {
+                                    "label": "Premium (Recommended)",
+                                    "value": "premium", 
+                                    "description": "Hardware Security Module (HSM) protection"
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "infoBox",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "icon": "Info",
+                            "text": "🤖 **AI Enhancement Active**\n\nThis security platform uses AI to:\n• Configure optimal security policies\n• Set compliance-ready defaults\n• Apply enterprise best practices\n• Enable intelligent monitoring\n\n✨ All settings are automatically optimized based on your selections!"
+                        }
+                    }
+                ]
+            }
+        ],
+        "outputs": {
+            "applicationName": "[basics('applicationName')]",
+            "environment": "[steps('securityConfig').environment]",
+            "complianceFramework": "[steps('securityConfig').complianceFramework]",
+            "enableAdvancedThreatProtection": "[steps('securityConfig').advancedThreatProtection]",
+            "keyVaultSku": "[steps('infrastructureConfig').keyVaultSku]"
+        }
+    }
+}

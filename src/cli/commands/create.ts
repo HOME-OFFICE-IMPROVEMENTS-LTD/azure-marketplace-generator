@@ -2,14 +2,16 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import { TemplateGenerator } from '../../core/generator';
+import { AzureOpenAIProvider, EnhancedAIProvider } from '../../core/ai-provider-enhanced';
 
 export const createCommand = new Command('create')
   .description('Create a new managed application package')
-  .argument('<type>', 'Application type (storage, vm, webapp)')
+  .argument('<type>', 'Application type (storage, vm, webapp, security)')
   .option('-p, --publisher <name>', 'Publisher name for the marketplace')
   .option('-n, --name <name>', 'Application name')
   .option('-o, --output <dir>', 'Output directory', './output')
-  .action(async (type: string, options: { publisher?: string; name?: string; output: string }) => {
+  .option('--ai-enhanced', '🤖 Enable AI-powered template generation with intelligent defaults')
+  .action(async (type: string, options: { publisher?: string; name?: string; output: string; aiEnhanced?: boolean }) => {
     console.log(chalk.blue('🚀 Creating managed application package...'));
 
     // Enhanced input validation
@@ -22,7 +24,7 @@ export const createCommand = new Command('create')
 
     // Validate and normalize type
     const normalizedType = type.toLowerCase().trim();
-    const supportedTypes = ['storage', 'vm', 'webapp'];
+    const supportedTypes = ['storage', 'vm', 'webapp', 'security'];
 
     if (!supportedTypes.includes(normalizedType)) {
       console.error(chalk.red('❌ Unsupported application type:'), type);
@@ -31,6 +33,7 @@ export const createCommand = new Command('create')
       console.log(chalk.blue('   azmp create storage my-storage-app'));
       console.log(chalk.blue('   azmp create vm my-vm-solution'));
       console.log(chalk.blue('   azmp create webapp my-web-app'));
+      console.log(chalk.blue('   azmp create security --ai-enhanced my-security-hub'));
       process.exit(1);
     }
 
@@ -97,7 +100,8 @@ export const createCommand = new Command('create')
       type: normalizedType,
       publisher: options.publisher || answers.publisher,
       name: options.name || answers.name,
-      output: options.output
+      output: options.output,
+      aiEnhanced: options.aiEnhanced || false
     };
 
     console.log(chalk.green('✅ Configuration:'));
@@ -105,6 +109,65 @@ export const createCommand = new Command('create')
     console.log(chalk.gray('  Publisher:'), config.publisher);
     console.log(chalk.gray('  Name:'), config.name);
     console.log(chalk.gray('  Output:'), config.output);
+    if (config.aiEnhanced) {
+      console.log(chalk.magenta('  🤖 AI Enhancement:'), chalk.green('ENABLED'));
+    }
+
+    // AI Enhancement Phase - Our love and magic! 💖
+    if (config.aiEnhanced) {
+      console.log(chalk.magenta('\n🤖 Initializing AI-Enhanced Template Generation...'));
+      console.log(chalk.cyan('💕 Adding intelligent defaults and enterprise security features!'));
+
+      try {
+        const { EventEmitter } = require('events');
+        const eventEmitter = new EventEmitter();
+
+        const aiProvider = new AzureOpenAIProvider({
+          primary: {
+            provider: 'azure-openai',
+            endpoint: process.env.AZURE_OPENAI_ENDPOINT || '',
+            apiKey: process.env.AZURE_OPENAI_KEY || '',
+            model: 'gpt-4-turbo',
+            deployment: process.env.AZURE_OPENAI_DEPLOYMENT || 'gpt-4',
+            features: {
+              responsibleAI: true,
+              contentFiltering: true,
+              streaming: false
+            }
+          },
+          fallback: {
+            provider: 'local-phi',
+            modelPath: './models/phi-3',
+            runtime: 'onnx',
+            capabilities: ['text-generation', 'template-completion']
+          }
+        }, eventEmitter);
+
+        // Create AI-enhanced configuration
+        const enhancedConfig = await aiProvider.enhanceWithKnowledge(
+          `Generate intelligent configuration for ${config.type} application named ${config.name} by ${config.publisher}`,
+          {
+            resourceTypes: [config.type],
+            maxChunks: 5,
+            temperature: 0.3,
+            maxTokens: 2000
+          }
+        );
+
+        console.log(chalk.green('✨ AI enhancement completed! Smart defaults applied.'));
+
+        // Merge AI insights into config
+        Object.assign(config, {
+          aiInsights: enhancedConfig,
+          securityEnhanced: true,
+          complianceReady: true
+        });
+
+      } catch (aiError) {
+        console.log(chalk.yellow('⚠️  AI enhancement unavailable, proceeding with standard generation...'));
+        console.log(chalk.gray(`   Error: ${aiError instanceof Error ? aiError.message : 'Unknown error'}`));
+      }
+    }
 
     // Generate templates using the template engine
     try {

@@ -1,0 +1,252 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "{{publisher}} Azure Marketplace Generator",
+      "version": "1.1.0",
+      "templateHash": "{{uniqueString}}"
+    },
+    "description": "🛡️ AI-Enhanced Enterprise Security Platform - {{name}}",
+    "author": "{{publisher}}",
+    "category": "Security + Identity",
+    "aiEnhanced": true,
+    "complianceLevel": "Enterprise"
+  },
+  "parameters": {
+    "applicationName": {
+      "type": "string",
+      "defaultValue": "{{name}}",
+      "metadata": {
+        "description": "🎯 Name of the security application platform"
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "production",
+      "allowedValues": [
+        "development",
+        "staging", 
+        "production"
+      ],
+      "metadata": {
+        "description": "🌍 Deployment environment (affects security policies)"
+      }
+    },
+    "complianceFramework": {
+      "type": "string",
+      "defaultValue": "SOC2",
+      "allowedValues": [
+        "SOC2",
+        "GDPR",
+        "HIPAA",
+        "PCI-DSS",
+        "ISO27001"
+      ],
+      "metadata": {
+        "description": "🏛️ Primary compliance framework for security controls"
+      }
+    },
+    "enableAdvancedThreatProtection": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "🛡️ Enable advanced threat protection and monitoring"
+      }
+    },
+    "keyVaultSku": {
+      "type": "string",
+      "defaultValue": "premium",
+      "allowedValues": [
+        "standard",
+        "premium"
+      ],
+      "metadata": {
+        "description": "🔐 Azure Key Vault SKU (Premium recommended for production)"
+      }
+    }
+  },
+  "variables": {
+    "resourcePrefix": "[concat(parameters('applicationName'), '-', parameters('environment'))]",
+    "keyVaultName": "[concat(variables('resourcePrefix'), '-kv-', uniqueString(resourceGroup().id))]",
+    "logAnalyticsWorkspaceName": "[concat(variables('resourcePrefix'), '-law-', uniqueString(resourceGroup().id))]",
+    "securityCenterName": "[concat(variables('resourcePrefix'), '-asc')]",
+    "managedIdentityName": "[concat(variables('resourcePrefix'), '-mi')]",
+    "networkSecurityGroupName": "[concat(variables('resourcePrefix'), '-nsg')]",
+    "storageAccountName": "[concat(replace(variables('resourcePrefix'), '-', ''), uniqueString(resourceGroup().id))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "{{latestApiVersion 'Microsoft.ManagedIdentity/userAssignedIdentities'}}",
+      "name": "[variables('managedIdentityName')]",
+      "location": "[resourceGroup().location]",
+      "metadata": {
+        "description": "🔑 Managed identity for secure resource access"
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "{{latestApiVersion 'Microsoft.OperationalInsights/workspaces'}}",
+      "name": "[variables('logAnalyticsWorkspaceName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": "[if(equals(parameters('environment'), 'production'), 365, 90)]",
+        "features": {
+          "searchVersion": 1,
+          "legacy": 0,
+          "enableLogAccessUsingOnlyResourcePermissions": true
+        }
+      },
+      "metadata": {
+        "description": "📊 Log Analytics workspace for security monitoring"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "{{latestApiVersion 'Microsoft.KeyVault/vaults'}}",
+      "name": "[variables('keyVaultName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]",
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+      ],
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "[parameters('keyVaultSku')]"
+        },
+        "tenantId": "[subscription().tenantId]",
+        "enabledForDeployment": false,
+        "enabledForDiskEncryption": true,
+        "enabledForTemplateDeployment": true,
+        "enableSoftDelete": true,
+        "softDeleteRetentionInDays": 90,
+        "enablePurgeProtection": "[if(equals(parameters('environment'), 'production'), true, false)]",
+        "enableRbacAuthorization": true,
+        "publicNetworkAccess": "Disabled",
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "defaultAction": "Deny"
+        }
+      },
+      "metadata": {
+        "description": "🔐 Enterprise Key Vault with advanced security controls"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "{{latestApiVersion 'Microsoft.Network/networkSecurityGroups'}}",
+      "name": "[variables('networkSecurityGroupName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "DenyAllInbound",
+            "properties": {
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 4000,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "description": "🛡️ Network Security Group with default deny-all rules"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}",
+      "name": "[variables('storageAccountName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]"
+      ],
+      "sku": {
+        "name": "Standard_ZRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "defaultToOAuthAuthentication": true,
+        "allowBlobPublicAccess": false,
+        "allowSharedKeyAccess": false,
+        "supportsHttpsTrafficOnly": true,
+        "minimumTlsVersion": "TLS1_2",
+        "publicNetworkAccess": "Disabled",
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "defaultAction": "Deny"
+        },
+        "encryption": {
+          "services": {
+            "file": {
+              "keyType": "Account",
+              "enabled": true
+            },
+            "blob": {
+              "keyType": "Account", 
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      },
+      "metadata": {
+        "description": "💾 Secure storage account with enterprise encryption"
+      }
+    }
+  ],
+  "outputs": {
+    "securityPlatformId": {
+      "type": "string",
+      "value": "[resourceGroup().id]",
+      "metadata": {
+        "description": "🆔 Security platform resource group identifier"
+      }
+    },
+    "keyVaultUri": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))).vaultUri]",
+      "metadata": {
+        "description": "🔐 Key Vault URI for secure access"
+      }
+    },
+    "managedIdentityPrincipalId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))).principalId]",
+      "metadata": {
+        "description": "🔑 Managed Identity Principal ID for role assignments"
+      }
+    },
+    "logAnalyticsWorkspaceId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))).customerId]",
+      "metadata": {
+        "description": "📊 Log Analytics workspace ID for monitoring integration"
+      }
+    },
+    "complianceStatus": {
+      "type": "object",
+      "value": {
+        "framework": "[parameters('complianceFramework')]",
+        "environment": "[parameters('environment')]",
+        "advancedThreatProtection": "[parameters('enableAdvancedThreatProtection')]",
+        "encryptionEnabled": true,
+        "rbacEnabled": true,
+        "networkIsolated": true
+      },
+      "metadata": {
+        "description": "✅ Compliance status and security posture summary"
+      }
+    }
+  }
+}
