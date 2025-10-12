@@ -60,7 +60,7 @@ const secretClient = new SecretClient(
 );
 
 // ❌ Prohibited: Hardcoded secrets
-const apiKey = "secret-key-123"; // NEVER DO THIS
+const apiKey = "YOUR_SECRET_HERE"; // NEVER DO THIS
 ```
 
 ---
