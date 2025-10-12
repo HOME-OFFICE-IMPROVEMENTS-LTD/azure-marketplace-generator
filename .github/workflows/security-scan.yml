@@ -40,20 +40,6 @@ jobs:
     - name: Run custom security scan
       run: npm run test:security
 
-    - name: Run Snyk security scan
-      uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=medium
-
-    - name: Upload security scan results
-      uses: github/codeql-action/upload-sarif@f443b600d91635bebf5b0d9ebc620189c0d6fba5
-      if: always()
-      with:
-        sarif_file: security-results.sarif
-      continue-on-error: true
-
     - name: Build and test
       run: |
         npm run build

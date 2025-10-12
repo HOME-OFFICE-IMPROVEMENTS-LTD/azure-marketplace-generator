@@ -162,7 +162,7 @@ This repository follows a **GitFlow-inspired workflow** with strict branch prote
 
 ### Required Checks
 All PRs must pass these checks before merging:
-1. **Security Scan** - Snyk vulnerability scanning
+1. **Security Scan** - GitHub Enterprise security scanning
 2. **Enterprise Security Compliance** - HOILTD security policies
 3. **TypeScript Compilation** - Strict mode compilation
 4. **Unit Tests** - All tests must pass
