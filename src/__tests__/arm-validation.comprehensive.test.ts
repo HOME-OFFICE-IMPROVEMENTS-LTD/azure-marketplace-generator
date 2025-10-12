@@ -1,20 +1,25 @@
 import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import * as path from 'path';
-import { ArmTtkValidator } from '../core/validator';
 
-// Mock modules
-const mockSpawn = jest.fn();
-jest.mock('child_process', () => ({
-  spawn: mockSpawn
-}));
-
-const mockFs = {
+// Mock fs-extra
+jest.mock('fs-extra', () => ({
   pathExists: jest.fn(),
   readJson: jest.fn(),
   readFile: jest.fn(),
   stat: jest.fn()
-};
-jest.mock('fs-extra', () => mockFs);
+}));
+
+// Mock child_process
+jest.mock('child_process', () => ({
+  spawn: jest.fn()
+}));
+
+import { ArmTtkValidator } from '../core/validator';
+import * as childProcess from 'child_process';
+import * as fs from 'fs-extra';
+
+const mockSpawn = jest.mocked(childProcess.spawn);
+const mockFs = jest.mocked(fs);
 
 // Simple interfaces for testing
 interface ValidationResult {
