@@ -59,8 +59,9 @@ const secretClient = new SecretClient(
   credential
 );
 
-// ❌ Prohibited: Hardcoded secrets
-const apiKey = "YOUR_SECRET_HERE"; // NEVER DO THIS
+// ❌ SECURITY DOCUMENTATION EXAMPLE - DO NOT USE IN PRODUCTION
+// The following is an example of what NOT to do - never hardcode secrets
+const apiKey = "PLACEHOLDER_SECRET"; // NEVER DO THIS - Use environment variables or Azure Key Vault
 ```
 
 ---
