@@ -15,12 +15,21 @@ on:
         - staging
         - production
 
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+  deployments: write
+
 env:
   NODE_VERSION: '18'
 
 jobs:
   pre-deployment-validation:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -56,6 +65,8 @@ jobs:
   performance-testing:
     needs: pre-deployment-validation
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -98,6 +109,8 @@ jobs:
   marketplace-compliance:
     needs: pre-deployment-validation
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -152,6 +165,9 @@ jobs:
   staging-deployment:
     needs: [pre-deployment-validation, performance-testing, marketplace-compliance]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     if: github.event.inputs.environment == 'staging' || (github.ref_type == 'tag' && !contains(github.ref_name, 'prod'))
     environment: staging
     steps:
@@ -194,6 +210,9 @@ jobs:
   production-deployment:
     needs: [pre-deployment-validation, performance-testing, marketplace-compliance]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
     if: github.event.inputs.environment == 'production' || (github.ref_type == 'tag' && contains(github.ref_name, 'prod'))
     environment: production
     steps:
@@ -239,12 +258,12 @@ jobs:
 
     - name: Create GitHub Release
       if: github.ref_type == 'tag'
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v2.0.5
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref_name }}
-        release_name: Azure Marketplace Generator ${{ github.ref_name }}
+        name: Azure Marketplace Generator ${{ github.ref_name }}
         body: |
           🚀 Production release of Azure Marketplace Generator
 
@@ -268,6 +287,8 @@ jobs:
   post-deployment-monitoring:
     needs: [staging-deployment]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: always()
     steps:
     - name: Post-deployment health check
