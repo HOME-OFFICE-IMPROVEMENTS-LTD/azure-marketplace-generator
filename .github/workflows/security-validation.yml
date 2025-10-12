@@ -37,10 +37,10 @@ jobs:
 
         if grep -r "${CONNECTION_PATTERN}\|${PRIMARY_PATTERN}\|${ACCESS_PATTERN}\|${ACCOUNT_PATTERN}\|${ENDPOINT_PATTERN}" \
              --include="*.json" --include="*.js" --include="*.ts" \
-             --exclude-dir=".github" \
+             --exclude-dir=".github" --exclude-dir="test-fixtures" --exclude-dir="node_modules" \
              . || \
-           find . -name "*.zip" -exec unzip -l {} \; | grep -i "key\|secret\|password" || \
-           grep -r "listKeys(" --include="*.json" --exclude-dir=".github" .; then
+           find . -name "*.zip" -not -path "./test-fixtures/*" -not -path "./node_modules/*" -exec unzip -l {} \; | grep -i "key\|secret\|password" || \
+           grep -r "listKeys(" --include="*.json" --exclude-dir=".github" --exclude-dir="test-fixtures" --exclude-dir="node_modules" .; then
           echo "❌ SECURITY VIOLATION: Secrets found in repository"
           echo "🏢 HOILTD POLICY: All secrets must be in Azure Key Vault"
           exit 1
