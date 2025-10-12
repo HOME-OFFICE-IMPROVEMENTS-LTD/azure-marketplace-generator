@@ -14,7 +14,7 @@ This document catalogs all available Model Context Protocol (MCP) tools and Retr
 - **mcp_azure_mcp_subscription_list**: List all subscriptions for account
 - **Purpose**: Scope selection, governance, policy, access, cost management
 
-#### Azure SignalR Services  
+#### Azure SignalR Services
 - **mcp_azure_mcp_signalr**: Manage Azure SignalR Service resources
 - **mcp_azure_azure-m_signalr**: SignalR operations and management
 - **Purpose**: Real-time communication service management
@@ -39,7 +39,7 @@ This document catalogs all available Model Context Protocol (MCP) tools and Retr
 - **mcp_github_github_list_commits**: List commits for branches with pagination
 - **mcp_github_github_push_files**: Push multiple files in single commit
 
-#### GitHub Issues & Labels  
+#### GitHub Issues & Labels
 - **mcp_github_github_get_issue_comments**: Get comments for specific issues
 - **mcp_github_github_get_label**: Get specific repository labels
 - **mcp_github_github_label_write**: Create, update, delete labels
@@ -47,7 +47,7 @@ This document catalogs all available Model Context Protocol (MCP) tools and Retr
 
 #### GitHub Releases & Tags
 - **mcp_github_github_get_latest_release**: Get latest repository release
-- **mcp_github_github_get_release_by_tag**: Get release by tag name  
+- **mcp_github_github_get_release_by_tag**: Get release by tag name
 - **mcp_github_github_get_tag**: Get git tag details
 - **mcp_github_github_list_releases**: List repository releases with pagination
 
@@ -101,7 +101,7 @@ Available via activation functions:
 
 ### Container & App Services
 - **Azure Container Registry (ACR)**: Container image management
-- **Azure Kubernetes Service (AKS)**: Kubernetes cluster management  
+- **Azure Kubernetes Service (AKS)**: Kubernetes cluster management
 - **App Service**: Web app and database management
 - **Function Apps**: Serverless function management
 
@@ -116,7 +116,7 @@ Available via activation functions:
 - **Role Management**: RBAC permissions and assignments
 - **Compliance Reports**: Azure Quick Review (azqr) security analysis
 
-### Monitoring & Diagnostics  
+### Monitoring & Diagnostics
 - **Application Insights**: Performance monitoring
 - **Azure Monitor**: Logs and metrics analysis
 - **Resource Health**: Availability and health status
@@ -176,7 +176,7 @@ Available via activation functions:
 - **Context Building**: Use documentation MCPs to understand before acting
 - **State Management**: Track changes across multiple MCP calls
 
-#### RAG Integration  
+#### RAG Integration
 - **Multi-Modal Search**: Combine semantic and pattern search for comprehensive coverage
 - **Context Relevance**: Filter search results by file types and project areas
 - **Knowledge Synthesis**: Combine local code context with external documentation
@@ -189,7 +189,7 @@ Available via activation functions:
 # 1. List subscriptions
 mcp_azure_mcp_subscription_list
 
-# 2. List resource groups in target subscription  
+# 2. List resource groups in target subscription
 mcp_azure_mcp_group_list
 
 # 3. Activate storage MCPs if needed
@@ -207,7 +207,7 @@ semantic_search("AI provider implementation")
 # 2. Find specific files
 file_search("**/*ai-provider*.ts")
 
-# 3. Pattern search for specific implementations  
+# 3. Pattern search for specific implementations
 grep_search("class.*Provider", isRegexp=true)
 
 # 4. Get external context if needed
@@ -220,7 +220,7 @@ fetch_webpage("https://docs.microsoft.com/azure/openai/")
 mcp_github_github_list_commits
 
 # 2. Check current labels
-mcp_github_github_list_label  
+mcp_github_github_list_label
 
 # 3. Update project items
 mcp_github_github_update_project_item
@@ -233,7 +233,7 @@ mcp_github_github_web_search
 
 ### Azure Service Categories
 - **Storage & Databases**: `activate_azure_storage_and_databases`
-- **Container Management**: `activate_azure_container_management`  
+- **Container Management**: `activate_azure_container_management`
 - **Monitoring & Diagnostics**: `activate_azure_monitoring_and_diagnostics`
 - **Security & Access**: `activate_azure_security_and_access_management`
 - **AI & Analytics**: `activate_azure_ai_and_analytics`

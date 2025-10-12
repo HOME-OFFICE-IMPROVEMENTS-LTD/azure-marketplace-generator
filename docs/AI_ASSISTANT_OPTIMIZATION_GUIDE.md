@@ -10,7 +10,7 @@ This guide is specifically designed for AI assistants working with the Azure Mar
 ### The Four Pillars of Effective AI Assistance
 
 1. **Context Acquisition**: Gather comprehensive understanding before acting
-2. **Tool Orchestration**: Chain multiple tools for enhanced capabilities  
+2. **Tool Orchestration**: Chain multiple tools for enhanced capabilities
 3. **Knowledge Synthesis**: Combine local workspace knowledge with external expertise
 4. **Progressive Refinement**: Start broad, then narrow focus based on findings
 
@@ -25,7 +25,7 @@ This guide is specifically designed for AI assistants working with the Azure Mar
 semantic_search("overall architecture")
 semantic_search("main entry points")
 
-# Phase 2: Specific Component Discovery  
+# Phase 2: Specific Component Discovery
 file_search("**/*.{ts,js,json}")
 grep_search("export.*class|interface", isRegexp=true)
 
@@ -127,7 +127,7 @@ mcp_github_github_list_commits + recent changes context
 semantic_search("template validation")
 file_search("**/*template*.{json,bicep}")
 
-# 2. Azure Best Practices  
+# 2. Azure Best Practices
 activate_azure_bicep_tools
 mcp_bicep_experim_get_bicep_best_practices
 
@@ -192,7 +192,7 @@ mcp_azure_azure-m_documentation + deployment best practices
 # DO: Execute independent MCP calls in parallel
 [mcp_azure_mcp_subscription_list, mcp_github_github_list_commits] // Parallel
 
-# DON'T: Chain dependent calls unnecessarily  
+# DON'T: Chain dependent calls unnecessarily
 mcp_azure_mcp_subscription_list → wait → mcp_azure_mcp_group_list // Sequential when needed
 ```
 
@@ -259,7 +259,7 @@ semantic_search("relevant task domain")
 file_search("**/*relevant-files*")
 mcp_github_github_get_commit + recent related changes
 
-# State Documentation  
+# State Documentation
 grep_search("current.*status|progress", isRegexp=true)
 semantic_search("completed work current blockers")
 
@@ -277,7 +277,7 @@ mcp_azure_azure-m_documentation + task-specific guidance
 semantic_search("problem domain context")
 mcp_github_github_web_search + current solutions
 
-# Solution Space Exploration  
+# Solution Space Exploration
 activate_* + relevant Azure services
 mcp_azure_azure-m_documentation + solution patterns
 
@@ -312,7 +312,7 @@ semantic_search("implementation coordination patterns")
 
 **Tool Misuse**:
 - Using grep_search for broad conceptual queries (use semantic_search instead)
-- Using semantic_search for specific string matching (use grep_search instead)  
+- Using semantic_search for specific string matching (use grep_search instead)
 - Making sequential MCP calls when parallel execution is possible
 - Overusing fetch_webpage for information available in local documentation
 
@@ -330,7 +330,7 @@ semantic_search("implementation coordination patterns")
 semantic_search("implementation patterns error handling validation")  // Multi-concept
 semantic_search("Azure OpenAI integration configuration examples")    // Specific domain
 
-# Ineffective Patterns  
+# Ineffective Patterns
 semantic_search("file")                                               // Too broad
 semantic_search("this specific variable name")                       // Too narrow
 ```

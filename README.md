@@ -290,7 +290,7 @@ Our platform provides access to **10+ remote MCP servers** and **4 local RAG cap
 #### **Local RAG Capabilities**
 
 - **🔍 Semantic Search**: Natural language code understanding across workspace
-- **🎯 Pattern Search**: Fast regex/text search with alternation support  
+- **🎯 Pattern Search**: Fast regex/text search with alternation support
 - **📁 File Discovery**: Glob pattern-based file location
 - **🌐 Web Retrieval**: External documentation and resource fetching
 
@@ -305,7 +305,7 @@ mcp_azure_mcp_group_list                     # List resource groups
 activate_azure_storage_and_databases         # Activate specialized MCPs
 mcp_azure_azure-m_documentation              # Search official guidance
 
-# 2. Code Understanding Workflow  
+# 2. Code Understanding Workflow
 semantic_search("AI provider implementation") # High-level understanding
 file_search("**/*ai-provider*.ts")          # Find relevant files
 grep_search("class.*Provider", isRegexp=true) # Pattern-based discovery
