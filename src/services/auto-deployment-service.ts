@@ -117,7 +117,7 @@ export class AutoDeploymentService {
       };
 
     } catch (error: any) {
-      console.error(chalk.red('❌ Auto-deployment failed:'), (_error as Error).message);
+      console.error(chalk.red('❌ Auto-deployment failed:'), (error as Error).message);
 
       return {
         success: false,
@@ -321,8 +321,8 @@ export class AutoDeploymentService {
 
       return deployment.id;
     } catch (error: any) {
-      console.error(chalk.red('❌ Deployment failed:'), (_error as Error).message);
-      throw new Error(`Deployment execution failed: ${(_error as Error).message}`);
+      console.error(chalk.red('❌ Deployment failed:'), (error as Error).message);
+      throw new Error(`Deployment execution failed: ${(error as Error).message}`);
     }
   }
 

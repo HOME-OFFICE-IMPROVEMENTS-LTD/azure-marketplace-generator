@@ -75,16 +75,16 @@ jobs:
     - name: Performance benchmarks
       run: |
         echo "🚀 Running performance tests..."
-        
+
         # Test CLI startup time
         time node dist/cli/index.js --help > /dev/null
-        
+
         # Test build performance
         time npm run build > /dev/null
-        
+
         # Test package size
         du -sh dist/
-        
+
         # Memory usage test
         node -e "
           const process = require('process');
@@ -135,7 +135,7 @@ jobs:
     - name: Validate marketplace templates
       run: |
         echo "🔍 Validating Azure marketplace templates..."
-        
+
         # Check required files exist
         files=("azure-deployment/mainTemplate.json" "azure-deployment/createUiDefinition.json")
         for file in "${files[@]}"; do
@@ -247,17 +247,17 @@ jobs:
         release_name: Azure Marketplace Generator ${{ github.ref_name }}
         body: |
           🚀 Production release of Azure Marketplace Generator
-          
+
           ## What's Changed
           - Security vulnerabilities fixed
           - Performance optimizations
           - Enhanced marketplace compliance
-          
+
           ## Installation
           ```bash
           npm install -g @hoiltd/azure-marketplace-generator
           ```
-          
+
           ## Usage
           ```bash
           azmp --help
@@ -274,7 +274,7 @@ jobs:
       run: |
         echo "📊 Post-deployment monitoring initiated"
         echo "✅ Security scans: PASSED"
-        echo "✅ Performance tests: PASSED" 
+        echo "✅ Performance tests: PASSED"
         echo "✅ Marketplace compliance: VERIFIED"
         echo "✅ Deployment pipeline: COMPLETED"
 

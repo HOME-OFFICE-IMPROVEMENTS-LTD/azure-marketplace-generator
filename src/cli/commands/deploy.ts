@@ -16,7 +16,7 @@ export const deployCommand = new Command('deploy')
   .option('--auto-approve', 'Skip deployment confirmation prompts')
   .option('--parameters <json>', 'JSON string of deployment parameters')
   .option('--timeout <minutes>', 'Deployment timeout in minutes', '30')
-  .action(async (packagePath: string, _options: any) => {
+  .action(async (packagePath: string, options: any) => {
     console.log(chalk.blue.bold('🚀 PHASE 3: AUTO-DEPLOYMENT ACTIVE'));
     console.log(chalk.gray('  Package:'), packagePath);
     console.log(chalk.gray('  Target:'), options.resourceGroup || '[interactive]');
@@ -78,7 +78,7 @@ export const deployCommand = new Command('deploy')
     }
   });
 
-async function buildDeploymentConfig(packagePath: string, _options: any): Promise<DeploymentConfiguration> {
+async function buildDeploymentConfig(packagePath: string, options: any): Promise<DeploymentConfiguration> {
   const inquirer = require('inquirer');
 
   // Get package name for defaults

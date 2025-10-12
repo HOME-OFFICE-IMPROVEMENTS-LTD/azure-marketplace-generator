@@ -2,6 +2,7 @@ import Handlebars from 'handlebars';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import chalk from 'chalk';
+import { AppConfig } from '../config/app-config';
 
 export interface TemplateConfig {
   type: string;
@@ -15,13 +16,13 @@ export class TemplateGenerator {
   private templateDir: string;
 
   constructor() {
-    this.templateDir = path.join(__dirname, '../templates');
+    this.templateDir = AppConfig.getTemplatesDir();
     this.registerHelpers();
   }
 
   private registerHelpers() {
     // Custom Handlebars helpers for ARM templates
-    
+
     // Generate unique string (Trade Secret: Azure requires unique resource names)
     Handlebars.registerHelper('uniqueString', (prefix: string) => {
       const suffix = Math.random().toString(36).substring(2, 8);
@@ -62,7 +63,7 @@ export class TemplateGenerator {
     console.log(chalk.blue('🎨 Generating templates from Handlebars...'));
 
     const templatePath = path.join(this.templateDir, config.type);
-    
+
     if (!await fs.pathExists(templatePath)) {
       throw new Error(`Template not found for type: ${config.type}`);
     }
@@ -80,7 +81,7 @@ export class TemplateGenerator {
     if (await fs.pathExists(nestedDir)) {
       const nestedOutputDir = path.join(config.output, 'nestedtemplates');
       await fs.ensureDir(nestedOutputDir);
-      
+
       const nestedFiles = await fs.readdir(nestedDir);
       for (const file of nestedFiles) {
         if (file.endsWith('.hbs')) {
@@ -94,9 +95,9 @@ export class TemplateGenerator {
   }
 
   private async generateFile(
-    templateDir: string, 
-    templateFile: string, 
-    config: TemplateConfig, 
+    templateDir: string,
+    templateFile: string,
+    config: TemplateConfig,
     outputFile: string,
     outputDir?: string
   ): Promise<void> {
@@ -110,7 +111,7 @@ export class TemplateGenerator {
 
     const templateContent = await fs.readFile(templatePath, 'utf8');
     const template = Handlebars.compile(templateContent);
-    
+
     // Generate context for template
     const context = {
       ...config,
@@ -123,7 +124,7 @@ export class TemplateGenerator {
 
     const result = template(context);
     await fs.writeFile(outputPath, result, 'utf8');
-    
+
     console.log(chalk.gray(`  Generated: ${outputFile}`));
   }
 }

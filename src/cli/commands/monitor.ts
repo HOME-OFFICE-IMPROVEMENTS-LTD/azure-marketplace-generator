@@ -69,7 +69,7 @@ export const monitorCommand = new Command('monitor')
         await runSingleMonitoring(monitoringService, options);
       }
 
-    } catch (_error) {
+    } catch (error) {
       console.error(chalk.red('❌ Monitoring failed:'), error);
       process.exit(1);
     }
@@ -158,7 +158,7 @@ async function generateDashboard(service: EnterpriseMonitoringService): Promise<
   console.log(chalk.blue('💡 Open in browser to view monitoring data'));
 }
 
-async function runSingleMonitoring(service: EnterpriseMonitoringService, _options: any): Promise<void> {
+async function runSingleMonitoring(service: EnterpriseMonitoringService, options: any): Promise<void> {
   console.log(chalk.blue('🔍 Running monitoring cycle...'));
 
   const startTime = Date.now();
@@ -220,7 +220,7 @@ async function runContinuousMonitoring(service: EnterpriseMonitoringService, int
         }
       }
 
-    } catch (_error) {
+    } catch (error) {
       console.error(chalk.red(`❌ Monitoring cycle failed: ${error}`));
     }
 
@@ -235,7 +235,7 @@ function displayMonitoringSummary(result: any): void {
 
   // Application Status
   console.log(chalk.yellow('\n🎯 Application Status:'));
-  const statusCounts = result.applications.reduce((acc: any, _app: any) => {
+  const statusCounts = result.applications.reduce((acc: any, app: any) => {
     acc[app.status] = (acc[app.status] || 0) + 1;
     return acc;
   }, {});
@@ -282,7 +282,7 @@ function displayMonitoringSummary(result: any): void {
 }
 
 function displayBriefSummary(result: any, duration: number): void {
-  const healthy = result.applications.filter((_app: any) => app.status === 'healthy').length;
+  const healthy = result.applications.filter((app: any) => app.status === 'healthy').length;
   const total = result.applications.length;
   const criticalAlerts = result.alerts.filter((alert: any) => alert.severity === 'critical').length;
 
@@ -452,12 +452,12 @@ async function exportReport(result: any, format: string): Promise<void> {
     }
 
     console.log(chalk.green(`✅ Report exported: ${filename}`));
-  } catch (_error) {
+  } catch (error) {
     console.error(chalk.red(`❌ Export failed: ${error}`));
   }
 }
 
-async function monitorWorkflows(_options: any): Promise<void> {
+async function monitorWorkflows(options: any): Promise<void> {
   console.log(chalk.blue('🔄 GitHub Actions Workflow Monitor'));
   console.log(chalk.blue('='.repeat(40)));
 
@@ -638,13 +638,13 @@ async function monitorWorkflows(_options: any): Promise<void> {
           } else {
             console.log(chalk.green('   ✅ All workflows healthy'));
           }
-        } catch (_error) {
+        } catch (error) {
           console.log(chalk.red(`   ❌ Error checking workflows: ${error}`));
         }
       }
     }
 
-  } catch (_error) {
+  } catch (error) {
     console.error(chalk.red('❌ Workflow monitoring failed:'), error);
     process.exit(1);
   }

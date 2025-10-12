@@ -13,7 +13,8 @@ export const packageCommand = new Command('package')
   .option('--optimize-output <dir>', 'Directory for optimized source files')
   .option('--analysis-only', 'Run package analysis without creating package')
   .option('--quality-threshold <score>', 'Minimum quality score required (0-100)', '70')
-  .action(async (sourcePath: string, _options: any) => {
+  .option('-f, --force', 'Force packaging even if quality score is below threshold')
+  .action(async (sourcePath: string, options: any) => {
     console.log(chalk.blue('📦 Smart Packaging for Azure Marketplace...'));
     console.log(chalk.gray('  Source:'), sourcePath);
     console.log(chalk.gray('  Output:'), options.output);

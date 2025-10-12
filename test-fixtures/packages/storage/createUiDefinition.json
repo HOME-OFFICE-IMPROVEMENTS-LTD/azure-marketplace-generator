@@ -1,0 +1,311 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "resourceGroup",
+        "type": "Microsoft.Common.Section",
+        "label": "Resource Group",
+        "elements": [
+          {
+            "name": "resourceGroupInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": true,
+            "options": {
+              "icon": "Info",
+              "text": "This storage account will be deployed to the selected resource group."
+            }
+          }
+        ]
+      }
+    ],
+    "steps": [
+      {
+        "name": "storageConfig",
+        "label": "Storage Configuration",
+        "elements": [
+          {
+            "name": "storageAccountName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Storage Account Name",
+            "placeholder": "Enter storage account name",
+            "defaultValue": "",
+            "toolTip": "Name for the storage account (3-24 characters, lowercase letters and numbers only)",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9]{3,24}$",
+              "validationMessage": "Storage account name must be 3-24 characters, lowercase letters and numbers only"
+            },
+            "visible": true
+          },
+          {
+            "name": "location",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Location",
+            "placeholder": "Select location",
+            "defaultValue": "East US",
+            "toolTip": "Location for storage account deployment",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "East US",
+                  "value": "eastus"
+                },
+                {
+                  "label": "West US 2",
+                  "value": "westus2"
+                },
+                {
+                  "label": "Central US",
+                  "value": "centralus"
+                },
+                {
+                  "label": "North Europe",
+                  "value": "northeurope"
+                },
+                {
+                  "label": "West Europe",
+                  "value": "westeurope"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "storageAccountType",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Performance Tier",
+            "placeholder": "Select performance tier",
+            "defaultValue": "Standard_LRS",
+            "toolTip": "Storage account performance and replication type",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Standard LRS (Locally Redundant)",
+                  "value": "Standard_LRS"
+                },
+                {
+                  "label": "Standard GRS (Geo Redundant)",
+                  "value": "Standard_GRS"
+                },
+                {
+                  "label": "Standard RA-GRS (Read-Access Geo Redundant)",
+                  "value": "Standard_RAGRS"
+                },
+                {
+                  "label": "Standard ZRS (Zone Redundant)",
+                  "value": "Standard_ZRS"
+                },
+                {
+                  "label": "Premium LRS (SSD, Locally Redundant)",
+                  "value": "Premium_LRS"
+                },
+                {
+                  "label": "Premium ZRS (SSD, Zone Redundant)",
+                  "value": "Premium_ZRS"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "accessTier",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Access Tier",
+            "placeholder": "Select access tier",
+            "defaultValue": "Hot",
+            "toolTip": "Access tier for blob storage optimization",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Hot (Frequent access)",
+                  "value": "Hot"
+                },
+                {
+                  "label": "Cool (Infrequent access)",
+                  "value": "Cool"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          }
+        ]
+      },
+      {
+        "name": "securityConfig",
+        "label": "Security Configuration",
+        "elements": [
+          {
+            "name": "enableHttpsTrafficOnly",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Secure Transfer (HTTPS Only)",
+            "defaultValue": "Yes",
+            "toolTip": "Require secure transfer (HTTPS) for all operations",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Yes",
+                  "value": true
+                },
+                {
+                  "label": "No",
+                  "value": false
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "minimumTlsVersion",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Minimum TLS Version",
+            "placeholder": "Select minimum TLS version",
+            "defaultValue": "TLS1_2",
+            "toolTip": "Minimum TLS version for secure connections",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "TLS 1.0",
+                  "value": "TLS1_0"
+                },
+                {
+                  "label": "TLS 1.1",
+                  "value": "TLS1_1"
+                },
+                {
+                  "label": "TLS 1.2 (Recommended)",
+                  "value": "TLS1_2"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "enableBlobPublicAccess",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Allow Blob Public Access",
+            "defaultValue": "No",
+            "toolTip": "Allow anonymous public read access to blobs",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Yes",
+                  "value": true
+                },
+                {
+                  "label": "No (Recommended)",
+                  "value": false
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          }
+        ]
+      },
+      {
+        "name": "featuresConfig",
+        "label": "Features Configuration",
+        "elements": [
+          {
+            "name": "enableFileShares",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Enable Azure Files",
+            "defaultValue": "Yes",
+            "toolTip": "Enable Azure Files service for file shares",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Yes",
+                  "value": true
+                },
+                {
+                  "label": "No",
+                  "value": false
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "enableBlobVersioning",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Enable Blob Versioning",
+            "defaultValue": "Yes",
+            "toolTip": "Enable blob versioning for data protection",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Yes",
+                  "value": true
+                },
+                {
+                  "label": "No",
+                  "value": false
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "enableDeleteRetention",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Enable Delete Retention",
+            "defaultValue": "Yes",
+            "toolTip": "Enable soft delete for blob data protection",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Yes",
+                  "value": true
+                },
+                {
+                  "label": "No",
+                  "value": false
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "deleteRetentionDays",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Delete Retention Days",
+            "defaultValue": "7",
+            "placeholder": "Enter number of days (1-365)",
+            "toolTip": "Number of days to retain deleted blobs (1-365 days)",
+            "constraints": {
+              "required": true,
+              "regex": "^([1-9]|[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-5])$",
+              "validationMessage": "Must be a number between 1 and 365"
+            },
+            "visible": "[steps('featuresConfig').enableDeleteRetention]"
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "storageAccountName": "[steps('storageConfig').storageAccountName]",
+      "location": "[steps('storageConfig').location]",
+      "storageAccountType": "[steps('storageConfig').storageAccountType]",
+      "accessTier": "[steps('storageConfig').accessTier]",
+      "enableHttpsTrafficOnly": "[steps('securityConfig').enableHttpsTrafficOnly]",
+      "minimumTlsVersion": "[steps('securityConfig').minimumTlsVersion]",
+      "enableBlobPublicAccess": "[steps('securityConfig').enableBlobPublicAccess]",
+      "enableFileShares": "[steps('featuresConfig').enableFileShares]",
+      "enableBlobVersioning": "[steps('featuresConfig').enableBlobVersioning]",
+      "enableDeleteRetention": "[steps('featuresConfig').enableDeleteRetention]",
+      "deleteRetentionDays": "[steps('featuresConfig').deleteRetentionDays]"
+    }
+  }
+}

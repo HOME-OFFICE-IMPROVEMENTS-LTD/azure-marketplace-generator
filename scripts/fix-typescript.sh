@@ -23,7 +23,7 @@ echo "Fixing error variable references..."
 # Replace _error back to error in usage, but keep catch (_error)
 files_with_error_refs=(
   "src/services/ai-analytics-service.ts"
-  "src/services/auto-deployment-service.ts" 
+  "src/services/auto-deployment-service.ts"
   "src/services/enterprise-monitoring-service.ts"
 )
 
@@ -31,7 +31,7 @@ for file in "${files_with_error_refs[@]}"; do
   if [ -f "$file" ]; then
     # Fix error references in error messages but keep catch blocks as _error
     sed -i 's/: ${error}/: ${_error}/g' "$file"
-    sed -i 's/(error)/(_error)/g' "$file" 
+    sed -i 's/(error)/(_error)/g' "$file"
     sed -i 's/error instanceof Error/(_error instanceof Error)/g' "$file"
     sed -i 's/error\.message/(_error as Error)\.message/g' "$file"
   fi

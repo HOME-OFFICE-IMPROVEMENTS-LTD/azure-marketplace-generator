@@ -1,0 +1,197 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2021-07-01/viewDefinition.schema.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "{{name}} monitoring and management view"
+  },
+  "views": [
+    {
+      "kind": "Overview",
+      "displayName": "Overview",
+      "description": "Overview of your {{name}} storage solution",
+      "sections": [
+        {
+          "kind": "Properties",
+          "displayName": "Storage Account Details",
+          "properties": [
+            {
+              "displayName": "Storage Account Name",
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).name]"
+            },
+            {
+              "displayName": "Location",
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).location]"
+            },
+            {
+              "displayName": "Account Type",
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).sku.name]"
+            },
+            {
+              "displayName": "Primary Endpoint",
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).primaryEndpoints.blob]"
+            },
+            {
+              "displayName": "Data Lake Gen2",
+              "value": "[if(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).isHnsEnabled, 'Enabled', 'Disabled')]"
+            }
+          ]
+        },
+        {
+          "kind": "Metrics",
+          "displayName": "Storage Metrics",
+          "chartType": "Line",
+          "metrics": [
+            {
+              "resourceMetadata": {
+                "id": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+              },
+              "name": {
+                "value": "UsedCapacity",
+                "localizedValue": "Used Capacity"
+              },
+              "aggregationType": {
+                "value": "Average",
+                "localizedValue": "Average"
+              },
+              "namespace": {
+                "value": "Microsoft.Storage/storageAccounts",
+                "localizedValue": "Storage Account"
+              },
+              "displayDescription": "The amount of storage used by the storage account"
+            },
+            {
+              "resourceMetadata": {
+                "id": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"
+              },
+              "name": {
+                "value": "Transactions",
+                "localizedValue": "Transactions"
+              },
+              "aggregationType": {
+                "value": "Total",
+                "localizedValue": "Total"
+              },
+              "namespace": {
+                "value": "Microsoft.Storage/storageAccounts",
+                "localizedValue": "Storage Account"
+              },
+              "displayDescription": "The number of requests made to a storage service"
+            }
+          ],
+          "timespan": {
+            "duration": "PT1H",
+            "start": null,
+            "end": null
+          },
+          "chartSettings": {
+            "group": null,
+            "dimension": null,
+            "xAxis": {
+              "name": "time",
+              "type": null
+            },
+            "yAxis": {
+              "name": "y1",
+              "type": null
+            },
+            "grouping": {
+              "dimension": null,
+              "sort": 2,
+              "top": 10
+            },
+            "visualization": {
+              "chartType": 2,
+              "legendVisualization": 1,
+              "axis": {
+                "x": {
+                  "isVisible": true,
+                  "axisType": 2
+                },
+                "y": {
+                  "isVisible": true,
+                  "axisType": 1
+                }
+              },
+              "disablePinning": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "kind": "Properties",
+      "displayName": "Configuration",
+      "description": "Storage account configuration and settings",
+      "sections": [
+        {
+          "kind": "Properties",
+          "displayName": "Security Settings",
+          "properties": [
+            {
+              "displayName": "HTTPS Only",
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).supportsHttpsTrafficOnly]"
+            },
+            {
+              "displayName": "Minimum TLS Version",
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).minimumTlsVersion]"
+            },
+            {
+              "displayName": "Public Blob Access",
+              "value": "[if(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).allowBlobPublicAccess, 'Enabled', 'Disabled')]"
+            },
+            {
+              "displayName": "Blob Encryption",
+              "value": "[if(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))).encryption.services.blob.enabled, 'Enabled', 'Disabled')]"
+            }
+          ]
+        },
+        {
+          "kind": "Properties",
+          "displayName": "Container Information",
+          "properties": [
+            {
+              "displayName": "Container Name",
+              "value": "[parameters('containerName')]"
+            },
+            {
+              "displayName": "Publisher",
+              "value": "{{publisher}}"
+            },
+            {
+              "displayName": "Application",
+              "value": "{{name}}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "Commands",
+      "displayName": "Management",
+      "description": "Manage your storage account",
+      "commands": [
+        {
+          "displayName": "Open in Storage Explorer",
+          "ariaLabel": "Open storage account in Azure Storage Explorer",
+          "path": "/storageexplorer",
+          "icon": "MicrosoftStorageExplorer",
+          "description": "Manage blobs, files, queues, and tables with Storage Explorer"
+        },
+        {
+          "displayName": "Access Keys",
+          "ariaLabel": "View storage account access keys",
+          "path": "/accessKeys",
+          "icon": "Key",
+          "description": "View and regenerate access keys for the storage account"
+        },
+        {
+          "displayName": "Monitoring",
+          "ariaLabel": "View monitoring and metrics",
+          "path": "/monitoring",
+          "icon": "Monitor",
+          "description": "View detailed metrics and monitoring information"
+        }
+      ]
+    }
+  ]
+}

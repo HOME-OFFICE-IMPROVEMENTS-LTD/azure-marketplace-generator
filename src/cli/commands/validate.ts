@@ -24,23 +24,23 @@ export const validateCommand = new Command('validate')
       console.log(chalk.blue('🔍 Azure Marketplace Generator - Template Validation'));
       console.log(chalk.blue('='.repeat(60)));
     }
-    
+
     console.log(chalk.gray('  Template path:'), templatePath);
     console.log(chalk.gray('  ARM-TTK integration:'), chalk.green('Enhanced PowerShell wrapper'));
-    
+
     if (options.intelligent) {
       console.log(chalk.gray('  Intelligent analysis:'), chalk.cyan('MCP/RAG enabled'));
       if (options.fix) console.log(chalk.gray('  Auto-fix mode:'), chalk.yellow('Enabled'));
       if (options.marketContext) console.log(chalk.gray('  Marketplace context:'), chalk.magenta('Enabled'));
     }
-    
+
     try {
       const validator = new ArmTtkValidator();
       const intelligenceService = new IntelligenceService();
-      
+
       // Parse skip tests if provided
       const skipTests = options.skip ? options.skip.split(',').map((t: string) => t.trim()) : [];
-      
+
       if (skipTests.length > 0) {
         console.log(chalk.gray('  Skipping tests:'), skipTests.join(', '));
       }
@@ -53,7 +53,7 @@ export const validateCommand = new Command('validate')
       let intelligenceResult = null;
       if (options.intelligent) {
         console.log(chalk.cyan('\n🧠 Applying intelligent analysis...'));
-        
+
         intelligenceResult = await intelligenceService.enhanceValidation(result, {
           templatePath,
           includeMarketplaceContext: options.marketContext,
@@ -71,12 +71,12 @@ export const validateCommand = new Command('validate')
       // Display detailed results
       if (result.success) {
         console.log(chalk.green('🎉 Template validation successful!'));
-        
+
         // Display intelligent analysis results
         if (intelligenceResult) {
           console.log(chalk.cyan('\n🧠 INTELLIGENT ANALYSIS RESULTS'));
           console.log(chalk.cyan('='.repeat(40)));
-          
+
           // Best practices scores
           const bp = intelligenceResult.bestPracticesAnalysis;
           console.log(chalk.blue('📊 Best Practices Analysis:'));
@@ -85,12 +85,12 @@ export const validateCommand = new Command('validate')
           console.log(chalk.blue(`  💰 Cost Optimization: ${bp.costOptimizationScore}/100`));
           console.log(chalk.blue(`  🏪 Marketplace Readiness: ${bp.marketplaceReadinessScore}/100`));
           console.log(chalk.green(`  🎯 Overall Score: ${bp.overallScore}/100`));
-          
+
           // Marketplace score
           if (options.marketContext && intelligenceResult.marketplaceScore > 0) {
             console.log(chalk.magenta(`\n🏪 Marketplace Score: ${intelligenceResult.marketplaceScore}/100`));
           }
-          
+
           // Auto-fixes applied
           if (intelligenceResult.autoFixesApplied.length > 0) {
             console.log(chalk.yellow(`\n🔧 Auto-fixes Applied: ${intelligenceResult.autoFixesApplied.length}`));
@@ -98,7 +98,7 @@ export const validateCommand = new Command('validate')
               console.log(chalk.yellow(`   ${i + 1}. ${fix.description}`));
             });
           }
-          
+
           // Compliance gaps
           if (intelligenceResult.complianceGaps.length > 0) {
             console.log(chalk.yellow(`\n🔍 Compliance Gaps Found: ${intelligenceResult.complianceGaps.length}`));
@@ -110,7 +110,7 @@ export const validateCommand = new Command('validate')
               console.log(chalk.gray(`   ... and ${intelligenceResult.complianceGaps.length - 3} more gaps`));
             }
           }
-          
+
           // AI recommendations
           if (intelligenceResult.recommendations.length > 0) {
             console.log(chalk.green(`\n💡 AI Recommendations: ${intelligenceResult.recommendations.length}`));
@@ -122,7 +122,7 @@ export const validateCommand = new Command('validate')
               console.log(chalk.gray(`   ... and ${intelligenceResult.recommendations.length - 3} more recommendations`));
             }
           }
-          
+
           // Similar templates
           if (intelligenceResult.similarTemplates.length > 0) {
             console.log(chalk.blue(`\n🔍 Similar Successful Templates: ${intelligenceResult.similarTemplates.length}`));
@@ -131,7 +131,7 @@ export const validateCommand = new Command('validate')
             });
           }
         }
-        
+
         if (result.warnings.length > 0) {
           console.log(chalk.yellow(`\n⚠️  Note: ${result.warnings.length} warning(s) found:`));
           result.warnings.slice(0, 5).forEach((warning, index) => {
@@ -141,19 +141,19 @@ export const validateCommand = new Command('validate')
             console.log(chalk.gray(`   ... and ${result.warnings.length - 5} more warnings`));
           }
         }
-        
+
         console.log(chalk.blue('\n📈 Validation Statistics:'));
         console.log(chalk.green(`  ✅ Tests passed: ${result.passCount}`));
         console.log(chalk.yellow(`  ⚠️  Warnings: ${result.warnings.length}`));
         console.log(chalk.blue(`  📊 Total tests: ${result.passCount + result.failCount}`));
-        
+
         if (options.intelligent && intelligenceResult) {
           console.log(chalk.cyan(`  🧠 Intelligence score: ${intelligenceResult.bestPracticesAnalysis.overallScore}/100`));
           if (intelligenceResult.autoFixesApplied.length > 0) {
             console.log(chalk.yellow(`  🔧 Auto-fixes applied: ${intelligenceResult.autoFixesApplied.length}`));
           }
         }
-        
+
         if (reportPath) {
           console.log(chalk.blue(`  📄 Report saved: ${path.basename(reportPath)}`));
         }
@@ -170,13 +170,13 @@ export const validateCommand = new Command('validate')
             process.exit(1);
           }
         }
-        
+
         console.log(chalk.green('\n� Template is ready for marketplace submission!'));
-        
+
       } else {
         console.log(chalk.red(`❌ Template validation failed`));
         console.log(chalk.red(`   Errors found: ${result.errors.length}`));
-        
+
         console.log(chalk.red('\n🔍 Error Summary:'));
         result.errors.slice(0, 10).forEach((error, index) => {
           // Show first line of each error for overview
@@ -201,7 +201,7 @@ export const validateCommand = new Command('validate')
         console.log(chalk.blue('   1. Fix the errors listed above'));
         console.log(chalk.blue('   2. Run validation again: azmp validate <path>'));
         console.log(chalk.blue('   3. Use --save-report for detailed analysis'));
-        
+
         process.exit(1);
       }
 

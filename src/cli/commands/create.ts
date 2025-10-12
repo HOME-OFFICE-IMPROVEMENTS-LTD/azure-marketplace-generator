@@ -11,7 +11,7 @@ export const createCommand = new Command('create')
   .option('-o, --output <dir>', 'Output directory', './output')
   .action(async (type: string, options: any) => {
     console.log(chalk.blue('🚀 Creating managed application package...'));
-    
+
     // Validate input
     const supportedTypes = ['storage', 'vm', 'webapp'];
     if (!supportedTypes.includes(type)) {
@@ -56,7 +56,7 @@ export const createCommand = new Command('create')
     try {
       const generator = new TemplateGenerator();
       await generator.generateTemplate(config);
-      
+
       console.log(chalk.green('🎉 Success! Managed application package created.'));
       console.log(chalk.blue('📁 Generated files:'));
       console.log(chalk.gray('  • mainTemplate.json'));
@@ -64,7 +64,7 @@ export const createCommand = new Command('create')
       console.log(chalk.gray('  • viewDefinition.json'));
       console.log(chalk.gray('  • nestedtemplates/storageAccount.json'));
       console.log(chalk.yellow('💡 Next: Run'), chalk.cyan(`azmp validate ${config.output}`));
-      
+
     } catch (_error) {
       console.error(chalk.red('❌ Template generation failed:'), (_error as Error).message);
       process.exit(1);

@@ -31,7 +31,7 @@ describe('ArmTtkValidator', () => {
       expect(() => {
         (validator as any).sanitizePackageId('');
       }).toThrow('Invalid package ID');
-      
+
       expect(() => {
         (validator as any).sanitizeVersion('');
       }).toThrow('Invalid version format');
@@ -41,7 +41,7 @@ describe('ArmTtkValidator', () => {
   describe('Template Validation', () => {
     test('should reject invalid template path', async () => {
       const invalidPath = '/non/existent/template.json';
-      
+
       await expect(validator.validateTemplate(invalidPath))
         .rejects
         .toThrow();

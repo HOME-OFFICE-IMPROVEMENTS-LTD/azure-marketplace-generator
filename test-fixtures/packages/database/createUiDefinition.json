@@ -1,0 +1,282 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "resourceGroup",
+        "type": "Microsoft.Common.Section",
+        "label": "Resource Group",
+        "elements": [
+          {
+            "name": "resourceGroupInfo",
+            "type": "Microsoft.Common.InfoBox",
+            "visible": true,
+            "options": {
+              "icon": "Info",
+              "text": "This database will be deployed to the selected resource group."
+            }
+          }
+        ]
+      }
+    ],
+    "steps": [
+      {
+        "name": "sqlServerConfig",
+        "label": "SQL Server Configuration",
+        "elements": [
+          {
+            "name": "serverName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "SQL Server Name",
+            "placeholder": "Enter SQL server name",
+            "defaultValue": "",
+            "toolTip": "Name for the SQL Server instance",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-z0-9-]{3,50}$",
+              "validationMessage": "Server name must be 3-50 characters, lowercase letters, numbers, and hyphens only"
+            },
+            "visible": true
+          },
+          {
+            "name": "administratorLogin",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Administrator Username",
+            "placeholder": "Enter administrator username",
+            "defaultValue": "sqladmin",
+            "toolTip": "Administrator username for SQL Server",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-zA-Z][a-zA-Z0-9]{2,15}$",
+              "validationMessage": "Username must be 3-16 characters, start with letter, contain only letters and numbers"
+            },
+            "visible": true
+          },
+          {
+            "name": "administratorPassword",
+            "type": "Microsoft.Common.PasswordBox",
+            "label": {
+              "password": "Administrator Password",
+              "confirmPassword": "Confirm Password"
+            },
+            "toolTip": "Administrator password for SQL Server",
+            "constraints": {
+              "required": true,
+              "regex": "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{12,128}$",
+              "validationMessage": "Password must be 12-128 characters with uppercase, lowercase, number, and special character"
+            },
+            "options": {
+              "hideConfirmation": false
+            },
+            "visible": true
+          },
+          {
+            "name": "location",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Location",
+            "placeholder": "Select location",
+            "defaultValue": "East US",
+            "toolTip": "Location for SQL Server deployment",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "East US",
+                  "value": "eastus"
+                },
+                {
+                  "label": "West US 2",
+                  "value": "westus2"
+                },
+                {
+                  "label": "Central US",
+                  "value": "centralus"
+                },
+                {
+                  "label": "North Europe",
+                  "value": "northeurope"
+                },
+                {
+                  "label": "West Europe",
+                  "value": "westeurope"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          }
+        ]
+      },
+      {
+        "name": "databaseConfig",
+        "label": "Database Configuration",
+        "elements": [
+          {
+            "name": "databaseName",
+            "type": "Microsoft.Common.TextBox",
+            "label": "Database Name",
+            "placeholder": "Enter database name",
+            "defaultValue": "testdb",
+            "toolTip": "Name for the SQL database",
+            "constraints": {
+              "required": true,
+              "regex": "^[a-zA-Z0-9-_]{1,128}$",
+              "validationMessage": "Database name must be 1-128 characters, letters, numbers, hyphens, and underscores only"
+            },
+            "visible": true
+          },
+          {
+            "name": "skuName",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Database SKU",
+            "placeholder": "Select database SKU",
+            "defaultValue": "Basic",
+            "toolTip": "Performance tier for the database",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Basic",
+                  "value": "Basic"
+                },
+                {
+                  "label": "Standard S0",
+                  "value": "S0"
+                },
+                {
+                  "label": "Standard S1",
+                  "value": "S1"
+                },
+                {
+                  "label": "Standard S2",
+                  "value": "S2"
+                },
+                {
+                  "label": "Premium P1",
+                  "value": "P1"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "maxSizeBytes",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Database Size",
+            "placeholder": "Select database size",
+            "defaultValue": "2147483648",
+            "toolTip": "Maximum size for the database",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "2 GB",
+                  "value": "2147483648"
+                },
+                {
+                  "label": "10 GB",
+                  "value": "10737418240"
+                },
+                {
+                  "label": "50 GB",
+                  "value": "53687091200"
+                },
+                {
+                  "label": "100 GB",
+                  "value": "107374182400"
+                },
+                {
+                  "label": "500 GB",
+                  "value": "536870912000"
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          }
+        ]
+      },
+      {
+        "name": "securityConfig",
+        "label": "Security Configuration",
+        "elements": [
+          {
+            "name": "allowAzureIps",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Allow Azure Services",
+            "defaultValue": "Yes",
+            "toolTip": "Allow Azure services to access this SQL server",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Yes",
+                  "value": true
+                },
+                {
+                  "label": "No",
+                  "value": false
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "enableAuditingPolicy",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Enable Auditing",
+            "defaultValue": "Yes",
+            "toolTip": "Enable server auditing policy",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Yes",
+                  "value": true
+                },
+                {
+                  "label": "No",
+                  "value": false
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          },
+          {
+            "name": "enableThreatDetection",
+            "type": "Microsoft.Common.OptionsGroup",
+            "label": "Enable Threat Detection",
+            "defaultValue": "Yes",
+            "toolTip": "Enable Advanced Threat Protection",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Yes",
+                  "value": true
+                },
+                {
+                  "label": "No",
+                  "value": false
+                }
+              ],
+              "required": true
+            },
+            "visible": true
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "serverName": "[steps('sqlServerConfig').serverName]",
+      "administratorLogin": "[steps('sqlServerConfig').administratorLogin]",
+      "administratorPassword": "[steps('sqlServerConfig').administratorPassword]",
+      "location": "[steps('sqlServerConfig').location]",
+      "databaseName": "[steps('databaseConfig').databaseName]",
+      "skuName": "[steps('databaseConfig').skuName]",
+      "maxSizeBytes": "[steps('databaseConfig').maxSizeBytes]",
+      "allowAzureIps": "[steps('securityConfig').allowAzureIps]",
+      "enableAuditingPolicy": "[steps('securityConfig').enableAuditingPolicy]",
+      "enableThreatDetection": "[steps('securityConfig').enableThreatDetection]"
+    }
+  }
+}

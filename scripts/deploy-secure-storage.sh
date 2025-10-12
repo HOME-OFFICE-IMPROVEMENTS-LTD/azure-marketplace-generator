@@ -25,28 +25,6 @@ TENANT_ID="${AZURE_TENANT_ID:-}"
 # Command line flags
 DRY_RUN=${DRY_RUN:-false}
 SKIP_VALIDATION=${SKIP_VALIDATION:-false}
-ENVIRONMENT=${ENVIRONMENT:-"prod"}
-REGION=${REGION:-"uksouth"}
-CONFIG_PROFILE=${CONFIG_PROFILE:-"default"}
-TEMPLATE_TYPE=${TEMPLATE_TYPE:-"secure"}
-WHAT_IF=${WHAT_IF:-false}
-FORCE=${FORCE:-false}
-ROLLBACK_ON_FAILURE=${ROLLBACK_ON_FAILURE:-true}
-TIMEOUT_MINUTES=${TIMEOUT_MINUTES:-30}
-SECURITY_LEVEL=${SECURITY_LEVEL:-"high"}
-COMPLIANCE_MODE=${COMPLIANCE_MODE:-""}
-LOG_LEVEL=${LOG_LEVEL:-"info"}
-JSON_OUTPUT=${JSON_OUTPUT:-false}
-EXPORT_CONFIG=${EXPORT_CONFIG:-false}
-METRICS_ENABLED=${METRICS_ENABLED:-false}
-SLACK_WEBHOOK=${SLACK_WEBHOOK:-""}
-VALIDATE_ONLY=${VALIDATE_ONLY:-false}
-COST_ANALYSIS=${COST_ANALYSIS:-false}
-CI_MODE=${CI_MODE:-false}
-OUTPUT_FORMAT=${OUTPUT_FORMAT:-"table"}
-STATE_FILE=${STATE_FILE:-""}
-BACKUP_BEFORE_DEPLOY=${BACKUP_BEFORE_DEPLOY:-false}
-PARALLEL_DEPLOY=${PARALLEL_DEPLOY:-false}
 
 # Help function
 show_help() {
@@ -68,46 +46,6 @@ ${GREEN}OPTIONS:${NC}
     --resource-group NAME  Override default resource group name
     --subscription ID      Set Azure subscription ID
 
-${GREEN}ENVIRONMENT & DEPLOYMENT:${NC}
-    --environment [dev|staging|prod]     Set deployment environment (default: prod)
-    --region [uksouth|ukwest|westeurope] Azure region (default: uksouth)
-    --config-profile NAME               Load predefined configuration profile
-    --template [secure|flexible|lifecycle] Template type to deploy
-    --what-if                          Run Azure what-if analysis
-    --force                            Skip interactive confirmations
-    --timeout MINUTES                  Deployment timeout (default: 30)
-    --rollback/--no-rollback          Enable/disable rollback on failure
-
-${GREEN}SECURITY & COMPLIANCE:${NC}
-    --security-level [standard|high|maximum] Security configuration preset
-    --compliance [iso27001|soc2|gdpr]        Apply compliance-specific settings
-    --encrypt-mode [microsoft|customer]      Encryption key management
-    --network-tier [public|private|hybrid]   Network access configuration
-
-${GREEN}MONITORING & OUTPUT:${NC}
-    --log-level [error|warn|info|debug]  Logging verbosity (default: info)
-    --json-output                        Machine-readable JSON output
-    --output-format [json|yaml|table]    Output format (default: table)
-    --metrics                           Enable detailed deployment metrics
-    --slack-webhook URL                 Send notifications to Slack
-
-${GREEN}VALIDATION & TESTING:${NC}
-    --validate-only                     Only validate templates, don't deploy
-    --cost-analysis                     Show detailed cost breakdown
-    --export-config                     Export current configuration to file
-
-${GREEN}AZMP PLATFORM INTEGRATION:${NC}
-    --use-azmp                          Force use of azmp CLI for all operations
-    --azmp-package                      Create marketplace package after deployment
-    --azmp-promote VERSION              Promote to marketplace-ready version
-    --azmp-status                       Show portfolio status before deployment
-
-${GREEN}AUTOMATION & CI/CD:${NC}
-    --ci-mode                          Continuous Integration mode (non-interactive)
-    --state-file PATH                  Track deployment state in file
-    --backup-before-deploy             Backup existing resources before deployment
-    --parallel-deploy                  Enable parallel resource deployment
-
 ${GREEN}PREREQUISITES:${NC}
     • Azure CLI installed and configured
     • Logged into Azure (az login)
@@ -124,16 +62,9 @@ ${GREEN}COMPLIANCE:${NC}
     • UK GDPR: 100%
 
 ${GREEN}EXAMPLES:${NC}
-    $0                                     # Interactive production deployment
-    $0 --dry-run                          # Preview mode
-    $0 --resource-group my-rg             # Custom resource group
-    $0 --environment dev --region ukwest  # Development environment
-    $0 --what-if --cost-analysis          # Analysis mode with cost breakdown
-    $0 --ci-mode --force --json-output    # Automated CI/CD deployment
-    $0 --template flexible --security-level maximum --use-azmp # Flexible template with azmp
-    $0 --validate-only --compliance iso27001 # Validation with ISO 27001 compliance
-    $0 --config-profile enterprise --metrics --azmp-status # Enterprise with portfolio status
-    $0 --azmp-package --azmp-promote 1.2.0 # Deploy and promote to marketplace
+    $0                                    # Interactive deployment
+    $0 --dry-run                         # Preview mode
+    $0 --resource-group my-rg            # Custom resource group
 
 ${GREEN}FILES:${NC}
     • storage-account-secure.json        # ARM template
@@ -167,131 +98,6 @@ while [[ $# -gt 0 ]]; do
             SUBSCRIPTION_ID="$2"
             shift 2
             ;;
-        --environment)
-            ENVIRONMENT="$2"
-            case $ENVIRONMENT in
-                dev|staging|prod) ;;
-                *) log_error "Invalid environment: $ENVIRONMENT. Use: dev, staging, prod"; exit 1 ;;
-            esac
-            shift 2
-            ;;
-        --region)
-            REGION="$2"
-            case $REGION in
-                uksouth|ukwest|westeurope|eastus|westus2) ;;
-                *) log_error "Invalid region: $REGION"; exit 1 ;;
-            esac
-            shift 2
-            ;;
-        --config-profile)
-            CONFIG_PROFILE="$2"
-            shift 2
-            ;;
-        --template)
-            TEMPLATE_TYPE="$2"
-            case $TEMPLATE_TYPE in
-                secure|flexible|lifecycle|basic) ;;
-                *) log_error "Invalid template type: $TEMPLATE_TYPE"; exit 1 ;;
-            esac
-            shift 2
-            ;;
-        --what-if)
-            WHAT_IF=true
-            shift
-            ;;
-        --force)
-            FORCE=true
-            shift
-            ;;
-        --timeout)
-            TIMEOUT_MINUTES="$2"
-            if ! [[ "$TIMEOUT_MINUTES" =~ ^[0-9]+$ ]]; then
-                log_error "Timeout must be a number"
-                exit 1
-            fi
-            shift 2
-            ;;
-        --rollback)
-            ROLLBACK_ON_FAILURE=true
-            shift
-            ;;
-        --no-rollback)
-            ROLLBACK_ON_FAILURE=false
-            shift
-            ;;
-        --security-level)
-            SECURITY_LEVEL="$2"
-            case $SECURITY_LEVEL in
-                standard|high|maximum) ;;
-                *) log_error "Invalid security level: $SECURITY_LEVEL"; exit 1 ;;
-            esac
-            shift 2
-            ;;
-        --compliance)
-            COMPLIANCE_MODE="$2"
-            case $COMPLIANCE_MODE in
-                iso27001|soc2|gdpr|"") ;;
-                *) log_error "Invalid compliance mode: $COMPLIANCE_MODE"; exit 1 ;;
-            esac
-            shift 2
-            ;;
-        --log-level)
-            LOG_LEVEL="$2"
-            case $LOG_LEVEL in
-                error|warn|info|debug) ;;
-                *) log_error "Invalid log level: $LOG_LEVEL"; exit 1 ;;
-            esac
-            shift 2
-            ;;
-        --json-output)
-            JSON_OUTPUT=true
-            shift
-            ;;
-        --output-format)
-            OUTPUT_FORMAT="$2"
-            case $OUTPUT_FORMAT in
-                json|yaml|table) ;;
-                *) log_error "Invalid output format: $OUTPUT_FORMAT"; exit 1 ;;
-            esac
-            shift 2
-            ;;
-        --metrics)
-            METRICS_ENABLED=true
-            shift
-            ;;
-        --slack-webhook)
-            SLACK_WEBHOOK="$2"
-            shift 2
-            ;;
-        --validate-only)
-            VALIDATE_ONLY=true
-            shift
-            ;;
-        --cost-analysis)
-            COST_ANALYSIS=true
-            shift
-            ;;
-        --export-config)
-            EXPORT_CONFIG=true
-            shift
-            ;;
-        --ci-mode)
-            CI_MODE=true
-            FORCE=true  # CI mode implies force
-            shift
-            ;;
-        --state-file)
-            STATE_FILE="$2"
-            shift 2
-            ;;
-        --backup-before-deploy)
-            BACKUP_BEFORE_DEPLOY=true
-            shift
-            ;;
-        --parallel-deploy)
-            PARALLEL_DEPLOY=true
-            shift
-            ;;
         *)
             log_error "Unknown option: $1"
             echo "Use --help for usage information."
@@ -312,275 +118,20 @@ echo -e "${BLUE}======================================${NC}"
 echo ""
 
 # Functions
-log_debug() {
-    [[ "$LOG_LEVEL" == "debug" ]] && echo -e "${BLUE}[DEBUG]${NC} $1"
-}
-
 log_info() {
-    [[ "$LOG_LEVEL" =~ ^(debug|info)$ ]] && echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-log_warning() {
-    [[ "$LOG_LEVEL" =~ ^(debug|info|warn)$ ]] && echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${BLUE}[INFO]${NC} $1"
 }
 
 log_success() {
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
-# Slack notification function
-send_slack_notification() {
-    local message="$1"
-    local status="$2"
-    
-    if [[ -n "$SLACK_WEBHOOK" ]]; then
-        local emoji="✅"
-        [[ "$status" == "error" ]] && emoji="❌"
-        [[ "$status" == "warning" ]] && emoji="⚠️"
-        
-        curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\":\"$emoji HOME-OFFICE-IMPROVEMENTS-LTD Deploy: $message\"}" \
-            "$SLACK_WEBHOOK" 2>/dev/null || true
-    fi
+log_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
-# Configuration profile loader
-load_config_profile() {
-    local profile="$1"
-    local config_dir="./config"
-    local config_file="$config_dir/$profile.env"
-    
-    log_debug "Loading configuration profile: $profile"
-    
-    if [[ -f "$config_file" ]]; then
-        log_info "Loading configuration from $config_file"
-        source "$config_file"
-        log_success "Configuration profile '$profile' loaded"
-    else
-        log_warning "Configuration profile '$profile' not found, using defaults"
-        if [[ "$profile" != "default" ]]; then
-            log_info "Available profiles:"
-            ls -1 "$config_dir"/*.env 2>/dev/null | sed 's/.*\//  - /' | sed 's/\.env$//' || echo "  No profiles found"
-        fi
-    fi
-}
-
-# Environment-specific configuration
-configure_environment() {
-    local env="$1"
-    
-    log_debug "Configuring for environment: $env"
-    
-    case $env in
-        "dev")
-            RESOURCE_GROUP_NAME="${RESOURCE_GROUP_NAME:-rg-hoiltd-storage-dev-$REGION}"
-            DEPLOYMENT_NAME="deploy-dev-storage-$(date +%Y%m%d-%H%M%S)"
-            ;;
-        "staging")
-            RESOURCE_GROUP_NAME="${RESOURCE_GROUP_NAME:-rg-hoiltd-storage-staging-$REGION}"
-            DEPLOYMENT_NAME="deploy-staging-storage-$(date +%Y%m%d-%H%M%S)"
-            ;;
-        "prod")
-            RESOURCE_GROUP_NAME="${RESOURCE_GROUP_NAME:-rg-hoiltd-storage-prod-$REGION}"
-            DEPLOYMENT_NAME="deploy-prod-storage-$(date +%Y%m%d-%H%M%S)"
-            ;;
-    esac
-    
-    log_info "Environment configured: $env ($RESOURCE_GROUP_NAME)"
-}
-
-# Template selector
-select_template() {
-    local template_type="$1"
-    
-    case $template_type in
-        "secure")
-            TEMPLATE_FILE="storage-account-secure.json"
-            PARAMETERS_FILE="storage-account-secure.parameters.json"
-            ;;
-        "flexible")
-            TEMPLATE_FILE="packages/marketplace/azure-storage/flexible-storage-platform/mainTemplate.json"
-            PARAMETERS_FILE="packages/marketplace/azure-storage/flexible-storage-platform/parameters.json"
-            ;;
-        "lifecycle")
-            TEMPLATE_FILE="packages/marketplace/azure-storage/storage-lifecycle-management/mainTemplate.json"
-            PARAMETERS_FILE="packages/marketplace/azure-storage/storage-lifecycle-management/parameters.json"
-            ;;
-        "basic")
-            TEMPLATE_FILE="templates/basic-storage.json"
-            PARAMETERS_FILE="templates/basic-storage.parameters.json"
-            ;;
-    esac
-    
-    log_info "Selected template: $template_type ($TEMPLATE_FILE)"
-    
-    # Use azmp CLI for marketplace template validation when available
-    if [[ "$template_type" == "flexible" || "$template_type" == "lifecycle" ]] && command -v node &> /dev/null; then
-        log_info "Using azmp CLI for enterprise marketplace validation"
-        AZMP_VALIDATION=true
-    else
-        AZMP_VALIDATION=false
-    fi
-}
-
-# Export configuration
-export_configuration() {
-    local export_file="deployment-config-$(date +%Y%m%d-%H%M%S).json"
-    
-    log_info "Exporting configuration to $export_file"
-    
-    cat > "$export_file" << EOF
-{
-  "deployment": {
-    "environment": "$ENVIRONMENT",
-    "region": "$REGION",
-    "resourceGroup": "$RESOURCE_GROUP_NAME",
-    "templateType": "$TEMPLATE_TYPE",
-    "securityLevel": "$SECURITY_LEVEL",
-    "complianceMode": "$COMPLIANCE_MODE"
-  },
-  "options": {
-    "dryRun": $DRY_RUN,
-    "skipValidation": $SKIP_VALIDATION,
-    "whatIf": $WHAT_IF,
-    "force": $FORCE,
-    "timeout": $TIMEOUT_MINUTES,
-    "rollbackOnFailure": $ROLLBACK_ON_FAILURE,
-    "metricsEnabled": $METRICS_ENABLED,
-    "backupBeforeDeploy": $BACKUP_BEFORE_DEPLOY,
-    "parallelDeploy": $PARALLEL_DEPLOY
-  },
-  "files": {
-    "template": "$TEMPLATE_FILE",
-    "parameters": "$PARAMETERS_FILE",
-    "logFile": "$LOG_FILE"
-  },
-  "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-}
-EOF
-    
-    log_success "Configuration exported to $export_file"
-    
-    if [[ "$JSON_OUTPUT" == "true" ]]; then
-        cat "$export_file"
-    fi
-}
-
-# Azure What-If analysis
-run_what_if_analysis() {
-    log_info "Running Azure What-If analysis..."
-    send_slack_notification "Starting What-If analysis" "info"
-    
-    local what_if_output
-    what_if_output=$(az deployment group what-if \
-        --resource-group "$RESOURCE_GROUP_NAME" \
-        --template-file "$TEMPLATE_FILE" \
-        --parameters "@$PARAMETERS_FILE" \
-        --result-format FullResourcePayloads 2>&1)
-    
-    local exit_code=$?
-    
-    if [[ $exit_code -eq 0 ]]; then
-        log_success "What-If analysis completed"
-        echo "$what_if_output"
-        
-        if [[ "$JSON_OUTPUT" == "true" ]]; then
-            echo "$what_if_output" | jq '.' 2>/dev/null || echo "$what_if_output"
-        fi
-        
-        send_slack_notification "What-If analysis completed successfully" "success"
-    else
-        log_error "What-If analysis failed"
-        echo "$what_if_output"
-        send_slack_notification "What-If analysis failed" "error"
-        exit 1
-    fi
-}
-
-# Enhanced cost analysis
-enhanced_cost_analysis() {
-    log_info "Running enhanced cost analysis..."
-    
-    local monthly_cost_low monthly_cost_high
-    
-    case $TEMPLATE_TYPE in
-        "secure")
-            monthly_cost_low=41
-            monthly_cost_high=65
-            ;;
-        "flexible")
-            monthly_cost_low=25
-            monthly_cost_high=45
-            ;;
-        "lifecycle")
-            monthly_cost_low=35
-            monthly_cost_high=55
-            ;;
-        "basic")
-            monthly_cost_low=15
-            monthly_cost_high=25
-            ;;
-    esac
-    
-    # Adjust for environment
-    case $ENVIRONMENT in
-        "dev")
-            monthly_cost_low=$((monthly_cost_low / 3))
-            monthly_cost_high=$((monthly_cost_high / 3))
-            ;;
-        "staging")
-            monthly_cost_low=$((monthly_cost_low / 2))
-            monthly_cost_high=$((monthly_cost_high / 2))
-            ;;
-    esac
-    
-    cat << EOF
-${YELLOW}======================================
-ENHANCED COST ANALYSIS
-======================================${NC}
-
-${BLUE}Template Type:${NC} $TEMPLATE_TYPE
-${BLUE}Environment:${NC} $ENVIRONMENT
-${BLUE}Region:${NC} $REGION
-${BLUE}Security Level:${NC} $SECURITY_LEVEL
-
-${GREEN}Estimated Monthly Cost:${NC} £${monthly_cost_low}-${monthly_cost_high} GBP
-
-${BLUE}Cost Breakdown by Component:${NC}
-$(case $TEMPLATE_TYPE in
-    "secure")
-        echo "- Storage Account (Standard GRS): £15-20/month"
-        echo "- Private Endpoint: £3.50/month"
-        echo "- Key Vault (Customer-managed): £1-2/month"
-        echo "- Log Analytics: £15-25/month"
-        echo "- Network Security: £5-15/month"
-        ;;
-    "flexible")
-        echo "- Storage Account (Standard LRS): £10-15/month"
-        echo "- Multiple Services: £10-20/month"
-        echo "- Basic Monitoring: £5-10/month"
-        ;;
-    "lifecycle")
-        echo "- Storage Account (Standard GRS): £15-20/month"
-        echo "- Lifecycle Policies: £5-10/month"
-        echo "- Monitoring & Alerts: £10-15/month"
-        echo "- Archive Storage: £5-10/month"
-        ;;
-esac)
-
-${YELLOW}Annual Estimate:${NC} £$((monthly_cost_low * 12))-$((monthly_cost_high * 12)) GBP
-
-${GREEN}Cost Optimization Tips:${NC}
-- Use Cool/Archive tiers for infrequent access
-- Enable lifecycle management policies
-- Monitor usage patterns and adjust accordingly
-- Consider Reserved Capacity for predictable workloads
-
-EOF
+log_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
 }
 
 check_prerequisites() {
@@ -615,46 +166,17 @@ check_prerequisites() {
 validate_template() {
     log_info "Validating ARM template..."
     
-    # Use azmp CLI for marketplace templates when available
-    if [[ "$AZMP_VALIDATION" == "true" ]]; then
-        log_info "Using HOILTD azmp CLI for enhanced marketplace validation"
-        send_slack_notification "Starting azmp enterprise validation" "info"
-        
-        local template_dir
-        case $TEMPLATE_TYPE in
-            "flexible")
-                template_dir="packages/marketplace/azure-storage/flexible-storage-platform/"
-                ;;
-            "lifecycle")
-                template_dir="packages/marketplace/azure-storage/storage-lifecycle-management/"
-                ;;
-        esac
-        
-        local package_id="$TEMPLATE_TYPE-deploy-$(date +%Y%m%d)"
-        
-        if node dist/cli/index.js validate "$template_dir" --save-report --package-id "$package_id"; then
-            log_success "azmp validation passed - enterprise marketplace ready!"
-            send_slack_notification "azmp validation passed: $package_id" "success"
-        else
-            log_error "azmp validation failed - check validation report"
-            send_slack_notification "azmp validation failed: $package_id" "error"
-            exit 1
-        fi
+    az deployment group validate \
+        --resource-group "$RESOURCE_GROUP_NAME" \
+        --template-file "$TEMPLATE_FILE" \
+        --parameters "@$PARAMETERS_FILE" \
+        --verbose
+    
+    if [[ $? -eq 0 ]]; then
+        log_success "Template validation passed."
     else
-        # Standard Azure CLI validation for non-marketplace templates
-        log_info "Using standard Azure CLI validation"
-        az deployment group validate \
-            --resource-group "$RESOURCE_GROUP_NAME" \
-            --template-file "$TEMPLATE_FILE" \
-            --parameters "@$PARAMETERS_FILE" \
-            --verbose
-        
-        if [[ $? -eq 0 ]]; then
-            log_success "Template validation passed."
-        else
-            log_error "Template validation failed."
-            exit 1
-        fi
+        log_error "Template validation failed."
+        exit 1
     fi
 }
 
@@ -795,115 +317,43 @@ cleanup_on_error() {
 main() {
     trap cleanup_on_error ERR
     
-    # Load configuration profile
-    load_config_profile "$CONFIG_PROFILE"
-    
-    # Configure environment-specific settings
-    configure_environment "$ENVIRONMENT"
-    
-    # Select appropriate template
-    select_template "$TEMPLATE_TYPE"
-    
-    if [[ "$EXPORT_CONFIG" == "true" ]]; then
-        export_configuration
-        if [[ "$VALIDATE_ONLY" != "true" && "$WHAT_IF" != "true" && "$COST_ANALYSIS" != "true" ]]; then
-            exit 0
-        fi
-    fi
-    
     if [[ "$DRY_RUN" == "true" ]]; then
         log_info "🧪 DRY RUN MODE - No actual deployment will occur"
     fi
     
-    if [[ "$CI_MODE" == "true" ]]; then
-        log_info "🤖 CI/CD MODE - Non-interactive deployment"
-    fi
-    
-    log_info "Starting HOME-OFFICE-IMPROVEMENTS-LTD storage deployment"
-    log_debug "Configuration details:"
-    log_debug "  Environment: $ENVIRONMENT"
-    log_debug "  Region: $REGION"
-    log_debug "  Template: $TEMPLATE_TYPE"
-    log_debug "  Security Level: $SECURITY_LEVEL"
-    log_debug "  Resource Group: $RESOURCE_GROUP_NAME"
-    log_debug "  Deployment Name: $DEPLOYMENT_NAME"
-    log_debug "  Log File: $LOG_FILE"
+    log_info "Starting HOME-OFFICE-IMPROVEMENTS-LTD secure storage deployment"
+    echo "Deployment Name: $DEPLOYMENT_NAME"
+    echo "Resource Group: $RESOURCE_GROUP_NAME"
+    echo "Log File: $LOG_FILE"
     echo ""
     
-    send_slack_notification "Starting deployment: $DEPLOYMENT_NAME" "info"
-    
     check_prerequisites
-    
-    if [[ "$COST_ANALYSIS" == "true" ]]; then
-        enhanced_cost_analysis
-    else
-        cost_estimation
-    fi
-    
+    cost_estimation
     security_checklist
-    
-    if [[ "$WHAT_IF" == "true" ]]; then
-        run_what_if_analysis
-        if [[ "$VALIDATE_ONLY" != "true" ]]; then
-            exit 0
-        fi
-    fi
-    
-    if [[ "$VALIDATE_ONLY" == "true" ]]; then
-        log_info "🔍 VALIDATION-ONLY MODE"
-        validate_template
-        log_success "✅ Validation completed successfully"
-        send_slack_notification "Template validation passed" "success"
-        exit 0
-    fi
     
     if [[ "$DRY_RUN" == "true" ]]; then
         log_success "🧪 Dry run completed - deployment preview shown above"
         log_info "To perform actual deployment, run without --dry-run flag"
-        send_slack_notification "Dry run completed successfully" "success"
         exit 0
     fi
     
-    # Interactive confirmation (unless in CI mode or force mode)
-    if [[ "$CI_MODE" != "true" && "$FORCE" != "true" ]]; then
-        read -p "Do you want to proceed with the deployment? (y/N): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            log_info "Deployment cancelled by user."
-            send_slack_notification "Deployment cancelled by user" "info"
-            exit 0
+    read -p "Do you want to proceed with the deployment? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        if [[ "$SKIP_VALIDATION" != "true" ]]; then
+            validate_template
+        else
+            log_warning "⚠️ Skipping template validation as requested"
         fi
-    fi
-    
-    if [[ "$SKIP_VALIDATION" != "true" ]]; then
-        validate_template
+        deploy_storage
+        post_deployment_validation
+        
+        log_success "🎉 Enterprise secure storage deployment completed successfully!"
+        log_info "Check the Azure portal for resource details and monitoring setup."
     else
-        log_warning "⚠️ Skipping template validation as requested"
+        log_info "Deployment cancelled by user."
+        exit 0
     fi
-    
-    if [[ "$BACKUP_BEFORE_DEPLOY" == "true" ]]; then
-        log_info "🔄 Creating backup of existing resources..."
-        # Backup logic would go here
-        log_success "Backup completed"
-    fi
-    
-    deploy_storage
-    post_deployment_validation
-    
-    if [[ "$METRICS_ENABLED" == "true" ]]; then
-        log_info "📊 Enabling detailed metrics collection..."
-        # Metrics setup would go here
-        log_success "Metrics enabled"
-    fi
-    
-    log_success "🎉 Enterprise storage deployment completed successfully!"
-    log_info "Check the Azure portal for resource details and monitoring setup."
-    
-    if [[ "$OUTPUT_FORMAT" == "json" ]]; then
-        echo '{"status": "success", "deployment": "'$DEPLOYMENT_NAME'", "resourceGroup": "'$RESOURCE_GROUP_NAME'", "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}'
-    fi
-    
-    send_slack_notification "Deployment completed successfully: $DEPLOYMENT_NAME" "success"
 }
 
 # Run main function

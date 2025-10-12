@@ -20,7 +20,7 @@ check_result() {
     local status=$1
     local message=$2
     CHECKS_TOTAL=$((CHECKS_TOTAL + 1))
-    
+
     if [ "$status" = "PASS" ]; then
         echo -e "${GREEN}✅ PASS${NC}: $message"
         CHECKS_PASSED=$((CHECKS_PASSED + 1))

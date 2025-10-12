@@ -1,0 +1,65 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+  "handler": "Microsoft.Azure.CreateUIDef",
+  "version": "0.1.2-preview",
+  "parameters": {
+    "basics": [
+      {
+        "name": "siteName",
+        "type": "Microsoft.Common.TextBox",
+        "label": "Web App Name",
+        "defaultValue": "",
+        "toolTip": "Name of the web application",
+        "constraints": {
+          "required": true,
+          "regex": "^[a-z0-9A-Z]{1,60}$",
+          "validationMessage": "Only alphanumeric characters are allowed, and the value must be 1-60 characters long."
+        }
+      }
+    ],
+    "steps": [
+      {
+        "name": "appServiceConfig",
+        "label": "App Service Configuration",
+        "elements": [
+          {
+            "name": "sku",
+            "type": "Microsoft.Common.DropDown",
+            "label": "Pricing Tier",
+            "defaultValue": "Free (F1)",
+            "toolTip": "Select the pricing tier for the App Service plan",
+            "constraints": {
+              "allowedValues": [
+                {
+                  "label": "Free (F1)",
+                  "value": "F1"
+                },
+                {
+                  "label": "Shared (D1)",
+                  "value": "D1"
+                },
+                {
+                  "label": "Basic (B1)",
+                  "value": "B1"
+                },
+                {
+                  "label": "Standard (S1)",
+                  "value": "S1"
+                },
+                {
+                  "label": "Premium (P1v2)",
+                  "value": "P1v2"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "outputs": {
+      "siteName": "[basics('siteName')]",
+      "sku": "[steps('appServiceConfig').sku]",
+      "location": "[location()]"
+    }
+  }
+}

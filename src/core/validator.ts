@@ -2,6 +2,8 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { spawn } from 'child_process';
 import chalk from 'chalk';
+import { SecurityValidation, ValidationError } from '../utils/security-validation';
+import { AppConfig } from '../config/app-config';
 
 export interface ValidationResult {
   success: boolean;
@@ -36,9 +38,9 @@ export class ArmTtkValidator {
   private packagesDir: string;
 
   constructor() {
-    // Path to ARM-TTK in the workspace
-    this.armTtkPath = '/home/msalsouri/tools/arm-ttk/arm-ttk/Test-AzTemplate.ps1';
-    this.packagesDir = path.join(process.cwd(), 'packages');
+    // Use configurable paths
+    this.armTtkPath = AppConfig.getArmTtkPath();
+    this.packagesDir = AppConfig.getPackagesDir();
   }
 
   /**
@@ -87,27 +89,35 @@ export class ArmTtkValidator {
     const timestamp = new Date().toISOString();
 
     try {
-      // Build secure PowerShell command using argument arrays to prevent injection
-      const moduleDir = path.dirname(this.armTtkPath);
+      // Validate template path to prevent injection
+      if (!SecurityValidation.validateFilePath(templatePath)) {
+        throw new ValidationError(`Invalid template path: ${templatePath}`, 'templatePath');
+      }
 
-      // Build PowerShell command with argument arrays - prevents injection
-      const psArgs = [
-        '-Command',
-        `Import-Module '${moduleDir}'; Test-AzTemplate -TemplatePath '${templatePath}'`
-      ];
+      // Build secure PowerShell command using escaped strings to prevent injection
+      const moduleDir = path.dirname(this.armTtkPath);
+      const escapedModuleDir = SecurityValidation.escapePowerShellString(moduleDir);
+      const escapedTemplatePath = SecurityValidation.escapePowerShellString(templatePath);
+
+      // Build PowerShell command with properly escaped paths
+      let command = `Import-Module '${escapedModuleDir}'; Test-AzTemplate -TemplatePath '${escapedTemplatePath}'`;
 
       if (skipTests && skipTests.length > 0) {
         // Validate skip test names to prevent injection
         const validatedSkipTests = skipTests.filter(test =>
-          /^[a-zA-Z0-9\-_\s]+$/.test(test) && test.length < 100
+          SecurityValidation.validateTestName(test)
         );
 
         if (validatedSkipTests.length > 0) {
-          const skipList = validatedSkipTests.join("','");
-          psArgs[1] += ` -Skip @('${skipList}')`;
+          const escapedSkipList = validatedSkipTests
+            .map(test => SecurityValidation.escapePowerShellString(test))
+            .join("','");
+          command += ` -Skip @('${escapedSkipList}')`;
           console.log(chalk.gray(`  Skipping tests: ${validatedSkipTests.join(', ')}`));
         }
       }
+
+      const psArgs = ['-Command', command];
 
       console.log(chalk.gray(`  Executing ARM-TTK validation...`));
 

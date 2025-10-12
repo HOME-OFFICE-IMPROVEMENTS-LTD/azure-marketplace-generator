@@ -77,7 +77,7 @@ export const insightsCommand = new Command('insights')
         await exportInsights(aiService, result, options.export);
       }
 
-    } catch (_error) {
+    } catch (error) {
       console.error(chalk.red('❌ AI insights failed:'), error);
       process.exit(1);
     }
@@ -90,7 +90,7 @@ async function initializeAIAnalytics(service: AIAnalyticsService): Promise<void>
 
   console.log(chalk.green('✅ AI analytics configuration initialized'));
   console.log(chalk.blue('📋 Configuration saved to: ai-analytics-config.json'));
-  
+
   console.log(chalk.yellow('\n🎯 AI Models Available:'));
   for (const model of config.models) {
     console.log(chalk.blue(`   🧠 ${model.name} (${model.type})`));
@@ -102,7 +102,7 @@ async function initializeAIAnalytics(service: AIAnalyticsService): Promise<void>
       console.log(chalk.blue(`   📈 ${insight.type} - ${insight.schedule}`));
     }
   }
-  
+
   console.log(chalk.yellow('\n🎯 Next steps:'));
   console.log(chalk.yellow('   1. azmp insights --load-models       # Load AI models'));
   console.log(chalk.yellow('   2. azmp insights                     # Run AI analysis'));
@@ -233,7 +233,7 @@ function displayInsightsSummary(result: AIAnalyticsResult, confidenceThreshold: 
       const impactColor = insight.impact === 'critical' ? chalk.red :
                          insight.impact === 'high' ? chalk.yellow :
                          insight.impact === 'medium' ? chalk.blue : chalk.green;
-      
+
       console.log(impactColor(`   📋 ${insight.title}`));
       console.log(chalk.gray(`      ${insight.description}`));
       console.log(chalk.gray(`      Confidence: ${Math.round(insight.confidence * 100)}% | Impact: ${insight.impact}`));
@@ -246,7 +246,7 @@ function displayInsightsSummary(result: AIAnalyticsResult, confidenceThreshold: 
     for (const prediction of highConfidencePredictions.slice(0, 2)) {
       console.log(chalk.blue(`   📈 ${prediction.type.toUpperCase()} (${prediction.timeframe})`));
       console.log(chalk.gray(`      Confidence: ${Math.round(prediction.confidence * 100)}%`));
-      
+
       if (typeof prediction.prediction === 'object') {
         const pred = prediction.prediction as any;
         if (pred.trend) {
@@ -283,7 +283,7 @@ function displayInsightsSummary(result: AIAnalyticsResult, confidenceThreshold: 
       const priorityColor = rec.priority === 'critical' ? chalk.red :
                            rec.priority === 'high' ? chalk.yellow :
                            rec.priority === 'medium' ? chalk.blue : chalk.green;
-      
+
       console.log(priorityColor(`   📋 ${rec.title}`));
       console.log(chalk.gray(`      ${rec.description}`));
       console.log(chalk.gray(`      Expected: ${rec.expectedOutcome}`));
@@ -307,7 +307,7 @@ function displayPredictions(predictions: any[], confidenceThreshold: number): vo
     console.log(chalk.yellow(`\n📈 ${prediction.type.toUpperCase()} PREDICTION`));
     console.log(chalk.blue(`   ⏱️  Timeframe: ${prediction.timeframe}`));
     console.log(chalk.blue(`   🎯 Confidence: ${Math.round(prediction.confidence * 100)}%`));
-    
+
     // Display prediction details
     if (typeof prediction.prediction === 'object') {
       const pred = prediction.prediction as any;
@@ -357,7 +357,7 @@ function displayOptimizations(_optimizations: any[]): void {
   for (const opt of _optimizations) {
     console.log(chalk.yellow(`\n🚀 ${opt.strategy.toUpperCase()} OPTIMIZATION`));
     console.log(chalk.blue(`   🎯 Type: ${opt.type}`));
-    
+
     // Display benefits
     console.log(chalk.yellow('   💰 Expected Benefits:'));
     if (opt.expectedBenefit.costSaving) {
@@ -426,18 +426,18 @@ function displayAnomalies(anomalies: any[]): void {
                          severity === 'medium' ? chalk.blue : chalk.green;
 
     console.log(severityColor(`\n${severity.toUpperCase()} ANOMALIES (${severityAnomalies.length}):`));
-    
+
     for (const anomaly of severityAnomalies) {
       console.log(severityColor(`   📋 ${anomaly.description}`));
       console.log(chalk.gray(`      Type: ${anomaly.type}`));
       console.log(chalk.gray(`      Affected: ${anomaly.affectedResources.join(', ')}`));
       console.log(chalk.gray(`      Detected: ${anomaly.detectedAt.toLocaleString()}`));
       console.log(chalk.gray(`      Confidence: ${Math.round(anomaly.confidence * 100)}%`));
-      
+
       if (anomaly.rootCause) {
         console.log(chalk.gray(`      Root Cause: ${anomaly.rootCause}`));
       }
-      
+
       if (anomaly.remediation) {
         console.log(chalk.yellow('      🔧 Remediation:'));
         for (const step of anomaly.remediation) {
@@ -461,7 +461,7 @@ function displayMarketIntelligence(market: any): void {
                        trend.trend === 'emerging' ? '🚀' : '➡️';
       const impactColor = trend.impact === 'high' ? chalk.red :
                          trend.impact === 'medium' ? chalk.yellow : chalk.green;
-      
+
       console.log(impactColor(`   ${trendIcon} ${trend.category}: ${trend.description}`));
       console.log(chalk.gray(`      Impact: ${trend.impact} | Timeframe: ${trend.timeframe} | Confidence: ${Math.round(trend.confidence * 100)}%`));
     }
@@ -474,7 +474,7 @@ function displayMarketIntelligence(market: any): void {
       console.log(chalk.blue(`   💡 ${opp.type}: ${opp.description}`));
       console.log(chalk.gray(`      Market Size: $${(opp.marketSize / 1e9).toFixed(1)}B | Competition: ${opp.competition}`));
       console.log(chalk.gray(`      Timeline: ${opp.timeline} | Confidence: ${Math.round(opp.confidence * 100)}%`));
-      
+
       if (opp.requirements.length > 0) {
         console.log(chalk.gray(`      Requirements: ${opp.requirements.join(', ')}`));
       }
@@ -484,14 +484,14 @@ function displayMarketIntelligence(market: any): void {
   // Competitive analysis
   console.log(chalk.yellow('\n🏆 Competitive Position:'));
   console.log(chalk.blue(`   📊 Position: ${market.competitive.position}`));
-  
+
   if (market.competitive.strengths.length > 0) {
     console.log(chalk.green('   ✅ Strengths:'));
     for (const strength of market.competitive.strengths) {
       console.log(chalk.gray(`      • ${strength}`));
     }
   }
-  
+
   if (market.competitive.opportunities.length > 0) {
     console.log(chalk.blue('   🎯 Opportunities:'));
     for (const opportunity of market.competitive.opportunities) {
@@ -508,7 +508,7 @@ function displayMarketIntelligence(market: any): void {
       const percentileColor = benchmark.percentile >= 80 ? chalk.green :
                              benchmark.percentile >= 60 ? chalk.blue :
                              benchmark.percentile >= 40 ? chalk.yellow : chalk.red;
-      
+
       console.log(percentileColor(`   ${trendIcon} ${benchmark.metric}: ${benchmark.value} (${benchmark.percentile}th percentile)`));
       console.log(chalk.gray(`      Industry Average: ${benchmark.industry}`));
     }
@@ -525,7 +525,7 @@ async function exportInsights(service: AIAnalyticsService, result: AIAnalyticsRe
     } else {
       console.log(chalk.red(`❌ Unsupported export format: ${format}`));
     }
-  } catch (_error) {
+  } catch (error) {
     console.error(chalk.red(`❌ Export failed: ${error}`));
   }
 }
