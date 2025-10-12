@@ -9,15 +9,61 @@ export const createCommand = new Command('create')
   .option('-p, --publisher <name>', 'Publisher name for the marketplace')
   .option('-n, --name <name>', 'Application name')
   .option('-o, --output <dir>', 'Output directory', './output')
-  .action(async (type: string, options: any) => {
+  .action(async (type: string, options: { publisher?: string; name?: string; output: string }) => {
     console.log(chalk.blue('🚀 Creating managed application package...'));
 
-    // Validate input
-    const supportedTypes = ['storage', 'vm', 'webapp'];
-    if (!supportedTypes.includes(type)) {
-      console.error(chalk.red('❌ Unsupported type:'), type);
-      console.log(chalk.gray('Supported types:'), supportedTypes.join(', '));
+    // Enhanced input validation
+    if (!type || typeof type !== 'string') {
+      console.error(chalk.red('❌ Error: Application type is required'));
+      console.log(chalk.gray('Usage: azmp create <type> [options]'));
+      console.log(chalk.blue('Available types: storage, vm, webapp'));
       process.exit(1);
+    }
+
+    // Validate and normalize type
+    const normalizedType = type.toLowerCase().trim();
+    const supportedTypes = ['storage', 'vm', 'webapp'];
+    
+    if (!supportedTypes.includes(normalizedType)) {
+      console.error(chalk.red('❌ Unsupported application type:'), type);
+      console.log(chalk.gray('Supported types:'), supportedTypes.join(', '));
+      console.log(chalk.blue('\n💡 Examples:'));
+      console.log(chalk.blue('   azmp create storage my-storage-app'));
+      console.log(chalk.blue('   azmp create vm my-vm-solution'));
+      console.log(chalk.blue('   azmp create webapp my-web-app'));
+      process.exit(1);
+    }
+
+    // Validate output directory
+    if (options.output && typeof options.output !== 'string') {
+      console.error(chalk.red('❌ Error: Output directory must be a string'));
+      process.exit(1);
+    }
+
+    // Validate publisher name format
+    if (options.publisher) {
+      if (typeof options.publisher !== 'string' || options.publisher.trim().length === 0) {
+        console.error(chalk.red('❌ Error: Publisher name must be a non-empty string'));
+        process.exit(1);
+      }
+      if (!/^[a-zA-Z0-9\s\-_.]+$/.test(options.publisher)) {
+        console.error(chalk.red('❌ Error: Publisher name contains invalid characters'));
+        console.log(chalk.gray('Allowed: letters, numbers, spaces, hyphens, underscores, dots'));
+        process.exit(1);
+      }
+    }
+
+    // Validate application name format
+    if (options.name) {
+      if (typeof options.name !== 'string' || options.name.trim().length === 0) {
+        console.error(chalk.red('❌ Error: Application name must be a non-empty string'));
+        process.exit(1);
+      }
+      if (!/^[a-zA-Z0-9\s\-_]+$/.test(options.name)) {
+        console.error(chalk.red('❌ Error: Application name contains invalid characters'));
+        console.log(chalk.gray('Allowed: letters, numbers, spaces, hyphens, underscores'));
+        process.exit(1);
+      }
     }
 
     // Collect missing information
@@ -27,20 +73,28 @@ export const createCommand = new Command('create')
         name: 'publisher',
         message: 'Publisher name:',
         when: !options.publisher,
-        validate: (input: string) => input.length > 0 || 'Publisher name is required'
+        validate: (input: string) => {
+          if (!input || input.trim().length === 0) return 'Publisher name is required';
+          if (!/^[a-zA-Z0-9\s\-_.]+$/.test(input)) return 'Invalid characters in publisher name';
+          return true;
+        }
       },
       {
         type: 'input',
         name: 'name',
         message: 'Application name:',
         when: !options.name,
-        default: `My${type.charAt(0).toUpperCase() + type.slice(1)}App`,
-        validate: (input: string) => input.length > 0 || 'Application name is required'
+        default: `My${normalizedType.charAt(0).toUpperCase() + normalizedType.slice(1)}App`,
+        validate: (input: string) => {
+          if (!input || input.trim().length === 0) return 'Application name is required';
+          if (!/^[a-zA-Z0-9\s\-_]+$/.test(input)) return 'Invalid characters in application name';
+          return true;
+        }
       }
     ]);
 
     const config = {
-      type,
+      type: normalizedType,
       publisher: options.publisher || answers.publisher,
       name: options.name || answers.name,
       output: options.output
