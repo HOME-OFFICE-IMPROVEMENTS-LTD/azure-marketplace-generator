@@ -37,6 +37,9 @@ describe('Workflow Validation Tests', () => {
     } catch (error) {
       console.warn('Failed to cleanup test directory:', error);
     }
+
+    // Give processes time to clean up
+    await new Promise(resolve => setTimeout(resolve, 1000));
   });
 
   describe('Template Generation Workflow', () => {

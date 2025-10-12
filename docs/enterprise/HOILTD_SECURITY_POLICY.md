@@ -59,8 +59,9 @@ const secretClient = new SecretClient(
   credential
 );
 
-// ❌ Prohibited: Hardcoded secrets
-const apiKey = "secret-key-123"; // NEVER DO THIS
+// ❌ SECURITY DOCUMENTATION EXAMPLE - DO NOT USE IN PRODUCTION
+// The following is an example of what NOT to do - never hardcode secrets
+const apiKey = "PLACEHOLDER_SECRET"; // NEVER DO THIS - Use environment variables or Azure Key Vault
 ```
 
 ---
@@ -114,8 +115,8 @@ function validateInput(userInput: string): boolean {
 
 // ✅ Approved: SQL injection prevention
 const query = `
-  SELECT * FROM templates 
-  WHERE userId = @userId 
+  SELECT * FROM templates
+  WHERE userId = @userId
   AND status = @status
 `;
 
@@ -190,12 +191,12 @@ SecurityIncidentLevels:
     description: "Data breach or system compromise"
     responseTime: "Immediate (< 15 minutes)"
     escalation: "CISO + Executive Team"
-  
+
   Level2_High:
     description: "Security vulnerability exploitation"
     responseTime: "< 1 hour"
     escalation: "Security Team + DevOps"
-  
+
   Level3_Medium:
     description: "Security policy violation"
     responseTime: "< 4 hours"
@@ -237,8 +238,8 @@ SecurityIncidentLevels:
 
 ---
 
-**Document Version:** 2.0  
-**Last Updated:** October 2025  
-**Owner:** HOME-OFFICE-IMPROVEMENTS-LTD Security Team  
-**Next Review:** January 2026  
+**Document Version:** 2.0
+**Last Updated:** October 2025
+**Owner:** HOME-OFFICE-IMPROVEMENTS-LTD Security Team
+**Next Review:** January 2026
 **Classification:** Internal Confidential

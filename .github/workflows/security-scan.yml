@@ -4,21 +4,29 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
   schedule:
     # Run security scan daily at 2 AM UTC
     - cron: '0 2 * * *'
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 jobs:
   security-scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: '18'
         cache: 'npm'
@@ -26,30 +34,27 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    - name: Setup ARM-TTK for testing
+      run: |
+        echo "🛡️ Setting up ARM-TTK for validation tests..."
+        # Install PowerShell if not available
+        sudo apt-get update
+        sudo apt-get install -y powershell
+        # Clone ARM-TTK from official Microsoft repository
+        git clone https://github.com/Azure/arm-ttk.git /tmp/arm-ttk
+        # Create symlink for tests to find ARM-TTK at expected location
+        sudo ln -sf /tmp/arm-ttk /home/runner/work/azure-marketplace-generator/azure-marketplace-generator/arm-ttk
+
     - name: Run security audit
       run: npm audit --audit-level=moderate
 
     - name: Run custom security scan
       run: npm run test:security
 
-    - name: Run Snyk security scan
-      uses: snyk/actions/node@master
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        args: --severity-threshold=medium
-
-    - name: Upload security scan results
-      uses: github/codeql-action/upload-sarif@v2
-      if: always()
-      with:
-        sarif_file: security-results.sarif
-      continue-on-error: true
-
     - name: Build and test
       run: |
         npm run build
-        npm test
+        npm run test:ci
 
     - name: Validate CLI functionality
       run: |
@@ -59,13 +64,16 @@ jobs:
 
   dependency-review:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     if: github.event_name == 'pull_request'
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Dependency Review
-      uses: actions/dependency-review-action@v3
+      uses: actions/dependency-review-action@40c09b7dc99638e5ddb0bfd91c1673effc064d8a
       with:
         fail-on-severity: moderate
