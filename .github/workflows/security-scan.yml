@@ -41,7 +41,7 @@ jobs:
       run: npm run test:security
 
     - name: Run Snyk security scan
-      uses: snyk/actions/node@26b0a1c83c9f1fb581e4b8da370b8035bfadf3fa
+      uses: snyk/actions/node@9adf32b1121593767fc3c057af55b55db032dc04
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       with:
