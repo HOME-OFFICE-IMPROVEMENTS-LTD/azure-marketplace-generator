@@ -49,6 +49,21 @@ azmp graph                                # Microsoft Graph integration
 azmp help                                 # Comprehensive help system
 ```
 
+### **GitHub Integration & Workflow Management**
+
+```bash
+azmp pr --list                            # List all open pull requests
+azmp pr --status [number]                 # Show PR status (current or specific PR)
+azmp pr --create "title"                  # Create new PR from current branch
+azmp pr --approve <number>                # Approve specific PR
+azmp pr --merge <number>                  # Merge approved PR
+azmp pr --checks [number]                 # Show CI/CD check status
+azmp pr --review <number>                 # Interactive PR review
+
+azmp workflow <branch> "title"            # Complete GitFlow workflow automation
+azmp workflow feature/auth "Add OAuth"    # Create feature branch and setup PR workflow
+```
+
 ### **Integration & Testing**
 
 ```bash
@@ -227,6 +242,19 @@ azmp monitor --watch                       # Start continuous monitoring
 azmp insights --predictions                # Get AI predictions
 ```
 
+### **GitHub Enterprise Workflow**
+
+```bash
+# 🌊 Systematic GitHub workflow (no UI required):
+azmp workflow feature/new-template "Add storage template"  # Start feature
+# ... make changes ...
+git add . && git commit -m "feat: add new storage template"
+git push origin feature/new-template
+azmp pr --create "Add new storage template" --validate     # Create PR with validation
+azmp pr --status                           # Monitor CI/CD checks
+azmp pr --merge <number>                   # Merge when ready
+```
+
 ---
 
 ## �️ **Advanced Features**
@@ -259,6 +287,25 @@ Professional monitoring includes:
 - **Performance Metrics**: CPU, memory, network, and storage monitoring
 - **Automated Alerting**: Multi-channel notifications
 - **Dashboard Generation**: Interactive monitoring dashboards
+
+### **🔗 GitHub Integration**
+
+Seamless GitHub workflow management without leaving the CLI:
+
+```bash
+azmp pr --list                             # List all open PRs with status
+azmp pr --create "Add new feature"         # Create PR from current branch
+azmp pr --approve 42 --body "LGTM!"       # Approve with comment
+azmp pr --merge 42 --method squash         # Squash and merge
+azmp workflow feature/oauth "Add OAuth2"   # Complete GitFlow automation
+```
+
+**GitFlow Integration:**
+- Automatic feature branch creation
+- Integrated PR lifecycle management
+- CI/CD monitoring and status checks
+- Branch protection and review requirements
+- Zero GitHub UI dependency
 
 ### **🔗 Integration Ecosystem**
 
@@ -329,7 +376,7 @@ Please read our **[Contributing Guide](./CONTRIBUTING.md)** and **[Code of Condu
 
 ## � **Roadmap**
 
-Our roadmap is maintained in the **[Project Wiki](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/wiki)**:
+📋 **Our comprehensive roadmap and detailed project planning is available in our [Project Wiki](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/wiki)** - featuring milestone tracking, feature specifications, and community-driven development priorities.
 
 ### **Current Status: Phase 4 Complete** ✅
 
@@ -337,6 +384,7 @@ Our roadmap is maintained in the **[Project Wiki](https://github.com/HOME-OFFICE
 - ✅ AI analytics and enterprise monitoring
 - ✅ GitHub Actions workflow monitoring
 - ✅ Azure DevOps and Lighthouse integration
+- ✅ **NEW**: GitHub PR management and GitFlow automation
 
 ### **Next: Azure Managed Applications Focus**
 

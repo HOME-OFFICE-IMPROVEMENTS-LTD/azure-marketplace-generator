@@ -13,6 +13,7 @@ import { deployCommand } from './commands/deploy';
 import { monitorCommand } from './commands/monitor';
 import { insightsCommand } from './commands/insights';
 import { configCommand } from './commands/config';
+import { prCommand, workflowCommand } from './commands/pr';
 import { registerGraphCommands } from './commands/graph';
 
 const program = new Command();
@@ -48,6 +49,8 @@ program.addCommand(authCommand);
 program.addCommand(testCommand);
 program.addCommand(configCommand);
 program.addCommand(helpCommand);
+program.addCommand(prCommand);
+program.addCommand(workflowCommand);
 
 // Register Graph MCP commands
 registerGraphCommands(program);
@@ -73,13 +76,15 @@ if (!process.argv.slice(2).length) {
   // Show commands list manually instead of program.outputHelp()
   console.log(chalk.blue('Available Commands:'));
   console.log(chalk.gray('  create <type>              Create a new managed application package'));
-  console.log(chalk.gray('  validate <path>            Validate managed application package'));
-  console.log(chalk.gray('  package <path>             Package for marketplace submission'));
+  console.log(chalk.gray('  validate <path>            Validate ARM templates'));
+  console.log(chalk.gray('  package <path>             Package for marketplace'));
   console.log(chalk.gray('  deploy <package>           Auto-deploy to Azure'));
   console.log(chalk.gray('  monitor                    Enterprise monitoring'));
   console.log(chalk.gray('  insights                   AI-powered analytics'));
   console.log(chalk.gray('  status                     Show portfolio status'));
   console.log(chalk.gray('  promote <path> <version>   Promote to marketplace'));
+  console.log(chalk.gray('  pr                         GitHub PR management'));
+  console.log(chalk.gray('  workflow                   GitFlow automation'));
 
   console.log(chalk.blue('\n💡 Quick start:'));
   console.log(chalk.blue('   azmp help --phase2                 # Learn about smart packaging'));
@@ -91,6 +96,9 @@ if (!process.argv.slice(2).length) {
   console.log(chalk.blue('   azmp status                        # Show portfolio status'));
   console.log(chalk.blue('   azmp list-packages                 # View all packages'));
   console.log(chalk.blue('   azmp promote <path> 1.0.0          # Promote to marketplace'));
+  console.log(chalk.blue('   azmp pr --list                     # List GitHub PRs'));
+  console.log(chalk.blue('   azmp workflow feature/name "title" # Start GitFlow'));
+  console.log(chalk.blue('   azmp pr --create "Fix issue"       # Create PR'));
   process.exit(0);
 }
 
@@ -99,8 +107,9 @@ program.exitOverride();
 
 try {
   program.parse();
-} catch (err: any) {
-  console.error(chalk.red('❌ Error:'), err.message);
+} catch (err: unknown) {
+  const errorMessage = err instanceof Error ? err.message : String(err);
+  console.error(chalk.red('❌ Error:'), errorMessage);
   console.log(chalk.blue('\n💡 Troubleshooting:'));
   console.log(chalk.blue('   • Check command syntax: azmp --help'));
   console.log(chalk.blue('   • Verify file paths exist'));

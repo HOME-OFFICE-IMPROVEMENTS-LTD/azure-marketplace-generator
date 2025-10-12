@@ -34,7 +34,7 @@ class MCPEcosystemCLI {
 
   private initializeServers(): void {
     const basePackagesPath = path.join(process.cwd(), 'packages');
-    
+
     const serverConfigs = [
       {
         name: 'devops-rag',
@@ -42,7 +42,7 @@ class MCPEcosystemCLI {
         description: 'Azure DevOps integration with RAG for code history and work items',
         tools: [
           'analyze_devops_project',
-          'devops_search', 
+          'devops_search',
           'get_work_items',
           'analyze_pipelines',
           'devops_intelligence',
@@ -110,7 +110,7 @@ class MCPEcosystemCLI {
   async start(): Promise<void> {
     console.log('🚀 Azure Marketplace Generator - MCP Ecosystem CLI');
     console.log('==================================================\\n');
-    
+
     await this.showWelcome();
     await this.mainMenu();
   }
@@ -118,7 +118,7 @@ class MCPEcosystemCLI {
   private async showWelcome(): Promise<void> {
     console.log('Available MCP Servers:');
     console.log('---------------------');
-    
+
     for (const [name, server] of this.servers) {
       const statusIcon = server.status === 'running' ? '🟢' : '🔴';
       console.log(`${statusIcon} ${name}: ${server.description}`);
@@ -138,9 +138,9 @@ class MCPEcosystemCLI {
       console.log('6. 🧹 Clean All Servers');
       console.log('7. ❓ Help & Documentation');
       console.log('8. 🚪 Exit');
-      
+
       const choice = await this.prompt('Select option (1-8): ');
-      
+
       switch (choice.trim()) {
         case '1':
           await this.serverManagement();
@@ -175,22 +175,22 @@ class MCPEcosystemCLI {
   private async serverManagement(): Promise<void> {
     console.log('\\n📊 Server Management');
     console.log('====================');
-    
+
     for (const [name, server] of this.servers) {
       const exists = await fs.pathExists(server.path);
       const statusIcon = exists ? '✅' : '❌';
       console.log(`${statusIcon} ${name}: ${exists ? 'Built' : 'Not built'} | ${server.status}`);
     }
-    
+
     console.log('\\nOptions:');
     console.log('1. Start all servers');
     console.log('2. Stop all servers');
     console.log('3. Restart all servers');
     console.log('4. Check server health');
     console.log('5. Back to main menu');
-    
+
     const choice = await this.prompt('Select option: ');
-    
+
     switch (choice.trim()) {
       case '1':
         await this.startAllServers();
@@ -212,15 +212,15 @@ class MCPEcosystemCLI {
   private async testIndividualServer(): Promise<void> {
     console.log('\\n🔧 Test Individual MCP Server');
     console.log('=============================');
-    
+
     const serverNames = Array.from(this.servers.keys());
     serverNames.forEach((name, index) => {
       console.log(`${index + 1}. ${name}`);
     });
-    
+
     const choice = await this.prompt('Select server to test (1-4): ');
     const serverIndex = parseInt(choice.trim()) - 1;
-    
+
     if (serverIndex >= 0 && serverIndex < serverNames.length) {
       const serverName = serverNames[serverIndex];
       await this.testServer(serverName);
@@ -232,22 +232,22 @@ class MCPEcosystemCLI {
   private async testServer(serverName: string): Promise<void> {
     const server = this.servers.get(serverName);
     if (!server) return;
-    
+
     console.log(`\\n🧪 Testing ${serverName}`);
     console.log('='.repeat(20 + serverName.length));
-    
+
     // Check if server is built
     const exists = await fs.pathExists(server.path);
     if (!exists) {
       console.log('❌ Server not built. Building now...');
       await this.buildServer(serverName);
     }
-    
+
     console.log('📝 Available tools:');
     server.tools.forEach((tool, index) => {
       console.log(`  ${index + 1}. ${tool}`);
     });
-    
+
     const toolChoice = await this.prompt('Select tool to test (number or name): ');
     // In a real implementation, you would start the server and test the tool
     console.log(`✅ Testing ${toolChoice} - This would execute the actual MCP tool test`);
@@ -256,16 +256,16 @@ class MCPEcosystemCLI {
   private async testEcosystem(): Promise<void> {
     console.log('\\n🌐 Test Complete Ecosystem');
     console.log('===========================');
-    
+
     console.log('🔄 Running comprehensive ecosystem test...');
-    
+
     // Build all servers first
     await this.buildAllServers();
-    
+
     // Test each server
     for (const [name, server] of this.servers) {
       console.log(`\\n🧪 Testing ${name}...`);
-      
+
       const exists = await fs.pathExists(server.path);
       if (exists) {
         console.log(`✅ ${name}: Server executable found`);
@@ -274,28 +274,28 @@ class MCPEcosystemCLI {
         console.log(`❌ ${name}: Server not found`);
       }
     }
-    
+
     console.log('\\n📊 Ecosystem Test Summary:');
     console.log('==========================');
-    
+
     let totalTools = 0;
     let builtServers = 0;
-    
+
     for (const [name, server] of this.servers) {
       const exists = await fs.pathExists(server.path);
       if (exists) builtServers++;
       totalTools += server.tools.length;
-      
+
       console.log(`${exists ? '✅' : '❌'} ${name}: ${server.tools.length} tools`);
     }
-    
+
     console.log(`\\n🏆 Results: ${builtServers}/${this.servers.size} servers built, ${totalTools} total tools available`);
   }
 
   private async generateReport(): Promise<void> {
     console.log('\\n📋 Generating Integration Report');
     console.log('================================');
-    
+
     const report = {
       timestamp: new Date().toISOString(),
       ecosystem: {
@@ -305,12 +305,12 @@ class MCPEcosystemCLI {
       },
       servers: {} as any
     };
-    
+
     for (const [name, server] of this.servers) {
       const exists = await fs.pathExists(server.path);
       if (exists) report.ecosystem.builtServers++;
       report.ecosystem.totalTools += server.tools.length;
-      
+
       report.servers[name] = {
         description: server.description,
         built: exists,
@@ -319,10 +319,10 @@ class MCPEcosystemCLI {
         path: server.path
       };
     }
-    
+
     const reportPath = path.join(process.cwd(), 'mcp-ecosystem-report.json');
     await fs.writeJson(reportPath, report, { spaces: 2 });
-    
+
     console.log(`✅ Report generated: ${reportPath}`);
     console.log('\\n📊 Summary:');
     console.log(`- Total Servers: ${report.ecosystem.totalServers}`);
@@ -334,27 +334,27 @@ class MCPEcosystemCLI {
   private async buildAllServers(): Promise<void> {
     console.log('\\n🏗️  Building All MCP Servers');
     console.log('=============================');
-    
+
     for (const [name, server] of this.servers) {
       await this.buildServer(name);
     }
-    
+
     console.log('\\n✅ All servers build process completed');
   }
 
   private async buildServer(serverName: string): Promise<void> {
     const server = this.servers.get(serverName);
     if (!server) return;
-    
+
     console.log(`🔨 Building ${serverName}...`);
-    
+
     const serverDir = path.dirname(server.path);
     const packageDir = path.join(serverDir, '..');
-    
+
     try {
       // Run npm run build in the server directory
       const buildResult = await this.runCommand('npm', ['run', 'build'], packageDir);
-      
+
       if (buildResult.success) {
         console.log(`✅ ${serverName}: Build successful`);
         const server = this.servers.get(serverName);
@@ -373,14 +373,14 @@ class MCPEcosystemCLI {
   private async cleanAllServers(): Promise<void> {
     console.log('\\n🧹 Cleaning All MCP Servers');
     console.log('============================');
-    
+
     for (const [name, server] of this.servers) {
       console.log(`🧹 Cleaning ${name}...`);
-      
+
       const serverDir = path.dirname(server.path);
       const packageDir = path.join(serverDir, '..');
       const distDir = path.join(packageDir, 'dist');
-      
+
       try {
         if (await fs.pathExists(distDir)) {
           await fs.remove(distDir);
@@ -392,7 +392,7 @@ class MCPEcosystemCLI {
         console.log(`❌ ${name}: Clean error - ${error}`);
       }
     }
-    
+
     console.log('\\n✅ All servers cleaned');
   }
 
@@ -416,7 +416,7 @@ class MCPEcosystemCLI {
   private async checkServerHealth(): Promise<void> {
     console.log('\\n🏥 Server Health Check');
     console.log('======================');
-    
+
     for (const [name, server] of this.servers) {
       const exists = await fs.pathExists(server.path);
       const health = exists ? '🟢 Healthy' : '🔴 Not Built';
@@ -449,16 +449,16 @@ class MCPEcosystemCLI {
 
   private async runCommand(command: string, args: string[], cwd: string): Promise<{success: boolean, error?: string}> {
     return new Promise((resolve) => {
-      const process = spawn(command, args, { 
-        cwd, 
-        stdio: ['inherit', 'inherit', 'pipe'] 
+      const process = spawn(command, args, {
+        cwd,
+        stdio: ['inherit', 'inherit', 'pipe']
       });
-      
+
       let error = '';
       process.stderr?.on('data', (data) => {
         error += data.toString();
       });
-      
+
       process.on('close', (code) => {
         resolve({
           success: code === 0,
@@ -488,7 +488,8 @@ async function main() {
   await cli.start();
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Only run if this file is executed directly
+if (require.main === module) {
   main().catch(console.error);
 }
 
