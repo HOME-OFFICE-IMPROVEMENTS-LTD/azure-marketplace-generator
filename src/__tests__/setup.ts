@@ -21,24 +21,3 @@ beforeAll(() => {
 process.env.NODE_ENV = 'test'
 process.env.AZURE_SUBSCRIPTION_ID = 'test-subscription-id'
 process.env.AZURE_TENANT_ID = 'test-tenant-id'
-
-// Global test utilities
-declare global {
-  var testUtils: {
-    mockConsole: () => void
-    restoreConsole: () => void
-  }
-}
-
-global.testUtils = {
-  // Add common test utilities here
-  mockConsole: () => {
-    jest.spyOn(console, 'log').mockImplementation()
-    jest.spyOn(console, 'error').mockImplementation()
-    jest.spyOn(console, 'warn').mockImplementation()
-  },
-
-  restoreConsole: () => {
-    jest.restoreAllMocks()
-  }
-}
