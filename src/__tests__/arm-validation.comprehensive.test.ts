@@ -98,7 +98,7 @@ describe.skip('ARM Template Validation - Comprehensive', () => {
       mockSpawn.mockReturnValue(mockProcess as any);
 
       // Mock stderr to contain JSON parse error
-      mockProcess.stderr.on.mockImplementation((event: string, callback: (data: string) => void) => {
+      mockProcess.stderr.on.mockImplementation((event: any, callback: any) => {
         if (event === 'data') {
           callback('JSON parsing error: Unexpected token');
         }
@@ -140,7 +140,7 @@ describe.skip('ARM Template Validation - Comprehensive', () => {
       mockSpawn.mockReturnValue(mockProcess as any);
 
       // Mock stdout with circular dependency error
-      mockProcess.stdout.on.mockImplementation((event, callback) => {
+      mockProcess.stdout.on.mockImplementation((event: any, callback: any) => {
         if (event === 'data') {
           callback(JSON.stringify([
             {
@@ -261,7 +261,7 @@ describe.skip('ARM Template Validation - Comprehensive', () => {
         }
       ]);
 
-      mockProcess.stdout.on.mockImplementation((event, callback) => {
+      mockProcess.stdout.on.mockImplementation((event: any, callback: any) => {
         if (event === 'data') {
           callback(armTtkOutput);
         }
@@ -293,7 +293,7 @@ describe.skip('ARM Template Validation - Comprehensive', () => {
       mockSpawn.mockReturnValue(mockProcess as any);
 
       // Mock malformed JSON output
-      mockProcess.stdout.on.mockImplementation((event, callback) => {
+      mockProcess.stdout.on.mockImplementation((event: any, callback: any) => {
         if (event === 'data') {
           callback('Not valid JSON output');
         }
