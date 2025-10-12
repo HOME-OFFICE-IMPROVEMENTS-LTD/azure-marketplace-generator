@@ -11,6 +11,8 @@
     "copy-templates": "cp -r src/templates dist/",
     "dev": "ts-node src/cli/index.ts",
     "test": "jest",
+    "test:ci": "jest --maxWorkers=1 --detectOpenHandles --forceExit",
+    "test:arm-ttk": "jest --testPathPattern=workflow-validation --maxWorkers=1 --detectOpenHandles",
     "test:security": "./scripts/security-scan.sh",
     "test:all": "npm run test && npm run test:security",
     "security-scan": "./scripts/security-scan.sh",
