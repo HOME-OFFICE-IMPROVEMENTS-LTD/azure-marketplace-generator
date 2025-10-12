@@ -54,9 +54,9 @@ export class SecurityValidation {
     if (!filePath || filePath.length === 0) {
       return false;
     }
-    
+
     const normalized = filePath.replace(/\\/g, '/');
-    
+
     // Reject dangerous traversal patterns but allow legitimate absolute paths
     if (normalized.includes('../') ||
         normalized.includes('%2e%2e') || // URL encoded ..
@@ -66,15 +66,15 @@ export class SecurityValidation {
         normalized.includes('<') || normalized.includes('>') ||
         normalized.includes('|') || normalized.includes('&') ||
         normalized.includes(';') || normalized.includes('`') ||
-        normalized.includes('$') || 
+        normalized.includes('$') ||
         normalized.includes('"') || normalized.includes('--')) {
       return false;
     }
-    
+
     // Allow single quotes in paths (common in file names)
     // Allow absolute paths starting with / (legitimate for Linux/macOS)
     // Allow current directory reference ./ if not followed by .. (e.g., ./src is OK, ./../ is not)
-    
+
     return true;
   }
 

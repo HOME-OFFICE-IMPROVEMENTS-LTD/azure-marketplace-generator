@@ -220,6 +220,6 @@ For questions about this workflow:
 
 ---
 
-**Last Updated**: October 12, 2025  
-**Version**: 1.0  
+**Last Updated**: October 12, 2025
+**Version**: 1.0
 **Maintainer**: HOME-OFFICE-IMPROVEMENTS-LTD DevOps Team
