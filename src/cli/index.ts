@@ -111,12 +111,12 @@ try {
   program.parse();
 } catch (err: unknown) {
   const errorMessage = err instanceof Error ? err.message : String(err);
-  
+
   // Don't show error for version or help commands
   if (errorMessage.includes('commander.version') || errorMessage.includes('commander.help')) {
     process.exit(0);
   }
-  
+
   console.error(chalk.red('❌ Error:'), errorMessage);
   console.log(chalk.blue('\n💡 Troubleshooting:'));
   console.log(chalk.blue('   • Check command syntax: azmp --help'));
