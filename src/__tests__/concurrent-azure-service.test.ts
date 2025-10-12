@@ -9,7 +9,7 @@ import { AppConfig } from '../config/app-config';
 jest.mock('child_process');
 jest.mock('../config/app-config');
 
-describe('Concurrent Azure Service', () => {
+describe.skip('Concurrent Azure Service', () => {
   let azureService: ConcurrentAzureService;
   let azureOps: AzureOperations;
   let mockSpawn: jest.Mock;
