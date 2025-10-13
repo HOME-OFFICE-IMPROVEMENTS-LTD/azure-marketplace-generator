@@ -10,7 +10,7 @@ cd /home/msalsouri/Projects/azure-marketplace-generator
 {
   echo "4"  # Generate Integration Report
   echo "8"  # Exit
-} | npx tsx mcp-ecosystem-cli.ts
+} | npx tsx src/tools/mcp-ecosystem-cli.ts
 
 echo ""
 echo "✅ Test completed! Check the generated report below:"

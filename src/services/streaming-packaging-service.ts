@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 import { createReadStream, createWriteStream } from 'fs';
 import { Transform, pipeline, Readable } from 'stream';
 import { promisify } from 'util';

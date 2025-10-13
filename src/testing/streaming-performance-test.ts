@@ -1,6 +1,6 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 import { performance, PerformanceObserver } from 'perf_hooks';
 import { StreamingPackagingService, PackageStreamMetrics } from '../services/streaming-packaging-service';
 

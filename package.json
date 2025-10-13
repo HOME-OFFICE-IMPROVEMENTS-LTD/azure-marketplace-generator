@@ -21,7 +21,7 @@
     "audit:fix": "npm audit fix",
     "precommit": "npm run lint && npm run test:security && npm run build",
     "arm-ttk": "pwsh -File ../../../tools/arm-ttk/arm-ttk/Test-AzTemplate.ps1",
-    "streaming-demo": "ts-node streaming-demo.ts",
+    "streaming-demo": "ts-node examples/streaming-demo.ts",
     "streaming-test": "ts-node -e \"import('./src/testing/streaming-performance-test').then(m => m.runStreamingPerformanceTests())\"",
     "benchmark": "ts-node -e \"import('./src/testing/validation-benchmark').then(m => m.runValidationBenchmarks())\""
   },

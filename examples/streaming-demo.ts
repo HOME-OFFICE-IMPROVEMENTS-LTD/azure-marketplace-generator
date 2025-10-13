@@ -6,9 +6,9 @@
  */
 
 import * as path from 'path';
-const chalk = require('chalk');
-import { StreamingPackagingService } from './src/services/streaming-packaging-service';
-import { runStreamingPerformanceTests } from './src/testing/streaming-performance-test';
+import chalk from 'chalk';
+import { StreamingPackagingService } from '../src/services/streaming-packaging-service';
+import { runStreamingPerformanceTests } from '../src/testing/streaming-performance-test';
 
 async function runStreamingDemo(): Promise<void> {
   console.log(chalk.blue('🚀 Azure Marketplace Generator - Streaming Package Service Demo'));
