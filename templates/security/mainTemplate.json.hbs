@@ -14,6 +14,13 @@
     "complianceLevel": "Enterprise"
   },
   "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "🌍 Location for all resources"
+      }
+    },
     "applicationName": {
       "type": "string",
       "defaultValue": "{{name}}",
@@ -26,7 +33,7 @@
       "defaultValue": "production",
       "allowedValues": [
         "development",
-        "staging", 
+        "staging",
         "production"
       ],
       "metadata": {
@@ -70,7 +77,6 @@
     "resourcePrefix": "[concat(parameters('applicationName'), '-', parameters('environment'))]",
     "keyVaultName": "[concat(variables('resourcePrefix'), '-kv-', uniqueString(resourceGroup().id))]",
     "logAnalyticsWorkspaceName": "[concat(variables('resourcePrefix'), '-law-', uniqueString(resourceGroup().id))]",
-    "securityCenterName": "[concat(variables('resourcePrefix'), '-asc')]",
     "managedIdentityName": "[concat(variables('resourcePrefix'), '-mi')]",
     "networkSecurityGroupName": "[concat(variables('resourcePrefix'), '-nsg')]",
     "storageAccountName": "[concat(replace(variables('resourcePrefix'), '-', ''), uniqueString(resourceGroup().id))]"
@@ -78,18 +84,18 @@
   "resources": [
     {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-      "apiVersion": "{{latestApiVersion 'Microsoft.ManagedIdentity/userAssignedIdentities'}}",
+      "apiVersion": "2024-11-30",
       "name": "[variables('managedIdentityName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "metadata": {
         "description": "🔑 Managed identity for secure resource access"
       }
     },
     {
       "type": "Microsoft.OperationalInsights/workspaces",
-      "apiVersion": "{{latestApiVersion 'Microsoft.OperationalInsights/workspaces'}}",
+      "apiVersion": "2025-02-01",
       "name": "[variables('logAnalyticsWorkspaceName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "properties": {
         "sku": {
           "name": "PerGB2018"
@@ -107,9 +113,9 @@
     },
     {
       "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "{{latestApiVersion 'Microsoft.KeyVault/vaults'}}",
+      "apiVersion": "2025-05-01",
       "name": "[variables('keyVaultName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]",
         "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
@@ -139,9 +145,9 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "{{latestApiVersion 'Microsoft.Network/networkSecurityGroups'}}",
+      "apiVersion": "2024-10-01",
       "name": "[variables('networkSecurityGroupName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "properties": {
         "securityRules": [
           {
@@ -165,9 +171,9 @@
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}",
+      "apiVersion": "2024-01-01",
       "name": "[variables('storageAccountName')]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]"
       ],
@@ -193,7 +199,7 @@
               "enabled": true
             },
             "blob": {
-              "keyType": "Account", 
+              "keyType": "Account",
               "enabled": true
             }
           },
@@ -206,6 +212,13 @@
     }
   ],
   "outputs": {
+    "location": {
+      "type": "string",
+      "value": "[parameters('location')]",
+      "metadata": {
+        "description": "🌍 Deployed location"
+      }
+    },
     "securityPlatformId": {
       "type": "string",
       "value": "[resourceGroup().id]",

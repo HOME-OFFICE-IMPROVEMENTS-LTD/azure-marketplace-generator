@@ -47,7 +47,7 @@
                                     "description": "Basic security for development workloads"
                                 },
                                 {
-                                    "label": "Staging", 
+                                    "label": "Staging",
                                     "value": "staging",
                                     "description": "Enhanced security for pre-production testing"
                                 },
@@ -75,7 +75,7 @@
                                 },
                                 {
                                     "label": "GDPR",
-                                    "value": "GDPR", 
+                                    "value": "GDPR",
                                     "description": "General Data Protection Regulation (EU)"
                                 },
                                 {
@@ -107,7 +107,7 @@
                 ]
             },
             {
-                "name": "infrastructureConfig", 
+                "name": "infrastructureConfig",
                 "label": "🏗️ Infrastructure Settings",
                 "elements": [
                     {
@@ -125,7 +125,7 @@
                                 },
                                 {
                                     "label": "Premium (Recommended)",
-                                    "value": "premium", 
+                                    "value": "premium",
                                     "description": "Hardware Security Module (HSM) protection"
                                 }
                             ]
@@ -145,6 +145,7 @@
             }
         ],
         "outputs": {
+            "location": "[location()]",
             "applicationName": "[basics('applicationName')]",
             "environment": "[steps('securityConfig').environment]",
             "complianceFramework": "[steps('securityConfig').complianceFramework]",

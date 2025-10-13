@@ -192,12 +192,15 @@ export class EnhancedTemplateGenerator {
 
       // Fallback to safe defaults
       const fallbackVersions: { [key: string]: string } = {
-        'Microsoft.Storage/storageAccounts': '2023-01-01',
-        'Microsoft.Compute/virtualMachines': '2023-03-01',
-        'Microsoft.Web/sites': '2023-01-01',
-        'Microsoft.KeyVault/vaults': '2023-02-01',
-        'Microsoft.Sql/servers': '2023-02-01-preview',
-        'Microsoft.Resources/deployments': '2022-09-01'
+        'Microsoft.Storage/storageAccounts': '2023-04-01',
+        'Microsoft.Compute/virtualMachines': '2023-09-01',
+        'Microsoft.Web/sites': '2023-12-01',
+        'Microsoft.KeyVault/vaults': '2023-07-01',
+        'Microsoft.Sql/servers': '2023-08-01-preview',
+        'Microsoft.Resources/deployments': '2022-09-01',
+        'Microsoft.ManagedIdentity/userAssignedIdentities': '2023-01-31',
+        'Microsoft.OperationalInsights/workspaces': '2023-09-01',
+        'Microsoft.Network/networkSecurityGroups': '2023-09-01'
       };
 
       return fallbackVersions[resourceType] || '2023-01-01';

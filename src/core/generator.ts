@@ -38,14 +38,20 @@ export class TemplateGenerator {
 
     // Latest API version helper
     Handlebars.registerHelper('latestApiVersion', (resourceType: string) => {
-      const apiVersions: { [key: string]: string } = {
-        'Microsoft.Storage/storageAccounts': '2023-01-01',
-        'Microsoft.Compute/virtualMachines': '2023-03-01',
-        'Microsoft.Web/sites': '2023-01-01',
+      // Updated fallback API versions
+      const fallbackVersions: { [key: string]: string } = {
+        'Microsoft.Storage/storageAccounts': '2023-04-01',
+        'Microsoft.Compute/virtualMachines': '2023-09-01',
+        'Microsoft.Web/sites': '2023-12-01',
+        'Microsoft.KeyVault/vaults': '2023-07-01',
+        'Microsoft.Sql/servers': '2023-08-01-preview',
         'Microsoft.Resources/deployments': '2022-09-01',
-        'Microsoft.Solutions/applicationDefinitions': '2021-07-01'
+        'Microsoft.ManagedIdentity/userAssignedIdentities': '2023-01-31',
+        'Microsoft.OperationalInsights/workspaces': '2023-09-01',
+        'Microsoft.Network/networkSecurityGroups': '2023-09-01'
       };
-      return apiVersions[resourceType] || '2023-01-01';
+
+      return fallbackVersions[resourceType] || '2023-04-01';
     });
 
     // Secure parameter helper (Trade Secret: All passwords must use @secure())
