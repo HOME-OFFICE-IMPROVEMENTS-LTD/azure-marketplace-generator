@@ -136,42 +136,42 @@ log_error() {
 
 check_prerequisites() {
     log_info "Checking prerequisites..."
-    
+
     # Check Azure CLI
     if ! command -v az &> /dev/null; then
         log_error "Azure CLI is not installed. Please install Azure CLI."
         exit 1
     fi
-    
+
     # Check if logged in
     if ! az account show &> /dev/null; then
         log_error "Not logged into Azure. Please run 'az login'."
         exit 1
     fi
-    
+
     # Check template files exist
     if [[ ! -f "$TEMPLATE_FILE" ]]; then
         log_error "Template file $TEMPLATE_FILE not found."
         exit 1
     fi
-    
+
     if [[ ! -f "$PARAMETERS_FILE" ]]; then
         log_error "Parameters file $PARAMETERS_FILE not found."
         exit 1
     fi
-    
+
     log_success "Prerequisites check completed."
 }
 
 validate_template() {
     log_info "Validating ARM template..."
-    
+
     az deployment group validate \
         --resource-group "$RESOURCE_GROUP_NAME" \
         --template-file "$TEMPLATE_FILE" \
         --parameters "@$PARAMETERS_FILE" \
         --verbose
-    
+
     if [[ $? -eq 0 ]]; then
         log_success "Template validation passed."
     else
@@ -182,7 +182,7 @@ validate_template() {
 
 cost_estimation() {
     log_info "Estimating deployment costs..."
-    
+
     cat << EOF
 ${YELLOW}======================================
 COST ESTIMATION (UK South Region)
@@ -212,7 +212,7 @@ EOF
 
 security_checklist() {
     log_info "Security compliance checklist..."
-    
+
     cat << EOF
 ${GREEN}======================================
 SECURITY COMPLIANCE CHECKLIST
@@ -242,7 +242,7 @@ EOF
 
 deploy_storage() {
     log_info "Starting deployment..."
-    
+
     # Create resource group if it doesn't exist
     az group create \
         --name "$RESOURCE_GROUP_NAME" \
@@ -253,7 +253,7 @@ deploy_storage() {
             "Purpose=SecureStorage" \
             "CreatedBy=DeploymentScript" \
             "CreatedDate=$(date +%Y-%m-%d)"
-    
+
     # Deploy the template
     az deployment group create \
         --resource-group "$RESOURCE_GROUP_NAME" \
@@ -261,7 +261,7 @@ deploy_storage() {
         --template-file "$TEMPLATE_FILE" \
         --parameters "@$PARAMETERS_FILE" \
         --verbose
-    
+
     if [[ $? -eq 0 ]]; then
         log_success "Deployment completed successfully."
     else
@@ -272,71 +272,71 @@ deploy_storage() {
 
 post_deployment_validation() {
     log_info "Running post-deployment validation..."
-    
+
     # Get deployment outputs
     OUTPUTS=$(az deployment group show \
         --resource-group "$RESOURCE_GROUP_NAME" \
         --name "$DEPLOYMENT_NAME" \
         --query "properties.outputs" \
         --output json)
-    
+
     STORAGE_ACCOUNT_NAME=$(echo "$OUTPUTS" | jq -r '.storageAccountName.value')
-    
+
     log_info "Validating storage account: $STORAGE_ACCOUNT_NAME"
-    
+
     # Check if storage account exists and is configured correctly
     STORAGE_CONFIG=$(az storage account show \
         --name "$STORAGE_ACCOUNT_NAME" \
         --resource-group "$RESOURCE_GROUP_NAME" \
         --output json)
-    
+
     # Validate key security settings
     PUBLIC_ACCESS=$(echo "$STORAGE_CONFIG" | jq -r '.allowBlobPublicAccess')
     SHARED_KEY_ACCESS=$(echo "$STORAGE_CONFIG" | jq -r '.allowSharedKeyAccess')
     HTTPS_ONLY=$(echo "$STORAGE_CONFIG" | jq -r '.supportsHttpsTrafficOnly')
     TLS_VERSION=$(echo "$STORAGE_CONFIG" | jq -r '.minimumTlsVersion')
-    
+
     log_info "Security validation results:"
     echo "  - Public blob access disabled: $([[ "$PUBLIC_ACCESS" == "false" ]] && echo "✅ Yes" || echo "❌ No")"
     echo "  - Shared key access disabled: $([[ "$SHARED_KEY_ACCESS" == "false" ]] && echo "✅ Yes" || echo "❌ No")"
     echo "  - HTTPS-only enabled: $([[ "$HTTPS_ONLY" == "true" ]] && echo "✅ Yes" || echo "❌ No")"
     echo "  - TLS version: $TLS_VERSION $([[ "$TLS_VERSION" == "TLS1_2" ]] && echo "✅" || echo "❌")"
-    
+
     log_success "Post-deployment validation completed."
 }
 
 cleanup_on_error() {
     log_warning "Cleaning up failed deployment..."
-    
+
     # Optional: Remove failed deployment
     # az deployment group delete --resource-group "$RESOURCE_GROUP_NAME" --name "$DEPLOYMENT_NAME" --yes
-    
+
     log_info "Cleanup completed. Check logs for details."
 }
 
 main() {
     trap cleanup_on_error ERR
-    
+
     if [[ "$DRY_RUN" == "true" ]]; then
         log_info "🧪 DRY RUN MODE - No actual deployment will occur"
     fi
-    
+
     log_info "Starting HOME-OFFICE-IMPROVEMENTS-LTD secure storage deployment"
     echo "Deployment Name: $DEPLOYMENT_NAME"
     echo "Resource Group: $RESOURCE_GROUP_NAME"
     echo "Log File: $LOG_FILE"
     echo ""
-    
+
     check_prerequisites
     cost_estimation
     security_checklist
-    
+
     if [[ "$DRY_RUN" == "true" ]]; then
         log_success "🧪 Dry run completed - deployment preview shown above"
         log_info "To perform actual deployment, run without --dry-run flag"
         exit 0
     fi
-    
+
     read -p "Do you want to proceed with the deployment? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -347,7 +347,7 @@ main() {
         fi
         deploy_storage
         post_deployment_validation
-        
+
         log_success "🎉 Enterprise secure storage deployment completed successfully!"
         log_info "Check the Azure portal for resource details and monitoring setup."
     else

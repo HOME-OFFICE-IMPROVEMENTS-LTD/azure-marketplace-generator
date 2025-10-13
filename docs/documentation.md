@@ -241,7 +241,7 @@ az deployment group validate \
 
 # Deploy using provided script
 
-./deploy-secure-storage.sh
+./scripts/deploy-secure-storage.sh
 
 ```
 
