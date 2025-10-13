@@ -1,4 +1,5 @@
 # Azure Storage Cost Estimation Report
+
 ## HOME-OFFICE-IMPROVEMENTS-LTD Enterprise Secure Storage
 
 **Generated:** 2024-12-19  
@@ -8,6 +9,7 @@
 
 ---
 
+
 ## Executive Summary
 
 This cost estimation is based on Azure UK South pricing as of December 2024 for the enterprise-grade secure storage solution. The template deploys a Standard GRS storage account with enterprise security features including customer-managed encryption, private endpoints, and comprehensive audit logging.
@@ -15,8 +17,11 @@ This cost estimation is based on Azure UK South pricing as of December 2024 for 
 ## Detailed Cost Breakdown
 
 ### 1. Storage Account (Standard GRS)
+
 - **Storage Type:** Standard General Purpose v2
+
 - **Replication:** Geo-Redundant Storage (GRS)
+
 - **Access Tier:** Hot
 
 | Component | Monthly Estimate (GBP) | Notes |
@@ -27,6 +32,7 @@ This cost estimation is based on Azure UK South pricing as of December 2024 for 
 | **Subtotal** | **£29-40** | |
 
 ### 2. Security & Networking
+
 | Component | Monthly Estimate (GBP) | Notes |
 |-----------|----------------------|-------|
 | Private Endpoint | £3.50 | Standard rate for blob endpoint |
@@ -34,6 +40,7 @@ This cost estimation is based on Azure UK South pricing as of December 2024 for 
 | **Subtotal** | **£4.00** | |
 
 ### 3. Encryption & Key Management
+
 | Component | Monthly Estimate (GBP) | Notes |
 |-----------|----------------------|-------|
 | Key Vault operations | £0.50-2.00 | Based on key usage frequency |
@@ -41,6 +48,7 @@ This cost estimation is based on Azure UK South pricing as of December 2024 for 
 | **Subtotal** | **£0.50-2.00** | |
 
 ### 4. Monitoring & Compliance
+
 | Component | Monthly Estimate (GBP) | Notes |
 |-----------|----------------------|-------|
 | Log Analytics ingestion | £8-15 | Based on log volume |
@@ -59,11 +67,13 @@ This cost estimation is based on Azure UK South pricing as of December 2024 for 
 ## Cost Optimization Recommendations
 
 ### Immediate Savings
+
 1. **Review Access Patterns:** Monitor hot vs. cool tier usage to optimize storage costs
 2. **Lifecycle Management:** Implement automated tiering for older data
 3. **Log Retention:** Adjust retention periods based on compliance requirements
 
 ### Enterprise Value Justification
+
 1. **Security ROI:** Enhanced security reduces breach risk (avg. cost £3.2M per incident)
 2. **Compliance:** Automated compliance reduces audit costs by 40-60%
 3. **Operational Efficiency:** Private endpoints eliminate data egress charges for internal traffic
@@ -81,25 +91,37 @@ Based on Azure Marketplace storage solutions in the same category:
 ## Cost Allocation by Business Unit
 
 ```
+
 Cost Center: CC-IT
 Budget Code: INFR-STOR-001
 Billing Tags:
+
 - Company: HOME-OFFICE-IMPROVEMENTS-LTD
+
 - BusinessUnit: IT
+
 - Environment: Production
+
 - DataClassification: Confidential
+
 ```
 
 ## Monitoring & Budget Alerts
 
 ### Recommended Budget Alerts
+
 - **Warning:** £55/month (95% of moderate estimate)
+
 - **Critical:** £65/month (90% of heavy estimate)
+
 - **Action Required:** £75/month (Above heavy estimate)
 
 ### Key Performance Indicators
+
 - **Cost per GB:** £0.018-0.022 (including all security features)
+
 - **Transaction cost:** £0.00008-0.00012 per operation
+
 - **Compliance cost:** £13-25/month (18-35% of total)
 
 ## Quarterly Review Recommendations
@@ -111,12 +133,17 @@ Billing Tags:
 
 ---
 
+
 ## Disclaimer
 
 Pricing estimates are based on Azure UK South region pricing as of December 2024. Actual costs may vary based on:
+
 - Usage patterns and data volume
+
 - Azure pricing changes
+
 - Additional services or configurations
+
 - Currency exchange rate fluctuations
 
 For the most current pricing, consult the [Azure Pricing Calculator](https://azure.microsoft.com/en-gb/pricing/calculator/) or contact your Microsoft account representative.

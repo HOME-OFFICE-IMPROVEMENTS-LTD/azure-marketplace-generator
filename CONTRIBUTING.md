@@ -7,9 +7,13 @@ Thank you for your interest in contributing to the Azure Marketplace Generator! 
 **This project enforces strict production-level standards. All contributions must meet these requirements:**
 
 - ✅ Pass all ARM-TTK security validations
+
 - ✅ No hardcoded secrets or credentials
+
 - ✅ TypeScript strict mode compliance
+
 - ✅ Comprehensive testing coverage
+
 - ✅ Clean, professional documentation
 
 ## Getting Started
@@ -17,7 +21,9 @@ Thank you for your interest in contributing to the Azure Marketplace Generator! 
 ### Prerequisites
 
 - Node.js 18+ and npm
+
 - PowerShell (for ARM-TTK validation)
+
 - Git
 
 ### Development Setup
@@ -34,16 +40,21 @@ Thank you for your interest in contributing to the Azure Marketplace Generator! 
 **ALWAYS run the production standards checklist:**
 
 ```bash
+
 # Security audit
+
 npm audit --audit-level moderate
 
 # Code quality
+
 npm run lint
 npm run test
 tsc --noEmit
 
 # ARM template validation
+
 npm run validate
+
 ```
 
 ### Making Changes
@@ -57,10 +68,15 @@ npm run validate
 ### Commit Standards
 
 Use conventional commit format:
+
 - `feat:` - New features
+
 - `fix:` - Bug fixes
+
 - `docs:` - Documentation changes
+
 - `test:` - Test additions/updates
+
 - `refactor:` - Code refactoring
 
 Example: `feat: add storage lifecycle management template`
@@ -68,21 +84,33 @@ Example: `feat: add storage lifecycle management template`
 ## Code Standards
 
 ### TypeScript
+
 - Strict mode enabled
+
 - No `any` types
+
 - Proper error handling
+
 - Comprehensive type definitions
 
 ### ARM Templates
+
 - Must pass all ARM-TTK security tests
+
 - Use parameter files for configuration
+
 - Follow Azure naming conventions
+
 - Include proper descriptions and metadata
 
 ### Testing
+
 - Unit tests for all business logic
+
 - Integration tests for CLI commands
+
 - ARM template validation tests
+
 - Security scanning tests
 
 ## Pull Request Process
@@ -96,40 +124,59 @@ Example: `feat: add storage lifecycle management template`
 ### PR Requirements
 
 - [ ] All tests pass
+
 - [ ] ARM-TTK validation passes
+
 - [ ] No security vulnerabilities
+
 - [ ] Documentation updated
+
 - [ ] Clean commit history
 
 ## Security Guidelines
 
 ### Sensitive Data
+
 - **Never commit secrets** - Use Azure Key Vault references
+
 - **Review before commit** - Check for accidentally included credentials
+
 - **Use .gitignore** - Ensure sensitive files are excluded
 
 ### ARM Templates
+
 - Reference Key Vault for secrets
+
 - Use managed identities where possible
+
 - Follow least privilege principle
+
 - Validate with ARM-TTK security tests
 
 ## Project Structure
 
 ```
+
 azure-marketplace-generator/
 ├── packages/marketplace/
 │   ├── azure-storage/          # Storage-related templates
+
 │   └── azure-webapps/          # Web app templates
+
 ├── src/                        # CLI source code
+
 ├── docs/                       # Documentation
+
 └── test-output/               # Generated files (not committed)
+
 ```
 
 ## Getting Help
 
 - **Issues**: Use GitHub Issues for bugs and feature requests
+
 - **Discussions**: Use GitHub Discussions for questions
+
 - **Security**: Follow SECURITY.md for vulnerability reports
 
 ## License
@@ -137,5 +184,6 @@ azure-marketplace-generator/
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
 ---
+
 
 **Remember: This is a production-level project. Quality and security are non-negotiable.**

@@ -1,0 +1,14 @@
+{
+  "name": "Azure Marketplace Application",
+  "description": "Enterprise-ready Azure managed application",
+  "version": "1.0.0",
+  "publisher": "Your Organization",
+  "category": "Infrastructure",
+  "tags": [
+    "azure",
+    "managed-application",
+    "marketplace"
+  ],
+  "icon": "icon.png",
+  "documentation": "README.md"
+}

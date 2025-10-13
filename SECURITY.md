@@ -6,6 +6,7 @@ We provide security updates for the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
+
 | 1.x.x   | :white_check_mark: |
 | < 1.0   | :x:                |
 
@@ -32,13 +33,17 @@ If you discover a security vulnerability, please **DO NOT** create a public GitH
 ### Response Timeline
 
 - **Initial response**: Within 48 hours
+
 - **Status updates**: Every 72 hours until resolution
+
 - **Resolution timeline**: Depends on severity and complexity
 
 ### Disclosure Policy
 
 - **Coordinated disclosure**: We practice coordinated disclosure
+
 - **Timeline**: 90 days from initial report (may be extended for complex issues)
+
 - **Credit**: Security researchers will be credited (if desired)
 
 ## Security Best Practices
@@ -46,17 +51,25 @@ If you discover a security vulnerability, please **DO NOT** create a public GitH
 ### For Contributors
 
 - Never commit secrets, API keys, or credentials
+
 - Use Azure Key Vault for sensitive configuration
+
 - Follow the principle of least privilege
+
 - Validate all inputs and sanitize outputs
+
 - Keep dependencies up to date
 
 ### For Users
 
 - Always use the latest version
+
 - Regularly audit your ARM templates with ARM-TTK
+
 - Use managed identities where possible
+
 - Follow Azure security baselines
+
 - Monitor for unusual activity
 
 ## Security Features
@@ -64,8 +77,11 @@ If you discover a security vulnerability, please **DO NOT** create a public GitH
 This project includes:
 
 - **ARM-TTK Integration**: Validates all ARM templates for security best practices
+
 - **Dependency Scanning**: Regular checks for known vulnerabilities
+
 - **Secrets Detection**: Prevents accidental commit of sensitive data
+
 - **Security Testing**: Automated security validation in CI/CD pipeline
 
 ## Contact

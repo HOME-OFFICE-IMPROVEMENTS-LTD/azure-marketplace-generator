@@ -13,14 +13,19 @@ This document outlines the comprehensive improvements made to the Azure Marketpl
 **Solution Implemented**:
 
 - **New Service**: `PartnerCenterIntegration` (`src/services/partner-center-integration.ts`)
+
 - **Real Partner Center Validation**: Validates against actual Partner Center asset requirements (logo sizes, formats, documentation)
+
 - **Schema Validation**: Uses ARM-TTK and JSON schema validation for templates and UI definitions
+
 - **Certification Requirements**: Maps to Microsoft's actual certification checklist with automated validation
+
 - **Evidence Collection**: Provides audit-ready validation reports for compliance teams
 
 **Key Features**:
 
 ```typescript
+
 // Real Partner Center asset validation
 const validation = await partnerCenterIntegration.validatePackage(packagePath);
 // Returns: certification readiness, asset compliance, schema validation, blocking issues
@@ -31,6 +36,7 @@ CERT-002: Secure Resource Defaults (policy enforcement)
 CERT-003: Resource Naming Validation (naming convention compliance)
 CERT-004: Deployment Validation (ARM-TTK integration)
 CERT-005: Marketplace Metadata (completeness verification)
+
 ```
 
 ### 2. Intelligent Template Generation ✅ RESOLVED
@@ -40,14 +46,19 @@ CERT-005: Marketplace Metadata (completeness verification)
 **Solution Implemented**:
 
 - **New Service**: `EnhancedTemplateGenerator` (`src/services/enhanced-template-generator.ts`)
+
 - **Dynamic API Versions**: Fetches latest stable API versions from Azure Resource Manager
+
 - **Resource Naming Policies**: Enforces Azure naming conventions for all resource types
+
 - **Post-Generation Validation**: Automated ARM-TTK and custom validation pipeline
+
 - **Security Baselines**: Applies Azure security baselines by default
 
 **Key Features**:
 
 ```typescript
+
 // Dynamic API version fetching
 Handlebars.registerHelper('latestApiVersion', (resourceType: string) => {
   return this.getLatestStableVersion(resourceType); // Real Azure RM API call
@@ -65,6 +76,7 @@ const namingPolicy = {
 Handlebars.registerHelper('securityBaseline', (resourceType: string) => {
   return getSecureDefaults(resourceType); // HTTPS only, TLS 1.2, etc.
 });
+
 ```
 
 ### 3. Cost Estimation Algorithms ✅ RESOLVED
@@ -74,14 +86,19 @@ Handlebars.registerHelper('securityBaseline', (resourceType: string) => {
 **Solution Implemented**:
 
 - **New Service**: `AzurePricingService` (`src/services/azure-pricing-service.ts`)
+
 - **Azure Retail Prices API**: Direct integration with Microsoft's official pricing API
+
 - **Resource-Specific Calculations**: Accurate cost modeling per resource type and usage patterns
+
 - **Optimization Opportunities**: Identifies real cost savings (Reserved Instances, right-sizing, etc.)
+
 - **Scaling Projections**: Multi-timeframe cost projections with confidence levels
 
 **Key Features**:
 
 ```typescript
+
 // Real Azure pricing data
 const pricingData = await this.fetchPricingData(
   'https://prices.azure.com/api/retail/prices?currencyCode=USD&$filter=serviceName eq \'Virtual Machines\''
@@ -99,6 +116,7 @@ const opportunities = [
     complexity: "low"
   }
 ];
+
 ```
 
 ### 4. Compliance Checking ✅ RESOLVED
@@ -108,14 +126,19 @@ const opportunities = [
 **Solution Implemented**:
 
 - **New Service**: `ComplianceEngine` (`src/services/compliance-engine.ts`)
+
 - **Real Framework Mapping**: Maps specific controls to SOC 2, ISO 27001, PCI-DSS, NIST, CIS
+
 - **Azure Policy Integration**: Queries actual Azure Policy compliance states
+
 - **Evidence Collection**: Collects audit-ready evidence for enterprise compliance teams
+
 - **Automated Remediation**: Provides specific remediation guidance for failed controls
 
 **Key Features**:
 
 ```typescript
+
 // Real compliance controls
 const soc2Control = {
   id: 'SOC2-CC6.1',
@@ -138,6 +161,7 @@ const evidencePackage = {
   evidenceDocuments: complianceEvidence,
   auditTrail: controlResults
 };
+
 ```
 
 ### 5. Multi-Tenant Architecture Support ✅ RESOLVED
@@ -147,14 +171,19 @@ const evidencePackage = {
 **Solution Implemented**:
 
 - **New Service**: `MultiTenantManager` (`src/services/multi-tenant-manager.ts`)
+
 - **Tenant Isolation**: Per-tenant directories, cache, configuration, and credentials
+
 - **Credential Vaulting**: Secure credential storage in Azure Key Vault or encrypted local storage
+
 - **Tenant-Aware Services**: All services now support tenant context switching
+
 - **Enterprise Configuration**: Separate compliance requirements per tenant
 
 **Key Features**:
 
 ```typescript
+
 // Tenant isolation
 const tenantContext = {
   workspacePath: `~/.azmp/tenants/${tenantId}/`,
@@ -173,6 +202,7 @@ await this.storeCredentials(tenantId, {
 // Tenant-aware operations
 const packagePath = this.getTenantPackagePath(tenantId, packageId);
 const compliance = await this.assessCompliance(tenantId, 'SOC2');
+
 ```
 
 ## Enterprise Package Service Integration
@@ -182,6 +212,7 @@ const compliance = await this.assessCompliance(tenantId, 'SOC2');
 This service orchestrates all the improvements into a comprehensive enterprise solution:
 
 ```typescript
+
 // Full enterprise package creation
 const result = await enterpriseService.createEnterprisePackage(templateConfig, {
   tenantId: 'enterprise-customer-123',
@@ -200,6 +231,7 @@ console.log(`Security Score: ${result.securityScore}%`);
 console.log(`Compliance Score: ${result.complianceScore}%`);
 console.log(`Cost Efficiency: ${result.costEfficiency}%`);
 console.log(`Certification Ready: ${result.certificationReady}`);
+
 ```
 
 ## Implementation Benefits
@@ -207,26 +239,31 @@ console.log(`Certification Ready: ${result.certificationReady}`);
 ### 1. Real Partner Center Readiness
 
 - **Before**: Heuristic quality scoring with no Partner Center validation
+
 - **After**: Official Partner Center asset validation, schema checking, certification requirements
 
 ### 2. Accurate Cost Analysis
 
 - **Before**: Placeholder strings like "15-25% cost reduction"
+
 - **After**: Real Azure pricing data with $X.XX/month calculations and optimization opportunities
 
 ### 3. Enterprise Compliance
 
 - **Before**: Simulated compliance scores
+
 - **After**: Real SOC 2/ISO 27001 control mapping with Azure Policy integration and audit trails
 
 ### 4. Production-Grade Templates
 
 - **Before**: Static API versions and basic template generation
+
 - **After**: Dynamic API versions, naming policies, security baselines, post-generation validation
 
 ### 5. Multi-Tenant Enterprise Support
 
 - **Before**: Single-tenant with shared directories and credentials
+
 - **After**: Full tenant isolation with credential vaulting and per-tenant compliance
 
 ## Migration Guide
@@ -236,94 +273,142 @@ console.log(`Certification Ready: ${result.certificationReady}`);
 The existing CLI commands now automatically use the enhanced services:
 
 ```bash
+
 # Enhanced validation with real Partner Center checking
+
 azmp validate ./package --intelligent --partner-center
 
 # Real cost analysis with Azure pricing data
+
 azmp package ./template --optimize --cost-analysis --region eastus
 
 # Enterprise compliance assessment
+
 azmp insights --compliance --framework SOC2 --tenant enterprise-123
 
 # Multi-tenant operations
+
 azmp auth switch-tenant enterprise-customer-456
 azmp create storage --tenant enterprise-customer-456
+
 ```
 
 ### For Enterprise Customers
 
 1. **Initialize Multi-Tenant Environment**:
+
 ```bash
+
 azmp enterprise init --tenants ./enterprise-config.json
+
 ```
 
 2. **Register Tenant**:
+
 ```bash
+
 azmp tenant register --id "customer-123" --name "Acme Corp" --subscription "sub-456"
+
 ```
 
 3. **Create Enterprise Package**:
+
 ```bash
+
 azmp create storage --tenant customer-123 --compliance SOC2 --partner-center --cost-analysis
+
 ```
 
 ## Testing and Validation
 
 ### Unit Tests Required
+
 - `ComplianceEngine.test.ts`: Test SOC 2/ISO 27001 control mapping
+
 - `PartnerCenterIntegration.test.ts`: Test asset validation and schema checking
+
 - `AzurePricingService.test.ts`: Test cost calculations with sample pricing data
+
 - `EnhancedTemplateGenerator.test.ts`: Test dynamic API versions and naming policies
+
 - `MultiTenantManager.test.ts`: Test tenant isolation and credential vaulting
 
 ### Integration Tests Required
+
 - End-to-end enterprise package creation
+
 - Multi-tenant isolation validation
+
 - Real Azure Policy compliance checking
+
 - Partner Center validation pipeline
 
 ## Security Considerations
 
 ### Credential Management
+
 - All tenant credentials stored in Azure Key Vault or encrypted locally
+
 - No plaintext credentials in configuration files
+
 - Per-tenant credential isolation
 
 ### Compliance Evidence
+
 - Audit trails maintained for all compliance assessments
+
 - Evidence collection supports enterprise audit requirements
+
 - Automated evidence export for compliance teams
 
 ### Template Security
+
 - Security baselines enforced by default (HTTPS only, TLS 1.2+, etc.)
+
 - Automated validation prevents hardcoded credentials
+
 - RBAC assignments follow least-privilege principles
 
 ## Performance Optimizations
 
 ### Caching Strategy
+
 - API version cache (6-hour expiry)
+
 - Pricing data cache (24-hour expiry)
+
 - Per-tenant cache isolation
+
 - Credential cache for performance
 
 ### Parallel Processing
+
 - Compliance and Partner Center validation run in parallel
+
 - Cost analysis doesn't block other validations
+
 - Template generation optimized for large-scale deployments
 
 ## Monitoring and Observability
 
 ### Enterprise Metrics
+
 - Quality scores per tenant
+
 - Compliance scores over time
+
 - Cost efficiency tracking
+
 - Template generation success rates
 
 ### Audit Logging
+
 - All compliance assessments logged
+
 - Template generation audit trail
+
 - Multi-tenant access logging
+
 - Cost analysis history
 
 ## Conclusion

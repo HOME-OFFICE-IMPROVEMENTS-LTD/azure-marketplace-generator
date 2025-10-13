@@ -18,16 +18,22 @@ Common issues and solutions for Azure Marketplace Generator.
 **Problem:** Global installation fails with permission errors.
 
 **Solution:**
+
 ```bash
+
 # Option 1: Use npx (recommended)
+
 npx @azure/marketplace-generator
 
 # Option 2: Use npm prefix
+
 npm config set prefix ~/.npm-global
 export PATH=$PATH:~/.npm-global/bin
 
 # Option 3: Use sudo (not recommended)
+
 sudo npm install -g @azure/marketplace-generator
+
 ```
 
 ### Package Not Found
@@ -46,15 +52,21 @@ sudo npm install -g @azure/marketplace-generator
 **Problem:** Azure operations fail with authentication errors.
 
 **Solution:**
+
 ```bash
+
 # Login to Azure CLI
+
 az login
 
 # Verify login
+
 az account show
 
 # Set subscription if needed
+
 az account set --subscription "your-subscription-id"
+
 ```
 
 ### Multi-Factor Authentication (MFA) Issues
@@ -62,12 +74,17 @@ az account set --subscription "your-subscription-id"
 **Problem:** Authentication fails with MFA-enabled accounts.
 
 **Solution:**
+
 ```bash
+
 # Use device code authentication
+
 az login --use-device-code
 
 # Or use service principal for automation
+
 azmp auth --setup
+
 ```
 
 ### Service Principal Configuration
@@ -77,12 +94,15 @@ azmp auth --setup
 **Solution:**
 1. Verify environment variables:
    ```bash
+
    echo $AZURE_TENANT_ID
    echo $AZURE_CLIENT_ID
    echo $AZURE_CLIENT_SECRET
    ```
+
 2. Check service principal permissions:
    ```bash
+
    az role assignment list --assignee $AZURE_CLIENT_ID
    ```
 
@@ -95,6 +115,7 @@ azmp auth --setup
 2. Required scopes: repo, workflow, read:org
 3. Set environment variable:
    ```bash
+
    export GITHUB_TOKEN="your-token-here"
    ```
 
@@ -108,7 +129,9 @@ azmp auth --setup
 1. Use JSON validator: `azmp validate . --fix`
 2. Check common syntax issues:
    - Missing commas
+
    - Unmatched brackets
+
    - Invalid escape sequences
 
 ### Resource Provider Not Registered
@@ -116,12 +139,17 @@ azmp auth --setup
 **Problem:** Deployment fails with provider registration errors.
 
 **Solution:**
+
 ```bash
+
 # List available providers
+
 az provider list --output table
 
 # Register required provider
+
 az provider register --namespace Microsoft.Storage
+
 ```
 
 ### API Version Issues
@@ -129,12 +157,17 @@ az provider register --namespace Microsoft.Storage
 **Problem:** Template uses outdated API versions.
 
 **Solution:**
+
 ```bash
+
 # Check latest API versions
+
 az provider list --query "[?namespace=='Microsoft.Storage']" --output table
 
 # Update template with latest versions
+
 azmp validate . --intelligent --fix
+
 ```
 
 ## Packaging Issues
@@ -148,6 +181,7 @@ azmp validate . --intelligent --fix
 2. Verify write permissions
 3. Try different output location:
    ```bash
+
    azmp package . --output /tmp/my-package.zip
    ```
 
@@ -160,6 +194,7 @@ azmp validate . --intelligent --fix
 2. Remove unnecessary files from .azmpignore
 3. Check package contents:
    ```bash
+
    unzip -l my-package.zip
    ```
 
@@ -172,6 +207,7 @@ azmp validate . --intelligent --fix
 2. Verify file paths in mainTemplate.json
 3. Use intelligent packaging:
    ```bash
+
    azmp package . --intelligent
    ```
 
@@ -182,12 +218,17 @@ azmp validate . --intelligent --fix
 **Problem:** Deployment fails with resource group errors.
 
 **Solution:**
+
 ```bash
+
 # Create resource group
+
 az group create --name my-rg --location eastus
 
 # Verify resource group
+
 az group show --name my-rg
+
 ```
 
 ### Insufficient Permissions
@@ -197,8 +238,10 @@ az group show --name my-rg
 **Solution:**
 1. Check user permissions:
    ```bash
+
    az role assignment list --assignee user@domain.com
    ```
+
 2. Required roles: Contributor or Owner on subscription/resource group
 
 ### Resource Name Conflicts
@@ -210,6 +253,7 @@ az group show --name my-rg
 2. Add random suffix: `"[concat('storage', uniqueString(resourceGroup().id))]"`
 3. Check existing resources:
    ```bash
+
    az resource list --resource-group my-rg
    ```
 
@@ -281,8 +325,10 @@ az group show --name my-rg
 1. Check .env file exists and is properly formatted
 2. Verify environment variables:
    ```bash
+
    azmp status --verbose
    ```
+
 3. Use interactive setup: `azmp auth --setup`
 
 ### Wrong Azure Subscription
@@ -290,15 +336,21 @@ az group show --name my-rg
 **Problem:** Operations target wrong subscription.
 
 **Solution:**
+
 ```bash
+
 # List subscriptions
+
 az account list --output table
 
 # Set correct subscription
+
 az account set --subscription "correct-subscription-id"
 
 # Verify change
+
 az account show
+
 ```
 
 ### Proxy Configuration
@@ -306,15 +358,20 @@ az account show
 **Problem:** Network requests fail behind corporate proxy.
 
 **Solution:**
+
 ```bash
+
 # Set proxy environment variables
+
 export HTTP_PROXY=http://proxy.company.com:8080
 export HTTPS_PROXY=http://proxy.company.com:8080
 export NO_PROXY=localhost,127.0.0.1,.company.com
 
 # Configure npm proxy
+
 npm config set proxy http://proxy.company.com:8080
 npm config set https-proxy http://proxy.company.com:8080
+
 ```
 
 ## Common Error Messages
@@ -371,25 +428,33 @@ npm config set https-proxy http://proxy.company.com:8080
 For detailed debugging information:
 
 ```bash
+
 export DEBUG=azmp:*
 azmp command --verbose
+
 ```
 
 ### Check System Information
 
 ```bash
+
 # Node.js and npm versions
+
 node --version
 npm --version
 
 # Azure CLI version
+
 az --version
 
 # GitHub CLI version
+
 gh --version
 
 # AZMP version and configuration
+
 azmp status --verbose
+
 ```
 
 ### Log Analysis
@@ -397,11 +462,15 @@ azmp status --verbose
 Check log files for detailed error information:
 
 ```bash
+
 # View recent logs
+
 ls -la ~/.azmp/logs/
 
 # Check latest error log
+
 tail -f ~/.azmp/logs/error.log
+
 ```
 
 ### Report Issues
@@ -419,5 +488,7 @@ Submit issues at: https://github.com/your-org/azure-marketplace-generator/issues
 ### Community Support
 
 - Documentation: https://docs.azmarketplace.dev
+
 - Stack Overflow: Tag questions with `azure-marketplace-generator`
+
 - Discord: https://discord.gg/azmp-community

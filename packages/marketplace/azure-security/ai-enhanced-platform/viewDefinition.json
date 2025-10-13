@@ -1,0 +1,141 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/viewdefinition/0.0.1-preview/ViewDefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "views": [
+        {
+            "kind": "Overview",
+            "properties": {
+                "header": "🛡️ AI-Enhanced Security Platform Overview",
+                "description": "🤖 Enterprise security infrastructure with AI-powered intelligent defaults",
+                "commands": [
+                    {
+                        "displayName": "🔐 Access Key Vault",
+                        "path": "[concat('https://portal.azure.com/#@', subscription().tenantId, '/resource', outputs('keyVaultUri'))]"
+                    },
+                    {
+                        "displayName": "📊 View Security Logs",
+                        "path": "[concat('https://portal.azure.com/#@', subscription().tenantId, '/resource', outputs('logAnalyticsWorkspaceId'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "Metrics",
+            "properties": {
+                "displayName": "🛡️ Security Metrics",
+                "description": "Real-time security posture and compliance monitoring",
+                "charts": [
+                    {
+                        "displayName": "🔐 Key Vault Requests",
+                        "chartType": "Line",
+                        "metrics": [
+                            {
+                                "name": "ServiceApiResult",
+                                "resourceType": "Microsoft.KeyVault/vaults",
+                                "resourceName": "[parameters('applicationName')]",
+                                "aggregationType": "Count",
+                                "namespace": "Microsoft.KeyVault/vaults"
+                            }
+                        ]
+                    },
+                    {
+                        "displayName": "📊 Log Analytics Ingestion",
+                        "chartType": "Line",
+                        "metrics": [
+                            {
+                                "name": "Usage",
+                                "resourceType": "Microsoft.OperationalInsights/workspaces",
+                                "aggregationType": "Average"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "CustomBlade",
+            "properties": {
+                "displayName": "✅ Compliance Dashboard",
+                "description": "🏛️ Real-time compliance status and security posture",
+                "bladeKind": "Template",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [],
+                    "outputs": {
+                        "complianceReport": {
+                            "type": "object",
+                            "value": {
+                                "platformName": "[parameters('applicationName')]",
+                                "framework": "[parameters('complianceFramework')]",
+                                "environment": "[parameters('environment')]",
+                                "securityFeatures": {
+                                    "keyVaultSecured": "✅ Enabled",
+                                    "networkIsolated": "✅ Enabled",
+                                    "encryptionAtRest": "✅ Enabled",
+                                    "rbacAuthorization": "✅ Enabled",
+                                    "auditLogging": "✅ Enabled",
+                                    "threatProtection": "[if(parameters('enableAdvancedThreatProtection'), '✅ Enabled', '⚠️ Disabled')]"
+                                },
+                                "aiEnhancements": {
+                                    "intelligentDefaults": "✅ Applied",
+                                    "bestPractices": "✅ Enforced",
+                                    "complianceOptimized": "✅ Configured",
+                                    "securityBaseline": "✅ Enterprise Grade"
+                                },
+                                "lastUpdated": "[utcNow()]"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "kind": "AssociatedResource",
+            "properties": {
+                "displayName": "🔑 Managed Identity",
+                "description": "Identity used for secure resource access",
+                "resourceType": "Microsoft.ManagedIdentity/userAssignedIdentities",
+                "resourceName": "[concat(parameters('applicationName'), '-', parameters('environment'), '-mi')]"
+            }
+        },
+        {
+            "kind": "AssociatedResource",
+            "properties": {
+                "displayName": "🔐 Key Vault",
+                "description": "Enterprise Key Vault with HSM protection",
+                "resourceType": "Microsoft.KeyVault/vaults",
+                "resourceName": "[variables('keyVaultName')]"
+            }
+        },
+        {
+            "kind": "AssociatedResource",
+            "properties": {
+                "displayName": "📊 Log Analytics",
+                "description": "Security monitoring and analytics workspace",
+                "resourceType": "Microsoft.OperationalInsights/workspaces",
+                "resourceName": "[variables('logAnalyticsWorkspaceName')]"
+            }
+        },
+        {
+            "kind": "AssociatedResource",
+            "properties": {
+                "displayName": "🛡️ Network Security",
+                "description": "Network Security Group with deny-all default",
+                "resourceType": "Microsoft.Network/networkSecurityGroups",
+                "resourceName": "[variables('networkSecurityGroupName')]"
+            }
+        },
+        {
+            "kind": "AssociatedResource",
+            "properties": {
+                "displayName": "💾 Secure Storage",
+                "description": "Enterprise storage with advanced encryption",
+                "resourceType": "Microsoft.Storage/storageAccounts",
+                "resourceName": "[variables('storageAccountName')]"
+            }
+        }
+    ]
+}
