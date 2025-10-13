@@ -55,26 +55,54 @@ export class SecurityValidation {
       return false;
     }
 
-    const normalized = filePath.replace(/\\/g, '/');
+    const normalized = filePath.replace(/\\/g, '/').toLowerCase();
 
-    // Reject dangerous traversal patterns but allow legitimate absolute paths
+    // Decode URL encoding to catch encoded attacks
+    let decoded;
+    try {
+      decoded = decodeURIComponent(normalized);
+    } catch {
+      // Invalid encoding is suspicious
+      return false;
+    }
+
+    // Reject dangerous traversal patterns, absolute paths, and current directory references
     if (normalized.includes('../') ||
-        normalized.includes('%2e%2e') || // URL encoded ..
-        normalized.includes('%2f') ||    // URL encoded /
-        normalized.includes('%5c') ||    // URL encoded \
-        normalized.includes('%00') ||    // Null byte
+        normalized.includes('..\\') ||
+        normalized.startsWith('/') ||       // Reject absolute paths
+        normalized.startsWith('./') ||      // Reject current directory references
+        normalized.includes('%2e%2e') ||    // URL encoded .. (case insensitive)
+        normalized.includes('%2f') ||       // URL encoded /
+        normalized.includes('%5c') ||       // URL encoded \
+        normalized.includes('%00') ||       // Null byte
+        decoded.includes('../') ||          // Decoded traversal patterns
+        decoded.includes('..\\') ||
+        decoded.startsWith('/') ||
+        decoded.startsWith('./') ||
         normalized.includes('<') || normalized.includes('>') ||
         normalized.includes('|') || normalized.includes('&') ||
         normalized.includes(';') || normalized.includes('`') ||
         normalized.includes('$') ||
-        normalized.includes('"') || normalized.includes('--')) {
+        normalized.includes('"') || normalized.includes('--') ||
+        normalized.includes("'") ||         // SQL injection character
+        normalized.includes('script') ||    // XSS attempt
+        normalized.includes('drop') ||      // SQL injection keyword
+        normalized.includes('echo') ||      // Command injection
+        normalized.includes('rm ') ||       // Command injection
+        normalized.includes('alert') ||     // XSS attempt
+        normalized.includes('%27') ||       // Encoded single quote
+        normalized.includes('%3b')) {       // Encoded semicolon
       return false;
     }
 
-    // Allow single quotes in paths (common in file names)
-    // Allow absolute paths starting with / (legitimate for Linux/macOS)
-    // Allow current directory reference ./ if not followed by .. (e.g., ./src is OK, ./../ is not)
+    // Additional check: simple file/folder structure only (alphanumeric, dots, hyphens, underscores, slashes)
+    const safePathRegex = /^[a-zA-Z0-9._/-]+$/;
+    if (!safePathRegex.test(normalized)) {
+      return false;
+    }
 
+    // Only allow simple relative paths without any traversal attempts
+    // Valid examples: 'template.json', 'folder/template.json', 'deep/folder/structure/template.json'
     return true;
   }
 
