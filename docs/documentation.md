@@ -2,9 +2,9 @@
 
 ## HOME-OFFICE-IMPROVEMENTS-LTD Secure Storage Implementation
 
-**Template Version:** 1.0.0  
-**Documentation Date:** 2024-12-19  
-**Target Audience:** IT Infrastructure Team, DevOps Engineers, Security Architects  
+**Template Version:** 1.0.0
+**Documentation Date:** 2024-12-19
+**Target Audience:** IT Infrastructure Team, DevOps Engineers, Security Architects
 
 ---
 
@@ -309,7 +309,7 @@ The template configures comprehensive monitoring through Log Analytics:
 
 - **StorageRead**: All blob read operations
 
-- **StorageWrite**: All blob write operations  
+- **StorageWrite**: All blob write operations
 
 - **StorageDelete**: All blob delete operations
 
