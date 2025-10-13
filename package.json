@@ -1,6 +1,6 @@
 {
   "name": "@hoiltd/azure-marketplace-generator",
-  "version": "1.1.0",
+  "version": "2.1.0",
   "description": "Enterprise tool for generating Azure Marketplace managed application packages",
   "main": "dist/index.js",
   "bin": {
