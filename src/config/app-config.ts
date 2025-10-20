@@ -5,7 +5,6 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as os from 'os';
-import { AzureKeyVaultService, createKeyVaultService, DEFAULT_SECRET_NAMES } from '../services/azure-keyvault-service';
 
 export interface AppConfigSettings {
   // ARM-TTK Configuration
@@ -92,7 +91,7 @@ class AppConfigManager {
       },
       paths: {
         packages: path.join(process.cwd(), 'packages'),
-        templates: path.join(process.cwd(), 'templates'),
+        templates: path.join(process.cwd(), 'dist', 'templates'),
         cache: path.join(require('os').homedir(), '.azmp', 'cache'),
         temp: path.join(require('os').tmpdir(), 'azmp')
       },
@@ -309,13 +308,10 @@ class AppConfigManager {
 
   /**
    * Get Azure Key Vault service instance if configured
+   * @deprecated KeyVault service removed - storage-only minimal version
    */
-  getKeyVaultService(): AzureKeyVaultService | null {
-    if (!this.config.useKeyVault || !this.config.keyVaultUrl) {
-      return null;
-    }
-
-    return createKeyVaultService();
+  getKeyVaultService(): null {
+    return null;
   }
 
   /**
@@ -330,22 +326,10 @@ class AppConfigManager {
 
   /**
    * Check if Key Vault is configured and available
+   * @deprecated KeyVault service removed - storage-only minimal version
    */
   async isKeyVaultAvailable(): Promise<boolean> {
-    const keyVaultService = this.getKeyVaultService();
-    if (!keyVaultService) {
-      return false;
-    }
-
-    try {
-      // Try to get a known secret to verify connectivity
-      // Using microsoft-graph-tenant-id as it exists in mobot-keyvault-mpn
-      await keyVaultService.getSecret('microsoft-graph-tenant-id');
-      return true;
-    } catch (error) {
-      console.warn('Key Vault not available:', error instanceof Error ? error.message : error);
-      return false;
-    }
+    return false;
   }
 }
 
