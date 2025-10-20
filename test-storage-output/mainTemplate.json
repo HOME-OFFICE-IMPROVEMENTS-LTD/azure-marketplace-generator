@@ -1,0 +1,173 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "Azure Marketplace Generator",
+      "version": "2.0.0"
+    },
+    "description": "TestStorageApp - Marketplace-ready storage solution by TestPublisher"
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "teststorageapptbj7ke",
+      "metadata": {
+        "description": "Name of the storage account"
+      },
+      "minLength": 3,
+      "maxLength": 24
+    },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_RAGRS",
+        "Standard_ZRS",
+        "Premium_LRS",
+        "Premium_ZRS"
+      ],
+      "metadata": {
+        "description": "Storage account replication type"
+      }
+    },
+    "containerName": {
+      "type": "string",
+      "defaultValue": "data",
+      "metadata": {
+        "description": "Name of the blob container"
+      }
+    },
+    "enableHierarchicalNamespace": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": {
+        "description": "Enable hierarchical namespace for Data Lake Storage Gen2"
+      }
+    },
+    "enableBlobEncryption": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Enable blob encryption at rest"
+      }
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {
+        "Publisher": "TestPublisher",
+        "Application": "TestStorageApp",
+        "Environment": "[resourceGroup().tags['Environment']]",
+        "CreatedBy": "Azure Marketplace Generator"
+      },
+      "metadata": {
+        "description": "Tags to apply to all resources"
+      }
+    }
+  },
+  "variables": {
+    "uniqueStorageName": "[concat(parameters('storageAccountName'), uniqueString(resourceGroup().id))]",
+    "storageAccountApiVersion": "2023-04-01",
+    "blobServiceName": "[concat(variables('uniqueStorageName'), '/default')]",
+    "containerFullName": "[concat(variables('blobServiceName'), '/', parameters('containerName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "[variables('storageAccountApiVersion')]",
+      "name": "[variables('uniqueStorageName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('tags')]",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "isHnsEnabled": "[parameters('enableHierarchicalNamespace')]",
+        "encryption": {
+          "services": {
+            "blob": {
+              "enabled": "[parameters('enableBlobEncryption')]"
+            },
+            "file": {
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        },
+        "accessTier": "Hot",
+        "allowBlobPublicAccess": false,
+        "allowSharedKeyAccess": true,
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "networkAcls": {
+          "defaultAction": "Allow"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "[variables('storageAccountApiVersion')]",
+      "name": "[variables('blobServiceName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageName'))]"
+      ],
+      "properties": {
+        "deleteRetentionPolicy": {
+          "enabled": true,
+          "days": 7
+        },
+        "containerDeleteRetentionPolicy": {
+          "enabled": true,
+          "days": 7
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "[variables('storageAccountApiVersion')]",
+      "name": "[variables('containerFullName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', variables('uniqueStorageName'), 'default')]"
+      ],
+      "properties": {
+        "publicAccess": "None",
+        "metadata": {
+          "purpose": "TestStorageApp data storage",
+          "publisher": "TestPublisher"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "storageAccountName": {
+      "type": "string",
+      "value": "[variables('uniqueStorageName')]"
+    },
+    "storageAccountId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageName'))]"
+    },
+    "primaryEndpoints": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageName'))).primaryEndpoints]"
+    },
+    "containerName": {
+      "type": "string",
+      "value": "[parameters('containerName')]"
+    },
+    "storageAccountType": {
+      "type": "string",
+      "value": "[parameters('storageAccountType')]"
+    }
+  }
+}
