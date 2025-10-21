@@ -37,3 +37,7 @@ tools/arm-ttk/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Phase 2 Test Artifacts
+azure-prod-test/
+*.zip
