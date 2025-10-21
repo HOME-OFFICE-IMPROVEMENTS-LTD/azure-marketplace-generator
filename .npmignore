@@ -1,0 +1,65 @@
+# Source files (we publish dist/ instead)
+src/
+*.ts
+!*.d.ts
+
+# Tests
+__tests__/
+*.test.ts
+*.spec.ts
+coverage/
+jest.config.js
+
+# Development files
+tsconfig.json
+eslint.config.mjs
+.eslintrc.*
+.prettierrc
+.editorconfig
+
+# Git
+.git/
+.gitignore
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# CI/CD
+.travis.yml
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Documentation (keep essential docs)
+docs/DEVELOPMENT_LOG.md
+docs/EXTENSION_ARCHITECTURE_ANALYSIS.md
+docs/ARCHITECTURE.md
+
+# Azure deployment examples (not needed for npm)
+azure-deployment/
+
+# Scripts
+scripts/
+
+# Build artifacts
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+.eslintcache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+output/

@@ -1,11 +1,18 @@
 {
   "name": "@hoiltd/azure-marketplace-generator",
   "version": "2.1.0",
-  "description": "CLI tool for generating Azure Storage marketplace managed applications",
+  "description": "CLI tool for generating Azure Storage marketplace managed applications with enhanced security and data protection features",
   "main": "dist/index.js",
   "bin": {
     "azmp": "dist/cli/index.js"
   },
+  "files": [
+    "dist/",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md",
+    "docs/"
+  ],
   "scripts": {
     "build": "tsc && npm run copy-templates",
     "copy-templates": "cp -r src/templates dist/",
@@ -20,10 +27,23 @@
     "marketplace",
     "managed-applications",
     "arm-templates",
-    "partner-center"
+    "partner-center",
+    "azure-storage",
+    "cli",
+    "typescript",
+    "security",
+    "data-protection"
   ],
-  "author": "Home & Office Improvements",
+  "author": "Home & Office Improvements Ltd",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator.git"
+  },
+  "homepage": "https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator#readme",
+  "bugs": {
+    "url": "https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/issues"
+  },
   "dependencies": {
     "archiver": "^7.0.1",
     "chalk": "^4.1.2",
