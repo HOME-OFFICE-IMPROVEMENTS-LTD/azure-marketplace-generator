@@ -82,9 +82,9 @@
         },
         "allowSharedKeyAccess": {
             "type": "bool",
-            "defaultValue": true,
+            "defaultValue": false,
             "metadata": {
-                "description": "Indicates whether the storage account permits requests to be authorized with the account access key via Shared Key."
+                "description": "Indicates whether the storage account permits requests to be authorized with the account access key via Shared Key. WARNING: Disabling Shared Key auth (recommended for compliance) requires Azure AD authentication."
             }
         },
         "requireInfrastructureEncryption": {

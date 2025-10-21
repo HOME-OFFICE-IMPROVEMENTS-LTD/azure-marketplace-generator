@@ -76,21 +76,21 @@
                 "Disabled"
             ],
             "metadata": {
-                "description": "Allow or disallow public network access to storage account"
+                "description": "Allow or disallow public network access to storage account. WARNING: Setting to 'Disabled' requires private endpoints to be configured for access."
             }
         },
         "defaultToOAuthAuthentication": {
             "type": "bool",
             "defaultValue": false,
             "metadata": {
-                "description": "Default authentication is OAuth"
+                "description": "Default authentication is OAuth. Note: When true, requests default to Azure AD authentication."
             }
         },
         "allowSharedKeyAccess": {
             "type": "bool",
-            "defaultValue": true,
+            "defaultValue": false,
             "metadata": {
-                "description": "Allow requests to be authorized with account access key via Shared Key"
+                "description": "Allow requests to be authorized with account access key via Shared Key. WARNING: Disabling Shared Key auth (recommended for compliance) requires Azure AD authentication. Ensure applications support OAuth before setting to false."
             }
         },
         "requireInfrastructureEncryption": {
@@ -106,7 +106,7 @@
             "minValue": 0,
             "maxValue": 365,
             "metadata": {
-                "description": "Number of days to retain deleted blobs (0 to disable)"
+                "description": "Number of days to retain deleted blobs (0 to disable). NOTE: Soft delete retention increases storage costs proportionally to data churn."
             }
         },
         "containerSoftDeleteDays": {
@@ -115,7 +115,7 @@
             "minValue": 0,
             "maxValue": 365,
             "metadata": {
-                "description": "Number of days to retain deleted containers (0 to disable)"
+                "description": "Number of days to retain deleted containers (0 to disable). NOTE: Soft delete retention increases storage costs proportionally to data churn."
             }
         },
         "enableVersioning": {
@@ -146,7 +146,7 @@
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2023-05-01",
+            "apiVersion": "{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}",
             "name": "[variables('storageAccountName')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -180,7 +180,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2023-05-01",
+            "apiVersion": "{{latestApiVersion 'Microsoft.Storage/storageAccounts/blobServices'}}",
             "name": "[concat(variables('storageAccountName'), '/default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
