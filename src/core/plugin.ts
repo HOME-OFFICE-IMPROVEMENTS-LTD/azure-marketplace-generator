@@ -39,7 +39,7 @@ export interface TemplateMetadata {
 /**
  * Handlebars helper function type
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, no-unused-vars
 export type HandlebarsHelper = (...args: any[]) => any;
 
 /**
@@ -73,6 +73,7 @@ export interface IPlugin {
    * 
    * @param context Plugin initialization context
    */
+  // eslint-disable-next-line no-unused-vars
   initialize?(context: PluginContext): void | Promise<void>;
 
   /**
@@ -94,6 +95,7 @@ export interface IPlugin {
    * 
    * @param program Commander.js program instance
    */
+  // eslint-disable-next-line no-unused-vars
   registerCommands?(program: Command): void;
 
   /**
@@ -122,9 +124,13 @@ export interface PluginContext {
   
   /** Logger function for plugin messages */
   logger: {
+    // eslint-disable-next-line no-unused-vars
     info: (_message: string) => void;
+    // eslint-disable-next-line no-unused-vars
     warn: (_message: string) => void;
+    // eslint-disable-next-line no-unused-vars
     error: (_message: string) => void;
+    // eslint-disable-next-line no-unused-vars
     debug: (_message: string) => void;
   };
 }
@@ -183,6 +189,7 @@ export interface PluginConfig {
 export abstract class BasePlugin implements IPlugin {
   abstract readonly metadata: IPlugin['metadata'];
 
+  // eslint-disable-next-line no-unused-vars
   initialize?(_context: PluginContext): void | Promise<void> {
     // Default: no-op
   }
@@ -195,6 +202,7 @@ export abstract class BasePlugin implements IPlugin {
     return {};
   }
 
+  // eslint-disable-next-line no-unused-vars
   registerCommands?(_program: Command): void {
     // Default: no commands
   }
