@@ -12,6 +12,16 @@ export interface TemplateConfig {
   // Add more config as needed
 }
 
+/**
+ * Storage template parameters (v3.0.0 enhanced):
+ * - Core: storageAccountNamePrefix, storageAccountType, location, applicationName
+ * - Security (7): allowBlobPublicAccess, minimumTlsVersion, supportsHttpsTrafficOnly,
+ *                 publicNetworkAccess, defaultToOAuthAuthentication, allowSharedKeyAccess,
+ *                 requireInfrastructureEncryption
+ * - Data Protection (5): blobSoftDeleteDays, containerSoftDeleteDays, enableVersioning,
+ *                        changeFeedEnabled, lastAccessTimeTrackingEnabled
+ * Total: 16 parameters
+ */
 export class TemplateGenerator {
   private templateDir: string;
 
@@ -65,6 +75,11 @@ export class TemplateGenerator {
         "description": "${paramName} (secure parameter)"
       }
     }`;
+    });
+
+    // Storage account blobServices API version helper
+    Handlebars.registerHelper('blobServicesApiVersion', () => {
+      return '2023-05-01';
     });
   }
 
