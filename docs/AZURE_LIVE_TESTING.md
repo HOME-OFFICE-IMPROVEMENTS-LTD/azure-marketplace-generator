@@ -7,18 +7,21 @@ This document outlines the comprehensive Azure live testing procedure that **MUS
 ## Prerequisites
 
 ### Required Tools
+
 - Azure CLI installed and configured
 - Active Azure subscription with appropriate permissions
 - PowerShell (for ARM-TTK validation)
 - Node.js 18+ and npm
 
 ### Required Permissions
+
 - Contributor role on target subscription
 - Permission to create resource groups
 - Permission to create storage accounts
 - Permission to deploy ARM templates
 
 ### Environment Setup
+
 ```bash
 # Login to Azure
 az login
@@ -56,18 +59,21 @@ ls -la ./azure-live-test/
 ```
 
 **Expected Output:**
+
 - ✅ mainTemplate.json
 - ✅ createUiDefinition.json
 - ✅ viewDefinition.json
 - ✅ nestedtemplates/storageAccount.json
 
 **Validation:**
+
 ```bash
 # Run ARM-TTK validation
 node dist/cli/index.js validate ./azure-live-test
 ```
 
 **Success Criteria:**
+
 - All 4 files generated
 - No ARM-TTK errors
 - All security parameters present in mainTemplate.json
@@ -80,6 +86,7 @@ node dist/cli/index.js validate ./azure-live-test
 **Objective:** Deploy with default secure settings
 
 #### Step 1: Create Parameters File
+
 Create `azure-live-test/test-parameters.json`:
 
 ```json
@@ -135,6 +142,7 @@ echo "Storage Account: $STORAGE_ACCOUNT"
 ```
 
 **Success Criteria:**
+
 - ✅ Deployment succeeds (provisioningState: "Succeeded")
 - ✅ Storage account created
 - ✅ No errors in deployment logs
@@ -146,6 +154,7 @@ echo "Storage Account: $STORAGE_ACCOUNT"
 **Objective:** Verify all 7 security parameters are correctly applied
 
 #### Test 3.1: Blob Public Access Control
+
 ```bash
 # Check allowBlobPublicAccess (should be false by default)
 az storage account show \
@@ -156,6 +165,7 @@ az storage account show \
 **Expected:** `false`
 
 #### Test 3.2: Minimum TLS Version
+
 ```bash
 # Check minimumTlsVersion (should be TLS1_2)
 az storage account show \
@@ -166,6 +176,7 @@ az storage account show \
 **Expected:** `"TLS1_2"`
 
 #### Test 3.3: HTTPS Traffic Only
+
 ```bash
 # Check supportsHttpsTrafficOnly (should be true)
 az storage account show \
@@ -176,6 +187,7 @@ az storage account show \
 **Expected:** `true`
 
 #### Test 3.4: Public Network Access
+
 ```bash
 # Check publicNetworkAccess (should be Enabled by default)
 az storage account show \
@@ -186,6 +198,7 @@ az storage account show \
 **Expected:** `"Enabled"`
 
 #### Test 3.5: Default to OAuth Authentication
+
 ```bash
 # Check defaultToOAuthAuthentication
 az storage account show \
@@ -196,6 +209,7 @@ az storage account show \
 **Expected:** `false` (default, can be customized by user)
 
 #### Test 3.6: Allow Shared Key Access
+
 ```bash
 # Check allowSharedKeyAccess
 az storage account show \
@@ -206,6 +220,7 @@ az storage account show \
 **Expected:** `true` (default, can be disabled by user)
 
 #### Test 3.7: Infrastructure Encryption
+
 ```bash
 # Check requireInfrastructureEncryption
 az storage account show \

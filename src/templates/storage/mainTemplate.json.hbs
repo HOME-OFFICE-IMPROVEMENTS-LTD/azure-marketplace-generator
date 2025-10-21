@@ -11,6 +11,7 @@
     "parameters": {
         "storageAccountNamePrefix": {
             "type": "string",
+            "minLength": 3,
             "maxLength": 11,
             "metadata": {
                 "description": "Prefix for the storage account name"
@@ -38,6 +39,8 @@
         },
         "applicationName": {
             "type": "string",
+            "minLength": 3,
+            "maxLength": 24,
             "metadata": {
                 "description": "Name for this managed application instance"
             }
