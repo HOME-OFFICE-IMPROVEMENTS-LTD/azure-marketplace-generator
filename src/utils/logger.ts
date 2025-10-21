@@ -13,6 +13,9 @@ export enum LogLevel {
   TRACE = 4
 }
 
+// Export individual values for convenience
+export const { ERROR, WARN, INFO, DEBUG, TRACE } = LogLevel;
+
 /**
  * Log entry structure
  */
