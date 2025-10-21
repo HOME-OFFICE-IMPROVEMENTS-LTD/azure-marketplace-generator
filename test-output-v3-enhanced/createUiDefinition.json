@@ -1,0 +1,261 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "config": {
+            "isWizard": false,
+            "basics": {
+                "description": "**test-enhanced-security** by HOILTD\n\nManaged Azure Storage Account solution with enterprise-grade configuration options.",
+                "subscription": {
+                    "constraints": {
+                        "validations": [
+                            {
+                                "permission": "Microsoft.Storage/storageAccounts/write",
+                                "message": "Must have permission to create storage accounts"
+                            }
+                        ]
+                    }
+                },
+                "resourceGroup": {
+                    "constraints": {
+                        "validations": [
+                            {
+                                "isValid": "[not(contains(resourceGroup().name, 'temp'))]",
+                                "message": "Resource group name cannot contain 'temp'"
+                            }
+                        ]
+                    }
+                },
+                "location": {
+                    "visible": true,
+                    "allowedValues": [
+                        "eastus",
+                        "eastus2", 
+                        "westus",
+                        "westus2",
+                        "westeurope",
+                        "northeurope"
+                    ]
+                }
+            }
+        },
+        "basics": [
+            {
+                "name": "applicationName",
+                "type": "Microsoft.Common.TextBox",
+                "label": "Application Name",
+                "defaultValue": "test-enhanced-security",
+                "toolTip": "Name for this managed application instance",
+                "constraints": {
+                    "required": true,
+                    "regex": "^[a-zA-Z0-9-]{3,24}$",
+                    "validationMessage": "Name must be 3-24 characters, alphanumeric and hyphens only"
+                }
+            }
+        ],
+        "steps": [
+            {
+                "name": "storageConfig",
+                "label": "Storage Configuration",
+                "subLabel": {
+                    "preValidation": "Configure storage account settings",
+                    "postValidation": "Storage configuration complete"
+                },
+                "bladeTitle": "Storage Settings",
+                "elements": [
+                    {
+                        "name": "storageAccountPrefix",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Storage Account Name Prefix",
+                        "defaultValue": "testenhancedsecurityzocl",
+                        "toolTip": "Prefix for storage account name (lowercase letters and numbers only)",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^[a-z0-9]{3,11}$",
+                            "validationMessage": "Prefix must be 3-11 characters, lowercase letters and numbers only"
+                        }
+                    },
+                    {
+                        "name": "storageAccountType",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Storage Account Type",
+                        "defaultValue": "Standard locally redundant storage (Standard_LRS)",
+                        "toolTip": "Select the replication option for your storage account",
+                        "constraints": {
+                            "required": true,
+                            "allowedValues": [
+                                {
+                                    "label": "Standard locally redundant storage (Standard_LRS)",
+                                    "value": "Standard_LRS"
+                                },
+                                {
+                                    "label": "Standard geo-redundant storage (Standard_GRS)",
+                                    "value": "Standard_GRS"
+                                },
+                                {
+                                    "label": "Standard read-access geo-redundant storage (Standard_RAGRS)",
+                                    "value": "Standard_RAGRS"
+                                },
+                                {
+                                    "label": "Premium locally redundant storage (Premium_LRS)",
+                                    "value": "Premium_LRS"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "name": "serviceSelection",
+                "label": "Service Selection",
+                "subLabel": {
+                    "preValidation": "Choose your storage services",
+                    "postValidation": "Services selected"
+                },
+                "bladeTitle": "Storage Services",
+                "elements": [
+                    {
+                        "name": "serviceInfo",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "icon": "Info",
+                            "text": "Azure Storage Account offers multiple services beyond basic blob storage. Select the services you need for your solution. Each service unlocks different business capabilities and use cases."
+                        }
+                    },
+                    {
+                        "name": "enableStaticWebsite",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Enable Static Website Hosting",
+                        "defaultValue": false,
+                        "toolTip": "Host static websites directly from your storage account - perfect for web apps, documentation sites, and frontend applications"
+                    },
+                    {
+                        "name": "websiteConfiguration",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Website Configuration",
+                        "visible": "[steps('serviceSelection').enableStaticWebsite]",
+                        "elements": [
+                            {
+                                "name": "websiteIndexDocument",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Index Document",
+                                "defaultValue": "index.html",
+                                "toolTip": "Default document for your website root",
+                                "constraints": {
+                                    "required": true,
+                                    "regex": "^.+\\.(html|htm)$",
+                                    "validationMessage": "Must be an HTML file"
+                                }
+                            },
+                            {
+                                "name": "websiteErrorDocument",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "Error Document",
+                                "defaultValue": "404.html",
+                                "toolTip": "Custom error page for 404 errors",
+                                "constraints": {
+                                    "required": true,
+                                    "regex": "^.+\\.(html|htm)$",
+                                    "validationMessage": "Must be an HTML file"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "enableTables",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Enable Table Storage (NoSQL Database)",
+                        "defaultValue": false,
+                        "toolTip": "Add NoSQL database capabilities - ideal for structured data, user profiles, device data, and metadata storage"
+                    },
+                    {
+                        "name": "enableQueues",
+                        "type": "Microsoft.Common.CheckBox", 
+                        "label": "Enable Queue Storage (Message Processing)",
+                        "defaultValue": false,
+                        "toolTip": "Enable message queuing for asynchronous processing, task scheduling, and building event-driven architectures"
+                    },
+                    {
+                        "name": "enableFileShares",
+                        "type": "Microsoft.Common.CheckBox",
+                        "label": "Enable File Storage (Network Drives)",
+                        "defaultValue": false,
+                        "toolTip": "Create network file shares accessible via SMB protocol - perfect for shared application data and legacy application migration"
+                    },
+                    {
+                        "name": "eventGridSection",
+                        "type": "Microsoft.Common.Section",
+                        "label": "🚀 Automation & Integration (Premium Feature)",
+                        "elements": [
+                            {
+                                "name": "enableEventGrid",
+                                "type": "Microsoft.Common.CheckBox",
+                                "label": "Enable Event Grid Automation",
+                                "defaultValue": false,
+                                "toolTip": "Transform your storage into an automation platform! Automatically trigger workflows when files are uploaded, modified, or deleted. Perfect for image processing, document analysis, backup automation, and real-time data pipelines."
+                            },
+                            {
+                                "name": "eventGridConfiguration",
+                                "type": "Microsoft.Common.Section",
+                                "label": "Event Grid Configuration",
+                                "visible": "[steps('serviceSelection').eventGridSection.enableEventGrid]",
+                                "elements": [
+                                    {
+                                        "name": "eventGridSubscriptionName",
+                                        "type": "Microsoft.Common.TextBox",
+                                        "label": "Event Subscription Name",
+                                        "defaultValue": "storage-events",
+                                        "toolTip": "Name for your event subscription - identifies this automation rule",
+                                        "constraints": {
+                                            "required": true,
+                                            "regex": "^[a-zA-Z0-9][a-zA-Z0-9\\-]{1,62}[a-zA-Z0-9]$",
+                                            "validationMessage": "Must be 3-64 characters, start and end with alphanumeric, can contain hyphens"
+                                        }
+                                    },
+                                    {
+                                        "name": "webhookEndpoint",
+                                        "type": "Microsoft.Common.TextBox",
+                                        "label": "Webhook Endpoint URL (Optional)",
+                                        "placeholder": "https://your-api.com/webhook",
+                                        "toolTip": "Optional: URL to receive event notifications. Leave empty to configure later through Azure Portal or Logic Apps",
+                                        "constraints": {
+                                            "required": false,
+                                            "regex": "^$|^https:\\/\\/[a-zA-Z0-9][a-zA-Z0-9\\-\\.]*[a-zA-Z0-9]+(:[0-9]+)?(\\/.*)?(\\?.*)?(#.*)?$",
+                                            "validationMessage": "Must be a valid HTTPS URL or leave empty"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "eventGridBusinessInfo",
+                                "type": "Microsoft.Common.InfoBox",
+                                "visible": "[steps('serviceSelection').eventGridSection.enableEventGrid]",
+                                "options": {
+                                    "icon": "Info",
+                                    "text": "💰 Premium Revenue Opportunity: Event Grid automation can 3-5x your pricing! Transform from basic storage ($10-50/month) to automation platform ($50-500/month). Common use cases: Image processing workflows, Document analysis pipelines, Real-time data synchronization, Automated backup systems."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "businessModelInfo",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": "[or(or(steps('serviceSelection').enableStaticWebsite, steps('serviceSelection').enableTables), or(steps('serviceSelection').enableQueues, steps('serviceSelection').enableFileShares))]",
+                        "options": {
+                            "icon": "Info",
+                            "text": "💡 Business Model Tip: With multiple services enabled, you can offer different pricing tiers - Basic (blob only), Professional (includes web hosting), Enterprise (full multi-service platform). This creates natural upgrade paths and higher customer lifetime value."
+                        }
+                    }
+                ]
+            }
+        ],
+        "outputs": {
+            "storageAccountNamePrefix": "[steps('storageConfig').storageAccountPrefix]",
+            "storageAccountType": "[steps('storageConfig').storageAccountType]",
+            "location": "[location()]",
+            "applicationName": "[basics('applicationName')]"
+        }
+    }
+}

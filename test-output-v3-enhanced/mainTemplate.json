@@ -1,12 +1,12 @@
 {
-    "$schema": "{{armSchemaUrl}}",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "metadata": {
         "_generator": {
             "name": "Azure Marketplace Generator",
             "version": "0.1.0"
         },
-        "description": "{{name}} - Managed Application Main Template"
+        "description": "test-enhanced-security - Managed Application Main Template"
     },
     "parameters": {
         "storageAccountNamePrefix": {
@@ -146,7 +146,7 @@
     "resources": [
         {
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}",
+            "apiVersion": "2023-05-01",
             "name": "[variables('storageAccountName')]",
             "location": "[parameters('location')]",
             "sku": {
@@ -174,13 +174,13 @@
             },
             "tags": {
                 "CreatedBy": "Azure Marketplace Generator",
-                "Publisher": "{{publisher}}",
+                "Publisher": "HOILTD",
                 "Application": "[parameters('applicationName')]"
             }
         },
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "{{latestApiVersion 'Microsoft.Storage/storageAccounts/blobServices'}}",
+            "apiVersion": "2023-05-01",
             "name": "[concat(variables('storageAccountName'), '/default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
