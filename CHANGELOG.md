@@ -41,11 +41,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CONFIGURATION_GUIDE.md` for config file usage
 - `PRODUCTION_FEATURES.md` summarizing all production-ready enhancements
 - `DEVELOPMENT_LOG.md` tracking all development phases
+- `TEMPLATE_VALIDATION_STANDARDS.md` documenting ARM template validation best practices
+- `AZURE_LIVE_TESTING.md` comprehensive 7-phase testing methodology
 
 #### Testing
 - 14 new parameter validation tests
 - All 92 tests passing (78 existing + 14 new)
 - 100% parameter verification against official Microsoft documentation
+- Complete Azure live testing (35/35 tests passed)
 
 #### UI/UX Enhancements
 - "Security Configuration" step in createUiDefinition.json
@@ -53,10 +56,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced viewDefinition.json with security and data protection monitoring panels
 
 ### Changed
+
 - Updated README.md with v3.0.0 features and capabilities
 - Enhanced mainTemplate.json with 12 new parameters
 - Improved nestedtemplates/storageAccount.json with security and data protection
 - Updated generator.ts with security and data protection helper functions
+
+### Fixed
+
+- **CRITICAL**: Added missing `minLength` validation to `storageAccountNamePrefix` parameter (was only `maxLength: 11`, now `minLength: 3, maxLength: 11`)
+- **CRITICAL**: Added missing `minLength` and `maxLength` validation to `applicationName` parameter (now `minLength: 3, maxLength: 24`)
+- Ensured UI validation (createUiDefinition.json) matches ARM template validation for all string parameters
+- Prevents users from bypassing UI constraints when deploying via CLI, API, or PowerShell
 
 ### Verified
 - All parameters verified against `@azure/arm-storage` SDK (JavaScript/TypeScript)
