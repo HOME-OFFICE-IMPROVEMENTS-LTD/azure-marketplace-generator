@@ -11,6 +11,7 @@ build/
 # Coverage and testing
 coverage/
 test-output/
+test-output-*/
 test-results-*.log
 test-package/
 
@@ -26,6 +27,19 @@ test-package/
 output/
 azure-prod-test/
 azure-prod-test.zip
+
+# Development artifacts (keep repo clean)
+*_ANALYSIS.md
+*_COMPLETE.md
+*_STRATEGY.md
+*_PLAN.md
+*_SUMMARY.md
+*_READINESS.md
+CHECKPOINT_*.md
+PHASE_*.md
+TESTING_*.md
+DEPLOYMENT_*.md
+QUICK_START_*.md
 
 # ARM-TTK installation
 tools/arm-ttk/

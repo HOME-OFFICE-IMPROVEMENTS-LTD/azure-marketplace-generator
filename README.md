@@ -118,6 +118,37 @@ npm test
 npm run lint
 ```
 
+## Documentation
+
+### 📚 User Guides
+- **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)** - Learn how to use config files for consistent settings
+- **[Security Features](docs/SECURITY_FEATURES.md)** - Comprehensive guide to all 7 security parameters
+- **[Data Protection Guide](docs/DATA_PROTECTION_GUIDE.md)** - Complete guide to data protection features and recovery
+
+### 🔧 Developer Resources
+- **[Production Features](docs/PRODUCTION_FEATURES.md)** - Summary of all production-ready enhancements
+- **[Development Log](docs/DEVELOPMENT_LOG.md)** - Version history and development phases
+- **[Changelog](CHANGELOG.md)** - Detailed changelog following Keep a Changelog format
+
+### 🔗 Official Resources
+- [Azure Storage Documentation](https://learn.microsoft.com/en-us/azure/storage/)
+- [Azure Verified Modules](https://github.com/Azure/bicep-registry-modules)
+- [@azure/arm-storage SDK](https://learn.microsoft.com/en-us/javascript/api/@azure/arm-storage/)
+
+## Contributing
+
+Contributions are welcome! Please ensure:
+1. All tests pass (`npm test`)
+2. Code follows TypeScript and ESLint standards
+3. Documentation is updated
+4. Commit messages follow conventional commits
+
+## Support
+
+For issues, questions, or contributions:
+- **Issues:** [GitHub Issues](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/discussions)
+
 ## License
 
 MIT © Home & Office Improvements Ltd
