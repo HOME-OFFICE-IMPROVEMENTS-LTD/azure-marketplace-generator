@@ -276,7 +276,7 @@ Users can customize security parameters through:
 
 Planned for future releases:
 
-1. **v3.1.0 (Q1 2026):**
+1. **v3.1.0 (Planned):**
    
    **Plugin System Implementation:**
    - Plugin loader with dynamic discovery
@@ -290,7 +290,7 @@ Planned for future releases:
    - Customer-managed encryption keys (CMK)
    - Immutability policies for compliance
 
-2. **v3.2.0 (Q2 2026):**
+2. **v3.2.0 (Future):**
    
    **Plugin Ecosystem:**
    - Plugin marketplace/catalog
@@ -303,7 +303,7 @@ Planned for future releases:
    - Azure AD RBAC role assignments
    - Diagnostic settings and monitoring
 
-3. **v4.0.0 (Q4 2026):**
+3. **v4.0.0 (Future):**
    
    **Advanced Extensibility:**
    - MCP (Model Context Protocol) server support

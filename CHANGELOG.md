@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Coming Soon
 
-#### v3.1.0 (Planned - Q1 2026)
+#### v3.1.0 (Planned)
 
 **Plugin System Implementation:**
 - Plugin loader with dynamic discovery
@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Customer-managed encryption keys (CMK)
 - Immutability policies for compliance
 
-#### v3.2.0 (Planned - Q2 2026)
+#### v3.2.0 (Future)
 
 **Plugin Ecosystem:**
 - Plugin marketplace/catalog
@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Azure AD RBAC role assignments
 - Diagnostic settings and monitoring
 
-#### v4.0.0 (Future - Q4 2026)
+#### v4.0.0 (Future)
 
 **Advanced Extensibility:**
 - MCP (Model Context Protocol) server support

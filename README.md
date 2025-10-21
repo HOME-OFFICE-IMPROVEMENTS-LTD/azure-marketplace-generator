@@ -147,7 +147,7 @@ npm run lint
 - ✅ Comprehensive documentation (9 guides)
 - ✅ Full Azure live testing (35/35 tests)
 
-### v3.1.0 (Planned - Q1 2026)
+### v3.1.0 (Planned)
 
 **Plugin System Implementation:**
 
@@ -163,7 +163,7 @@ npm run lint
 - Customer-managed encryption keys (CMK)
 - Immutability policies for compliance
 
-### v3.2.0 (Planned - Q2 2026)
+### v3.2.0 (Future)
 
 **Plugin Ecosystem:**
 
@@ -178,7 +178,7 @@ npm run lint
 - Azure AD RBAC role assignments
 - Diagnostic settings and monitoring
 
-### v4.0.0 (Future - Q4 2026)
+### v4.0.0 (Future)
 
 **Advanced Extensibility:**
 
