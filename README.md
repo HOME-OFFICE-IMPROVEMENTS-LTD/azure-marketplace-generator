@@ -138,9 +138,67 @@ npm run lint
 - [Azure Verified Modules](https://github.com/Azure/bicep-registry-modules)
 - [@azure/arm-storage SDK](https://learn.microsoft.com/en-us/javascript/api/@azure/arm-storage/)
 
+## Roadmap
+
+### v3.0.0 (Current) ✅
+
+- ✅ Plugin interface foundation
+- ✅ 12 security and data protection parameters
+- ✅ Comprehensive documentation (9 guides)
+- ✅ Full Azure live testing (35/35 tests)
+
+### v3.1.0 (Planned - Q1 2026)
+
+**Plugin System Implementation:**
+
+- Plugin loader with dynamic discovery
+- Automatic plugin registration from config files
+- CLI command extensions support
+- Template type registration API
+- Handlebars helper registration API
+
+**Storage Features:**
+
+- Private endpoint configuration
+- Customer-managed encryption keys (CMK)
+- Immutability policies for compliance
+
+### v3.2.0 (Planned - Q2 2026)
+
+**Plugin Ecosystem:**
+
+- Plugin marketplace/catalog
+- Plugin dependency management
+- Hot reload support
+- Plugin sandboxing and isolation
+
+**Storage Features:**
+
+- Advanced network security rules
+- Azure AD RBAC role assignments
+- Diagnostic settings and monitoring
+
+### v4.0.0 (Future - Q4 2026)
+
+**Advanced Extensibility:**
+
+- MCP (Model Context Protocol) server support
+- Remote plugin loading
+- Plugin security scanning
+- Advanced plugin APIs and lifecycle management
+
+**Storage Features:**
+
+- Multi-region deployment support
+- Geo-replication configuration
+- Disaster recovery templates
+
+> See [PLUGIN_ARCHITECTURE.md](docs/PLUGIN_ARCHITECTURE.md) for detailed plugin development guide and roadmap.
+
 ## Contributing
 
 Contributions are welcome! Please ensure:
+
 1. All tests pass (`npm test`)
 2. Code follows TypeScript and ESLint standards
 3. Documentation is updated

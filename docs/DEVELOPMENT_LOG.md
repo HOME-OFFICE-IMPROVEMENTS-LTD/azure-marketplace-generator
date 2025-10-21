@@ -276,20 +276,47 @@ Users can customize security parameters through:
 
 Planned for future releases:
 
-1. **v3.1.0:**
+1. **v3.1.0 (Q1 2026):**
+   
+   **Plugin System Implementation:**
+   - Plugin loader with dynamic discovery
+   - Automatic plugin registration from config files
+   - CLI command extensions support
+   - Template type registration API
+   - Handlebars helper registration API
+   
+   **Storage Features:**
    - Private endpoint configuration
    - Customer-managed encryption keys (CMK)
    - Immutability policies for compliance
 
-2. **v3.2.0:**
+2. **v3.2.0 (Q2 2026):**
+   
+   **Plugin Ecosystem:**
+   - Plugin marketplace/catalog
+   - Plugin dependency management
+   - Hot reload support
+   - Plugin sandboxing and isolation
+   
+   **Storage Features:**
    - Advanced network security rules
    - Azure AD RBAC role assignments
    - Diagnostic settings and monitoring
 
-3. **v4.0.0:**
+3. **v4.0.0 (Q4 2026):**
+   
+   **Advanced Extensibility:**
+   - MCP (Model Context Protocol) server support
+   - Remote plugin loading
+   - Plugin security scanning
+   - Advanced plugin APIs and lifecycle management
+   
+   **Storage Features:**
    - Multi-region deployment support
    - Geo-replication configuration
    - Disaster recovery templates
+
+> **Note:** Plugin roadmap details available in [PLUGIN_ARCHITECTURE.md](PLUGIN_ARCHITECTURE.md)
 
 ---
 
