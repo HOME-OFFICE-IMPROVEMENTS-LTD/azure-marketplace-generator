@@ -41,6 +41,13 @@ TESTING_*.md
 DEPLOYMENT_*.md
 QUICK_START_*.md
 
+# Private knowledge base (LLM conversations, notes, research)
+knowledge/
+CONVERSATION_*.md
+conversation_*.md
+chat_history_*.md
+CHAT_*.md
+
 # ARM-TTK installation
 tools/arm-ttk/
 
