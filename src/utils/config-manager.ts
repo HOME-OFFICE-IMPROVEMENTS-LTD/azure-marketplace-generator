@@ -2,6 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import chalk from 'chalk';
 import { getLogger } from './logger';
+import { PluginConfig } from '../core/plugin';
 
 const logger = getLogger();
 
@@ -24,6 +25,11 @@ export interface AzmpConfig {
   packaging?: {
     defaultFileName?: string;
   };
+  /**
+   * Plugin configuration (v3.1.0+)
+   * Array of plugins to load with their configuration
+   */
+  plugins?: PluginConfig[];
 }
 
 /**
@@ -166,7 +172,16 @@ export class ConfigManager {
       },
       packaging: {
         defaultFileName: "my-app-package.zip"
-      }
+      },
+      plugins: [
+        // Example plugin configuration (disabled by default)
+        // Uncomment to enable plugin support in v3.1.0+
+        // {
+        //   package: "azmp-compute-templates",
+        //   enabled: false,
+        //   options: {}
+        // }
+      ]
     };
 
     try {

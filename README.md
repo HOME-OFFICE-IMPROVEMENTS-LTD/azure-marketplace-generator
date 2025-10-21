@@ -15,6 +15,7 @@ Enterprise-grade CLI tool for generating Azure Storage marketplace managed appli
 - **ARM template validation** with Microsoft ARM-TTK integration
 - **Marketplace-ready package creation** for Azure Marketplace submission
 - **TypeScript with full type safety** for reliability and maintainability
+- **Extensible plugin architecture** for custom templates and commands (v3.0.0+)
 
 ### 🔒 Enhanced Security Features (v3.0.0)
 
@@ -130,6 +131,7 @@ npm run lint
 - **[Development Log](docs/DEVELOPMENT_LOG.md)** - Version history and development phases
 - **[Changelog](CHANGELOG.md)** - Detailed changelog following Keep a Changelog format
 - **[Azure Live Testing](docs/AZURE_LIVE_TESTING.md)** - Comprehensive Azure deployment testing guide
+- **[Plugin Architecture](docs/PLUGIN_ARCHITECTURE.md)** - Extensibility framework for custom templates (v3.0.0+)
 
 ### 🔗 Official Resources
 - [Azure Storage Documentation](https://learn.microsoft.com/en-us/azure/storage/)
