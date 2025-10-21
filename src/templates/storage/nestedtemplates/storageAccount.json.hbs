@@ -255,20 +255,7 @@
                 "description": "Resource ID of the storage account"
             }
         },
-        "primaryKey": {
-            "type": "string",
-            "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}').keys[0].value]",
-            "metadata": {
-                "description": "Primary access key for the storage account"
-            }
-        },
-        "connectionString": {
-            "type": "string", 
-            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '{{latestApiVersion 'Microsoft.Storage/storageAccounts'}}').keys[0].value, ';EndpointSuffix=core.windows.net')]",
-            "metadata": {
-                "description": "Connection string for the storage account"
-            }
-        },
+
         "staticWebsiteUrl": {
             "condition": "[parameters('enableStaticWebsite')]",
             "type": "string",

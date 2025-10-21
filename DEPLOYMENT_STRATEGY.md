@@ -1,5 +1,6 @@
 # Deployment Strategy v3.0.0
-**Azure Marketplace Generator - Production Deployment Plan**
+
+**Azure Marketplace Generator - Production Deployment Plan
 
 ---
 
@@ -58,6 +59,7 @@ main (tag release here: v3.0.0)
 
 **Why?**
 - `main` = Production-ready, stable releases
+- 
 - `develop` = Integration and testing
 - Users clone/download from `main`, not `develop`
 
@@ -123,6 +125,7 @@ az group delete --name azmp-prod-test-rg --yes --no-wait
 ```
 
 **Success Criteria:**
+
 - ✅ Templates deploy without errors
 - ✅ Storage account created correctly
 - ✅ All resources configured as expected

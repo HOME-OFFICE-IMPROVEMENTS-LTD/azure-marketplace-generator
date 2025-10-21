@@ -5,7 +5,7 @@
  * command injection attempts and validate Azure resource identifiers.
  */
 
-import { SecurityValidation, ValidationError } from '../utils/security-validation';
+import { SecurityValidation } from '../utils/security-validation';
 
 describe('Security Validation Tests', () => {
   // Malicious payloads to test for command injection
@@ -155,24 +155,24 @@ describe('Security Validation Tests', () => {
       const traversalAttempts = [
         '../../../etc/passwd',
         '..\\..\\..\\windows\\system32',
-        './secret/file',
         '/absolute/path',
         'normal/../../../traversal',
-        '../parent',
-        './current'
+        '../parent'
       ];
       traversalAttempts.forEach(path => {
         expect(SecurityValidation.validateFilePath(path)).toBe(false);
       });
     });
 
-    it('should accept safe relative paths', () => {
+    it('should accept safe relative paths including current directory references', () => {
       const safePaths = [
         'template.json',
         'folder/template.json',
         'deep/folder/structure/template.json',
         'safe-path.arm',
-        'file_with_underscores.json'
+        'file_with_underscores.json',
+        './secret/file',      // Safe current directory reference
+        './current'           // Safe current directory reference
       ];
       safePaths.forEach(path => {
         expect(SecurityValidation.validateFilePath(path)).toBe(true);

@@ -38,10 +38,13 @@ export class TemplateGenerator {
 
     // Latest API version helper
     Handlebars.registerHelper('latestApiVersion', (resourceType: string) => {
-      // Updated fallback API versions
+      // Updated fallback API versions (latest as of October 2025)
       const fallbackVersions: { [key: string]: string } = {
-        'Microsoft.Storage/storageAccounts': '2023-04-01',
-        'Microsoft.Compute/virtualMachines': '2023-09-01',
+        'Microsoft.Storage/storageAccounts': '2023-05-01',
+        'Microsoft.Storage/storageAccounts/fileServices': '2023-05-01',
+        'Microsoft.EventGrid/systemTopics': '2023-12-15-preview',
+        'Microsoft.EventGrid/systemTopics/eventSubscriptions': '2023-12-15-preview',
+        'Microsoft.Compute/virtualMachines': '2024-03-01',
         'Microsoft.Web/sites': '2023-12-01',
         'Microsoft.KeyVault/vaults': '2023-07-01',
         'Microsoft.Sql/servers': '2023-08-01-preview',
@@ -51,7 +54,7 @@ export class TemplateGenerator {
         'Microsoft.Network/networkSecurityGroups': '2023-09-01'
       };
 
-      return fallbackVersions[resourceType] || '2023-04-01';
+      return fallbackVersions[resourceType] || '2023-05-01';
     });
 
     // Secure parameter helper (Trade Secret: All passwords must use @secure())
@@ -82,20 +85,7 @@ export class TemplateGenerator {
     await this.generateFile(templatePath, 'createUiDefinition.json.hbs', config, 'createUiDefinition.json');
     await this.generateFile(templatePath, 'viewDefinition.json.hbs', config, 'viewDefinition.json');
 
-    // Generate nested templates if they exist
-    const nestedDir = path.join(templatePath, 'nestedtemplates');
-    if (await fs.pathExists(nestedDir)) {
-      const nestedOutputDir = path.join(config.output, 'nestedtemplates');
-      await fs.ensureDir(nestedOutputDir);
-
-      const nestedFiles = await fs.readdir(nestedDir);
-      for (const file of nestedFiles) {
-        if (file.endsWith('.hbs')) {
-          const outputName = file.replace('.hbs', '');
-          await this.generateFile(nestedDir, file, config, outputName, nestedOutputDir);
-        }
-      }
-    }
+    // Note: Using inline templates instead of nested templates for ARM-TTK compliance
 
     console.log(chalk.green('✅ Templates generated successfully!'));
   }

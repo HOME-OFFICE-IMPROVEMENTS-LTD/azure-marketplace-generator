@@ -131,20 +131,21 @@ export class ArmTtkValidator {
 
       return result;
 
-    } catch (error: any) {
-      console.error(chalk.red('❌ ARM-TTK execution failed:'), error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error(chalk.red('❌ ARM-TTK execution failed:'), errorMessage);
 
       return {
         success: false,
-        errors: [`ARM-TTK execution failed: ${error.message}`],
+        errors: [`ARM-TTK execution failed: ${errorMessage}`],
         warnings: [],
-        details: error.stdout || error.stderr || 'No output available',
+        details: (error as any)?.stdout || (error as any)?.stderr || 'No output available',
         passCount: 0,
         failCount: 1,
         testResults: [{
           name: 'ARM-TTK Execution',
           status: 'fail',
-          message: error.message
+          message: errorMessage
         }],
         timestamp
       };
@@ -323,8 +324,9 @@ export class ArmTtkValidator {
       console.log(chalk.blue(`📄 Validation report saved: ${reportPath}`));
       return reportPath;
 
-    } catch (error: any) {
-      console.warn(chalk.yellow(`⚠️  Could not save validation report: ${error.message}`));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn(chalk.yellow(`⚠️  Could not save validation report: ${errorMessage}`));
       return '';
     }
   }
@@ -380,8 +382,9 @@ export class ArmTtkValidator {
       console.log(chalk.green(`🚀 Package promoted to marketplace: ${marketplacePath}`));
       return marketplacePath;
 
-    } catch (error: any) {
-      throw new Error(`Failed to promote package to marketplace: ${error.message}`);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to promote package to marketplace: ${errorMessage}`);
     }
   }
 
@@ -401,8 +404,9 @@ export class ArmTtkValidator {
       }
 
       return tests;
-          } catch (_error) {
+    } catch (error) {
       console.warn(chalk.yellow('⚠️  Could not retrieve available tests'));
+      console.debug('Error details:', error);
       return [];
     }
   }

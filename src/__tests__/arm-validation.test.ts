@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, jest } from '@jest/globals';
+import { describe, test, expect } from '@jest/globals';
 import * as path from 'path';
 
 describe('ARM Template Validation Tests', () => {

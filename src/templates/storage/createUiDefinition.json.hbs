@@ -255,16 +255,7 @@
             "storageAccountNamePrefix": "[steps('storageConfig').storageAccountPrefix]",
             "storageAccountType": "[steps('storageConfig').storageAccountType]",
             "location": "[location()]",
-            "applicationName": "[basics('applicationName')]",
-            "enableStaticWebsite": "[steps('serviceSelection').enableStaticWebsite]",
-            "enableTables": "[steps('serviceSelection').enableTables]",
-            "enableQueues": "[steps('serviceSelection').enableQueues]",
-            "enableFileShares": "[steps('serviceSelection').enableFileShares]",
-            "websiteIndexDocument": "[if(steps('serviceSelection').enableStaticWebsite, steps('serviceSelection').websiteConfiguration.websiteIndexDocument, 'index.html')]",
-            "websiteErrorDocument": "[if(steps('serviceSelection').enableStaticWebsite, steps('serviceSelection').websiteConfiguration.websiteErrorDocument, '404.html')]",
-            "enableEventGrid": "[steps('serviceSelection').eventGridSection.enableEventGrid]",
-            "eventGridSubscriptionName": "[if(steps('serviceSelection').eventGridSection.enableEventGrid, steps('serviceSelection').eventGridSection.eventGridConfiguration.eventGridSubscriptionName, 'storage-events')]",
-            "webhookEndpoint": "[if(steps('serviceSelection').eventGridSection.enableEventGrid, steps('serviceSelection').eventGridSection.eventGridConfiguration.webhookEndpoint, '')]"
+            "applicationName": "[basics('applicationName')]"
         }
     }
 }

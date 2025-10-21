@@ -4,8 +4,7 @@
     "metadata": {
         "_generator": {
             "name": "Azure Marketplace Generator",
-            "version": "0.1.0",
-            "templateHash": "{{generatedDate}}"
+            "version": "0.1.0"
         },
         "description": "{{name}} - Managed Application Main Template"
     },
@@ -14,7 +13,7 @@
             "type": "string",
             "maxLength": 11,
             "metadata": {
-                "description": "Prefix for the storage account name (max 11 characters)"
+                "description": "Prefix for the storage account name"
             }
         },
         "storageAccountType": {
@@ -27,7 +26,7 @@
                 "Premium_LRS"
             ],
             "metadata": {
-                "description": "Storage account type and replication option"
+                "description": "Storage account type"
             }
         },
         "location": {
@@ -37,222 +36,53 @@
                 "description": "Location for all resources"
             }
         },
-        "enableStaticWebsite": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Enable static website hosting for web applications"
-            }
-        },
-        "enableTables": {
-            "type": "bool", 
-            "defaultValue": false,
-            "metadata": {
-                "description": "Enable Table storage for NoSQL database functionality"
-            }
-        },
-        "enableQueues": {
-            "type": "bool",
-            "defaultValue": false, 
-            "metadata": {
-                "description": "Enable Queue storage for message processing and event-driven architecture"
-            }
-        },
-        "enableFileShares": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Enable File storage for network drive and shared file functionality"
-            }
-        },
-        "websiteIndexDocument": {
+        "applicationName": {
             "type": "string",
-            "defaultValue": "index.html",
             "metadata": {
-                "description": "Index document for static website (only used if static website is enabled)"
-            }
-        },
-        "websiteErrorDocument": {
-            "type": "string", 
-            "defaultValue": "404.html",
-            "metadata": {
-                "description": "Error document for static website (only used if static website is enabled)"
-            }
-        },
-        "enableEventGrid": {
-            "type": "bool",
-            "defaultValue": false,
-            "metadata": {
-                "description": "Enable Event Grid for automated storage event processing and workflows"
-            }
-        },
-        "eventGridSubscriptionName": {
-            "type": "string",
-            "defaultValue": "storage-automation",
-            "metadata": {
-                "description": "Name for the Event Grid subscription (used for organization and monitoring)"
-            }
-        },
-        "webhookEndpoint": {
-            "type": "string",
-            "defaultValue": "",
-            "metadata": {
-                "description": "Webhook endpoint URL for Event Grid notifications (leave empty to skip webhook setup)"
+                "description": "Name for this managed application instance"
             }
         }
     },
     "variables": {
-        "nestedTemplateUri": "[uri(deployment().properties.templateLink.uri, 'nestedtemplates/storageAccount.json')]"
+        "storageAccountName": "[concat(parameters('storageAccountNamePrefix'), uniqueString(resourceGroup().id))]"
     },
     "resources": [
         {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "{{latestApiVersion 'Microsoft.Resources/deployments'}}",
-            "name": "storageDeployment",
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-05-01",
+            "name": "[variables('storageAccountName')]",
+            "location": "[parameters('location')]",
+            "sku": {
+                "name": "[parameters('storageAccountType')]"
+            },
+            "kind": "StorageV2",
             "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "contentVersion": "1.0.0.0",
-                    "uri": "[variables('nestedTemplateUri')]"
-                },
-                "parameters": {
-                    "storageAccountNamePrefix": {
-                        "value": "[parameters('storageAccountNamePrefix')]"
-                    },
-                    "storageAccountType": {
-                        "value": "[parameters('storageAccountType')]"
-                    },
-                    "location": {
-                        "value": "[parameters('location')]"
-                    },
-                    "enableStaticWebsite": {
-                        "value": "[parameters('enableStaticWebsite')]"
-                    },
-                    "enableTables": {
-                        "value": "[parameters('enableTables')]"
-                    },
-                    "enableQueues": {
-                        "value": "[parameters('enableQueues')]"
-                    },
-                    "enableFileShares": {
-                        "value": "[parameters('enableFileShares')]"
-                    },
-                    "websiteIndexDocument": {
-                        "value": "[parameters('websiteIndexDocument')]"
-                    },
-                    "websiteErrorDocument": {
-                        "value": "[parameters('websiteErrorDocument')]"
-                    },
-                    "enableEventGrid": {
-                        "value": "[parameters('enableEventGrid')]"
-                    },
-                    "eventGridSubscriptionName": {
-                        "value": "[parameters('eventGridSubscriptionName')]"
-                    },
-                    "webhookEndpoint": {
-                        "value": "[parameters('webhookEndpoint')]"
-                    }
-                }
+                "accessTier": "Hot",
+                "allowBlobPublicAccess": false,
+                "allowSharedKeyAccess": false,
+                "supportsHttpsTrafficOnly": true,
+                "minimumTlsVersion": "TLS1_2"
+            },
+            "tags": {
+                "CreatedBy": "Azure Marketplace Generator",
+                "Publisher": "{{publisher}}",
+                "Application": "[parameters('applicationName')]"
             }
         }
     ],
     "outputs": {
-        "storageEndpoint": {
-            "type": "string",
-            "value": "[reference('storageDeployment').outputs.storageEndpoint.value]",
-            "metadata": {
-                "description": "Primary blob endpoint of the created storage account"
-            }
-        },
         "storageAccountName": {
             "type": "string",
-            "value": "[reference('storageDeployment').outputs.storageAccountName.value]",
+            "value": "[variables('storageAccountName')]",
             "metadata": {
                 "description": "Name of the created storage account"
             }
         },
-        "connectionString": {
+        "storageEndpoint": {
             "type": "string",
-            "value": "[reference('storageDeployment').outputs.connectionString.value]",
+            "value": "[reference(variables('storageAccountName'), '2023-05-01').primaryEndpoints.blob]",
             "metadata": {
-                "description": "Connection string for accessing the storage account"
-            }
-        },
-        "staticWebsiteUrl": {
-            "condition": "[parameters('enableStaticWebsite')]",
-            "type": "string",
-            "value": "[reference('storageDeployment').outputs.staticWebsiteUrl.value]",
-            "metadata": {
-                "description": "Static website URL (only available when static website is enabled)"
-            }
-        },
-        "tableEndpoint": {
-            "condition": "[parameters('enableTables')]",
-            "type": "string",
-            "value": "[reference('storageDeployment').outputs.tableEndpoint.value]",
-            "metadata": {
-                "description": "Table storage endpoint (only available when tables are enabled)"
-            }
-        },
-        "queueEndpoint": {
-            "condition": "[parameters('enableQueues')]",
-            "type": "string", 
-            "value": "[reference('storageDeployment').outputs.queueEndpoint.value]",
-            "metadata": {
-                "description": "Queue storage endpoint (only available when queues are enabled)"
-            }
-        },
-        "fileEndpoint": {
-            "condition": "[parameters('enableFileShares')]",
-            "type": "string",
-            "value": "[reference('storageDeployment').outputs.fileEndpoint.value]",
-            "metadata": {
-                "description": "File storage endpoint (only available when file shares are enabled)"
-            }
-        },
-        "enabledServices": {
-            "type": "object",
-            "value": "[reference('storageDeployment').outputs.enabledServices.value]",
-            "metadata": {
-                "description": "Summary of enabled storage services in this deployment"
-            }
-        },
-        "eventGridTopicId": {
-            "condition": "[parameters('enableEventGrid')]",
-            "type": "string",
-            "value": "[reference('storageDeployment').outputs.eventGridTopicId.value]",
-            "metadata": {
-                "description": "Resource ID of the Event Grid system topic for automation"
-            }
-        },
-        "eventGridSubscriptionId": {
-            "condition": "[and(parameters('enableEventGrid'), not(equals(parameters('webhookEndpoint'), '')))]",
-            "type": "string",
-            "value": "[reference('storageDeployment').outputs.eventGridSubscriptionId.value]",
-            "metadata": {
-                "description": "Resource ID of the Event Grid subscription for webhook notifications"
-            }
-        },
-        "deploymentSummary": {
-            "type": "object",
-            "value": {
-                "storageAccount": "[reference('storageDeployment').outputs.storageAccountName.value]",
-                "services": "[reference('storageDeployment').outputs.enabledServices.value]",
-                "endpoints": {
-                    "blob": "[reference('storageDeployment').outputs.storageEndpoint.value]",
-                    "web": "[if(parameters('enableStaticWebsite'), reference('storageDeployment').outputs.staticWebsiteUrl.value, 'Not enabled')]",
-                    "table": "[if(parameters('enableTables'), reference('storageDeployment').outputs.tableEndpoint.value, 'Not enabled')]",
-                    "queue": "[if(parameters('enableQueues'), reference('storageDeployment').outputs.queueEndpoint.value, 'Not enabled')]",
-                    "file": "[if(parameters('enableFileShares'), reference('storageDeployment').outputs.fileEndpoint.value, 'Not enabled')]"
-                },
-                "automation": {
-                    "eventGrid": "[parameters('enableEventGrid')]",
-                    "topicId": "[if(parameters('enableEventGrid'), reference('storageDeployment').outputs.eventGridTopicId.value, 'Not enabled')]",
-                    "webhookConfigured": "[if(and(parameters('enableEventGrid'), not(equals(parameters('webhookEndpoint'), ''))), 'Yes', 'No')]"
-                }
-            },
-            "metadata": {
-                "description": "Complete deployment summary with all service endpoints and automation capabilities"
+                "description": "Primary blob endpoint URL"
             }
         }
     }
