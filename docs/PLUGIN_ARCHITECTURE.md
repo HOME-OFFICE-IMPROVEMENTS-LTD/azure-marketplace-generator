@@ -33,13 +33,17 @@ The following interfaces and types are now defined and stable:
 - Plugin interface contracts (stable API)
 - Template registry infrastructure
 - Type definitions for extensibility
+- **Helper/Command collision detection** - Prevents duplicate helper and command names
+- **Plugin lifecycle management** - Initialize with timeout, cleanup on exit
+- **Template override protection** - Explicit errors for conflicting template types
 
 **What's NOT Yet Implemented:**
 
-- Dynamic plugin loading
-- Plugin discovery and initialization
-- Automatic helper registration
+- Dynamic plugin loading from npm/filesystem
+- Plugin discovery and initialization from config
+- Automatic helper registration with Handlebars
 - CLI command registration from plugins
+- Version compatibility enforcement (see Known Limitations below)
 
 ### 🚧 v3.1.0 - Implementation (Planned)
 
@@ -51,6 +55,71 @@ Full plugin system implementation including:
 - CLI command registration
 - Plugin lifecycle management (initialize/cleanup)
 - Configuration support in `azmp-config.json`
+
+## Known Limitations (v3.0.0)
+
+The following features are **deferred to v3.1.0** to ensure a stable v3.0.0 release:
+
+### ⏳ Version Compatibility Enforcement
+
+- **Issue**: `metadata.requiredGeneratorVersion` field exists but is not validated
+- **Impact**: Plugins can claim compatibility with any generator version
+- **Mitigation**: Plugin developers should manually test compatibility
+- **Fix**: v3.1.0 will add semver validation during plugin loading
+- **Tracking**: TODO in `src/core/plugin-loader.ts`
+
+### ⏳ Plugin Load Order Determinism
+
+- **Issue**: No explicit ordering mechanism for plugins
+- **Impact**: If plugin A depends on plugin B, load order matters
+- **Mitigation**: Plugins should be independent; document any dependencies
+- **Fix**: v3.1.0 may add explicit ordering or dependency resolution
+- **Tracking**: Not yet specified
+
+### ⏳ Template Path Validation Security
+
+- **Issue**: Plugin paths are not validated during loading (not implemented yet)
+- **Impact**: Path traversal (`../../malicious`) could be possible when loader ships
+- **Mitigation**: v3.0.0 doesn't include dynamic loading, so this is not exploitable
+- **Fix**: v3.1.0 will normalize/whitelist paths in `PluginConfig.package`
+- **Tracking**: TODO in `src/core/plugin.ts:155` and `src/core/plugin-loader.ts`
+
+### ⏳ Template Validation Timing
+
+- **Issue**: `TemplateRegistry.validateTemplatePath()` exists but isn't called automatically
+- **Impact**: Invalid plugin templates detected only when used, not when registered
+- **Mitigation**: Manual testing of plugin templates recommended
+- **Fix**: v3.1.0 will add eager validation during plugin registration
+- **Tracking**: Design decision needed
+
+### ⏳ Template Override Mechanism
+
+- **Issue**: `registerPlugin()` throws error if template type conflicts (by design)
+- **Impact**: Cannot override or extend built-in templates
+- **Mitigation**: This is intentional for v3.0.0 - ensures deterministic behavior
+- **Fix**: v3.2.0 may add CLI flag/setting for explicit overrides
+- **Tracking**: Feature request, not a bug
+
+### ✅ Helper/Command Collision Detection
+
+- **Status**: **IMPLEMENTED in v3.0.0** ✅
+- **Implementation**: `TemplateRegistry` now tracks all helpers and commands
+- **Behavior**: Explicit errors thrown for duplicate helper names or command names
+- **File**: `src/core/template-registry.ts`
+
+### ✅ Plugin Initialization Timeout
+
+- **Status**: **IMPLEMENTED in v3.0.0** ✅
+- **Implementation**: `PluginLoader` enforces 5-second timeout on `initialize()`
+- **Behavior**: Prevents hung plugins from blocking the CLI
+- **File**: `src/core/plugin-loader.ts`
+
+### ✅ Cleanup Guarantees
+
+- **Status**: **IMPLEMENTED in v3.0.0** ✅
+- **Implementation**: `PluginLoader` registers handlers for SIGINT, SIGTERM, exit, uncaughtException
+- **Behavior**: Ensures `cleanup()` is called with 2-second timeout
+- **File**: `src/core/plugin-loader.ts`
 
 ## Plugin Interface
 

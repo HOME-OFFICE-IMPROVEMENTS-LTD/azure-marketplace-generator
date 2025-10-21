@@ -148,6 +148,11 @@ export interface PluginConfig {
   /** Plugin-specific configuration */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: Record<string, any>;
+  
+  // TODO(v3.1.0): Add path validation and normalization
+  // - Sanitize PluginConfig.package to prevent path traversal (../)
+  // - Whitelist allowed paths (e.g., node_modules, ~/.azmp/plugins)
+  // - Document security considerations in PLUGIN_ARCHITECTURE.md
 }
 
 /**

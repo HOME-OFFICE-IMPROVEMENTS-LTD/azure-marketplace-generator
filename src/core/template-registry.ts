@@ -6,9 +6,14 @@
  * 
  * @version 3.0.0
  * @since 3.0.0
+ * 
+ * TODO(v3.1.0): Add eager template validation
+ * - Call validateTemplatePath() automatically during registerPlugin()
+ * - Fail fast if plugin templates are missing required files
+ * - Add configuration option to skip validation for development
  */
 
-import { TemplateMetadata, IPlugin } from './plugin';
+import { TemplateMetadata, IPlugin, HandlebarsHelper } from './plugin';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 
@@ -18,6 +23,8 @@ import * as fs from 'fs-extra';
 export class TemplateRegistry {
   private templates: Map<string, TemplateMetadata> = new Map();
   private plugins: Map<string, IPlugin> = new Map();
+  private helpers: Map<string, { pluginId: string; helper: HandlebarsHelper }> = new Map();
+  private commands: Map<string, string> = new Map(); // commandName -> pluginId
 
   /**
    * Register a built-in template
@@ -35,6 +42,7 @@ export class TemplateRegistry {
    * Register a plugin and its templates
    * 
    * @param plugin Plugin instance
+   * @throws Error if plugin ID, template type, helper name, or command name conflicts
    */
   public registerPlugin(plugin: IPlugin): void {
     const pluginId = plugin.metadata.id;
@@ -43,9 +51,7 @@ export class TemplateRegistry {
       throw new Error(`Plugin '${pluginId}' is already registered`);
     }
 
-    this.plugins.set(pluginId, plugin);
-
-    // Register templates from plugin
+    // Check for template conflicts
     const templates = plugin.getTemplates?.() || [];
     for (const template of templates) {
       if (this.templates.has(template.type)) {
@@ -53,7 +59,31 @@ export class TemplateRegistry {
           `Template type '${template.type}' from plugin '${pluginId}' conflicts with existing template`
         );
       }
+    }
+
+    // Check for helper name conflicts (BLOCKER FIX)
+    const helpers = plugin.getHandlebarsHelpers?.() || {};
+    for (const helperName of Object.keys(helpers)) {
+      if (this.helpers.has(helperName)) {
+        const existing = this.helpers.get(helperName);
+        const existingPlugin = existing ? existing.pluginId : 'built-in';
+        throw new Error(
+          `Handlebars helper '${helperName}' from plugin '${pluginId}' conflicts with helper from '${existingPlugin}'`
+        );
+      }
+    }
+
+    // Register plugin
+    this.plugins.set(pluginId, plugin);
+
+    // Register templates
+    for (const template of templates) {
       this.templates.set(template.type, template);
+    }
+
+    // Register helpers
+    for (const [helperName, helper] of Object.entries(helpers)) {
+      this.helpers.set(helperName, { pluginId, helper });
     }
   }
 
@@ -115,6 +145,47 @@ export class TemplateRegistry {
   }
 
   /**
+   * Get all registered Handlebars helpers
+   * 
+   * @returns Map of helper names to helper functions
+   */
+  public getAllHelpers(): Map<string, HandlebarsHelper> {
+    const result = new Map<string, HandlebarsHelper>();
+    for (const [name, { helper }] of this.helpers.entries()) {
+      result.set(name, helper);
+    }
+    return result;
+  }
+
+  /**
+   * Register a command name to prevent conflicts
+   * Called by plugin loader when registering CLI commands
+   * 
+   * @param commandName Command name being registered
+   * @param pluginId Plugin ID registering the command
+   * @throws Error if command name already exists
+   */
+  public registerCommand(commandName: string, pluginId: string): void {
+    if (this.commands.has(commandName)) {
+      const existingPlugin = this.commands.get(commandName);
+      throw new Error(
+        `CLI command '${commandName}' from plugin '${pluginId}' conflicts with command from '${existingPlugin}'`
+      );
+    }
+    this.commands.set(commandName, pluginId);
+  }
+
+  /**
+   * Check if a command name is already registered
+   * 
+   * @param commandName Command name to check
+   * @returns True if command exists
+   */
+  public hasCommand(commandName: string): boolean {
+    return this.commands.has(commandName);
+  }
+
+  /**
    * Validate that a template directory exists
    * 
    * @param templatesDir Base templates directory
@@ -159,6 +230,8 @@ export class TemplateRegistry {
   public clear(): void {
     this.templates.clear();
     this.plugins.clear();
+    this.helpers.clear();
+    this.commands.clear();
   }
 
   /**
