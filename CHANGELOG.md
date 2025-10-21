@@ -43,6 +43,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `DEVELOPMENT_LOG.md` tracking all development phases
 - `TEMPLATE_VALIDATION_STANDARDS.md` documenting ARM template validation best practices
 - `AZURE_LIVE_TESTING.md` comprehensive 7-phase testing methodology
+- `PLUGIN_ARCHITECTURE.md` extensibility framework for custom templates and plugins
+
+#### Extensibility
+- **Plugin Interface Foundation** - Stable API contract for future extensions
+- `IPlugin` interface and `BasePlugin` abstract class for custom plugins
+- `TemplateRegistry` for managing template types and plugin registration
+- `PluginConfig` support in `azmp-config.json` configuration
+- Full implementation planned for v3.1.0 (interfaces are stable now)
 
 #### Testing
 - 14 new parameter validation tests
