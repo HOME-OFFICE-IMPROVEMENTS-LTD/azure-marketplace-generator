@@ -111,6 +111,7 @@ Create `azure-live-test/test-parameters.json`:
 ```
 
 #### Step 2: Deploy to Azure
+
 ```bash
 # Deploy with Azure CLI
 az deployment group create \
@@ -237,6 +238,7 @@ az storage account show \
 **Objective:** Verify all 5 data protection features are correctly configured
 
 #### Test 4.1: Blob Soft Delete
+
 ```bash
 # Check blob soft delete settings
 az storage account blob-service-properties show \
@@ -244,7 +246,8 @@ az storage account blob-service-properties show \
   --resource-group "azmp-live-test-rg" \
   --query "deleteRetentionPolicy"
 ```
-**Expected:** 
+**Expected:**
+
 ```json
 {
   "days": 7,
@@ -253,6 +256,7 @@ az storage account blob-service-properties show \
 ```
 
 #### Test 4.2: Container Soft Delete
+
 ```bash
 # Check container soft delete settings
 az storage account blob-service-properties show \
@@ -261,6 +265,7 @@ az storage account blob-service-properties show \
   --query "containerDeleteRetentionPolicy"
 ```
 **Expected:**
+
 ```json
 {
   "days": 7,
@@ -269,6 +274,7 @@ az storage account blob-service-properties show \
 ```
 
 #### Test 4.3: Blob Versioning
+
 ```bash
 # Check versioning
 az storage account blob-service-properties show \
@@ -279,6 +285,7 @@ az storage account blob-service-properties show \
 **Expected:** `true`
 
 #### Test 4.4: Change Feed
+
 ```bash
 # Check change feed
 az storage account blob-service-properties show \
@@ -289,6 +296,7 @@ az storage account blob-service-properties show \
 **Expected:** `false` (default, can be enabled)
 
 #### Test 4.5: Last Access Time Tracking
+
 ```bash
 # Check last access time tracking
 az storage account blob-service-properties show \
@@ -305,6 +313,7 @@ az storage account blob-service-properties show \
 **Objective:** Verify storage account works correctly with applied settings
 
 #### Test 5.1: Create Container
+
 ```bash
 # Get storage account key
 STORAGE_KEY=$(az storage account keys list \
@@ -321,6 +330,7 @@ az storage container create \
 **Expected:** Container created successfully
 
 #### Test 5.2: Upload Test Blob
+
 ```bash
 # Create test file
 echo "Azure Marketplace Generator v3.0.0 Live Test" > test-file.txt
@@ -336,6 +346,7 @@ az storage blob upload \
 **Expected:** Blob uploaded successfully
 
 #### Test 5.3: Verify TLS 1.2 Enforcement
+
 ```bash
 # Try to access with TLS 1.1 (should fail)
 # This test requires curl with specific TLS version support
@@ -369,6 +380,7 @@ az storage blob list \
 **Expected:** Deleted blob appears in list
 
 #### Test 5.5: Recover Deleted Blob
+
 ```bash
 # Undelete blob
 az storage blob undelete \
@@ -387,6 +399,7 @@ az storage blob exists \
 **Expected:** Blob successfully restored
 
 #### Test 5.6: Test Blob Versioning
+
 ```bash
 # Download original content
 az storage blob download \
@@ -424,6 +437,7 @@ az storage blob list \
 **Objective:** Test deployment with custom security and data protection settings
 
 #### Step 1: Create Enhanced Parameters File
+
 Create `azure-live-test/enhanced-parameters.json`:
 
 ```json
@@ -484,6 +498,7 @@ Create `azure-live-test/enhanced-parameters.json`:
 ```
 
 #### Step 2: Deploy Enhanced Configuration
+
 ```bash
 # Deploy with enhanced security
 az deployment group create \
@@ -494,6 +509,7 @@ az deployment group create \
 ```
 
 #### Step 3: Verify Enhanced Settings
+
 Run all validation tests from Phase 3 and 4 again, expecting the custom values.
 
 ---
@@ -522,17 +538,20 @@ rm -f test-file.txt test-file-v2.txt downloaded-v1.txt
 ## Test Results Checklist
 
 ### ✅ Phase 1: Template Generation
+
 - [ ] All 4 files generated successfully
 - [ ] ARM-TTK validation passed
 - [ ] All security parameters present
 - [ ] All data protection parameters present
 
 ### ✅ Phase 2: Basic Deployment
+
 - [ ] Deployment succeeded
 - [ ] Storage account created
 - [ ] No deployment errors
 
 ### ✅ Phase 3: Security Parameters
+
 - [ ] allowBlobPublicAccess: `false`
 - [ ] minimumTlsVersion: `TLS1_2`
 - [ ] supportsHttpsTrafficOnly: `true`
@@ -542,6 +561,7 @@ rm -f test-file.txt test-file-v2.txt downloaded-v1.txt
 - [ ] requireInfrastructureEncryption: verified
 
 ### ✅ Phase 4: Data Protection Parameters
+
 - [ ] Blob soft delete: enabled (7 days)
 - [ ] Container soft delete: enabled (7 days)
 - [ ] Blob versioning: enabled
@@ -549,6 +569,7 @@ rm -f test-file.txt test-file-v2.txt downloaded-v1.txt
 - [ ] Last access time tracking: verified
 
 ### ✅ Phase 5: Functional Tests
+
 - [ ] Container created successfully
 - [ ] Blob uploaded successfully
 - [ ] TLS 1.2 enforcement works
@@ -557,6 +578,7 @@ rm -f test-file.txt test-file-v2.txt downloaded-v1.txt
 - [ ] Versioning works (multiple versions)
 
 ### ✅ Phase 6: Enhanced Configuration
+
 - [ ] Custom parameters deployed
 - [ ] All 12 parameters applied correctly
 - [ ] OAuth default authentication works
@@ -565,6 +587,7 @@ rm -f test-file.txt test-file-v2.txt downloaded-v1.txt
 - [ ] Extended retention periods applied
 
 ### ✅ Phase 7: Cleanup
+
 - [ ] Resource group deleted
 - [ ] Local files cleaned up
 
@@ -575,15 +598,19 @@ rm -f test-file.txt test-file-v2.txt downloaded-v1.txt
 ### Common Issues
 
 #### Issue: Deployment fails with "Storage account name not available"
+
 **Solution:** Storage account names must be globally unique. Try a different prefix.
 
 #### Issue: "AuthorizationFailed" error
+
 **Solution:** Verify you have Contributor role on the subscription.
 
 #### Issue: TLS version test fails
+
 **Solution:** Some systems don't support TLS version restriction in curl. This is acceptable.
 
 #### Issue: Soft delete test doesn't show deleted blob
+
 **Solution:** Wait a few seconds and retry. Soft delete operations can take time to propagate.
 
 ---

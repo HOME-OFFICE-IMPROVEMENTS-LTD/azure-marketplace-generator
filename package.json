@@ -1,6 +1,6 @@
 {
   "name": "@hoiltd/azure-marketplace-generator",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "CLI tool for generating Azure Storage marketplace managed applications with enhanced security and data protection features",
   "main": "dist/index.js",
   "bin": {
