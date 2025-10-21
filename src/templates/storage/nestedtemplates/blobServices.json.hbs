@@ -1,0 +1,115 @@
+{
+    "$schema": "{{armSchemaUrl}}",
+    "contentVersion": "1.0.0.0",
+    "metadata": {
+        "_generator": {
+            "name": "Azure Marketplace Generator",
+            "version": "0.1.0"
+        },
+        "description": "Blob Services configuration for data protection features"
+    },
+    "parameters": {
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the storage account"
+            }
+        },
+        "blobSoftDeleteDays": {
+            "type": "int",
+            "defaultValue": 7,
+            "minValue": 1,
+            "maxValue": 365,
+            "metadata": {
+                "description": "Number of days to retain deleted blobs. Set to 0 to disable soft delete."
+            }
+        },
+        "containerSoftDeleteDays": {
+            "type": "int",
+            "defaultValue": 7,
+            "minValue": 1,
+            "maxValue": 365,
+            "metadata": {
+                "description": "Number of days to retain deleted containers. Set to 0 to disable container soft delete."
+            }
+        },
+        "enableVersioning": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable blob versioning to automatically maintain previous versions of blobs."
+            }
+        },
+        "changeFeedEnabled": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable blob change feed for auditing and compliance purposes."
+            }
+        },
+        "lastAccessTimeTrackingEnabled": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable tracking of last access time for lifecycle management policies."
+            }
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "{{latestApiVersion 'Microsoft.Storage/storageAccounts/blobServices'}}",
+            "name": "[concat(parameters('storageAccountName'), '/default')]",
+            "properties": {
+                "deleteRetentionPolicy": {
+                    "enabled": "[greater(parameters('blobSoftDeleteDays'), 0)]",
+                    "days": "[if(greater(parameters('blobSoftDeleteDays'), 0), parameters('blobSoftDeleteDays'), null())]"
+                },
+                "containerDeleteRetentionPolicy": {
+                    "enabled": "[greater(parameters('containerSoftDeleteDays'), 0)]",
+                    "days": "[if(greater(parameters('containerSoftDeleteDays'), 0), parameters('containerSoftDeleteDays'), null())]"
+                },
+                "isVersioningEnabled": "[parameters('enableVersioning')]",
+                "changeFeed": {
+                    "enabled": "[parameters('changeFeedEnabled')]"
+                },
+                "lastAccessTimeTrackingPolicy": {
+                    "enable": "[parameters('lastAccessTimeTrackingEnabled')]",
+                    "name": "AccessTimeTracking",
+                    "trackingGranularityInDays": 1,
+                    "blobType": [
+                        "blockBlob"
+                    ]
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "blobServicesId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccountName'), 'default')]",
+            "metadata": {
+                "description": "Resource ID of the blob services configuration"
+            }
+        },
+        "dataProtectionStatus": {
+            "type": "object",
+            "value": {
+                "blobSoftDelete": {
+                    "enabled": "[greater(parameters('blobSoftDeleteDays'), 0)]",
+                    "retentionDays": "[parameters('blobSoftDeleteDays')]"
+                },
+                "containerSoftDelete": {
+                    "enabled": "[greater(parameters('containerSoftDeleteDays'), 0)]",
+                    "retentionDays": "[parameters('containerSoftDeleteDays')]"
+                },
+                "versioning": "[parameters('enableVersioning')]",
+                "changeFeed": "[parameters('changeFeedEnabled')]",
+                "lastAccessTimeTracking": "[parameters('lastAccessTimeTrackingEnabled')]"
+            },
+            "metadata": {
+                "description": "Summary of data protection features status"
+            }
+        }
+    }
+}

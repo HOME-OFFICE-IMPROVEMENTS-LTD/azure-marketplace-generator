@@ -36,6 +36,64 @@
                 "description": "Location for the storage account"
             }
         },
+        "allowBlobPublicAccess": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Allow or disallow public access to all blobs or containers in the storage account. Secure by default."
+            }
+        },
+        "minimumTlsVersion": {
+            "type": "string",
+            "defaultValue": "TLS1_2",
+            "allowedValues": [
+                "TLS1_0",
+                "TLS1_1",
+                "TLS1_2"
+            ],
+            "metadata": {
+                "description": "The minimum TLS version permitted on requests to storage. TLS 1.2 is recommended."
+            }
+        },
+        "supportsHttpsTrafficOnly": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Allows HTTPS traffic only to storage service if set to true. Secure by default."
+            }
+        },
+        "publicNetworkAccess": {
+            "type": "string",
+            "defaultValue": "Enabled",
+            "allowedValues": [
+                "Enabled",
+                "Disabled"
+            ],
+            "metadata": {
+                "description": "Allow or disallow public network access to storage account. Set to Disabled for private endpoint only access."
+            }
+        },
+        "defaultToOAuthAuthentication": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "A boolean flag which indicates whether the default authentication is OAuth or not."
+            }
+        },
+        "allowSharedKeyAccess": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Indicates whether the storage account permits requests to be authorized with the account access key via Shared Key."
+            }
+        },
+        "requireInfrastructureEncryption": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "A boolean indicating whether or not the service applies a secondary layer of encryption with platform managed keys for data at rest."
+            }
+        },
         "enableStaticWebsite": {
             "type": "bool",
             "defaultValue": false,
@@ -115,9 +173,14 @@
             "kind": "StorageV2",
             "properties": {
                 "accessTier": "Hot",
-                "allowBlobPublicAccess": "[parameters('enableStaticWebsite')]",
-                "allowSharedKeyAccess": false,
+                "allowBlobPublicAccess": "[parameters('allowBlobPublicAccess')]",
+                "minimumTlsVersion": "[parameters('minimumTlsVersion')]",
+                "supportsHttpsTrafficOnly": "[parameters('supportsHttpsTrafficOnly')]",
+                "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
+                "defaultToOAuthAuthentication": "[parameters('defaultToOAuthAuthentication')]",
+                "allowSharedKeyAccess": "[parameters('allowSharedKeyAccess')]",
                 "encryption": {
+                    "requireInfrastructureEncryption": "[parameters('requireInfrastructureEncryption')]",
                     "services": {
                         "blob": {
                             "keyType": "Account",
@@ -143,9 +206,7 @@
                     "virtualNetworkRules": [],
                     "ipRules": [],
                     "defaultAction": "Deny"
-                },
-                "supportsHttpsTrafficOnly": true,
-                "minimumTlsVersion": "TLS1_2"{{#if enableStaticWebsite}},
+                }{{#if enableStaticWebsite}},
                 "staticWebsite": {
                     "enabled": "[parameters('enableStaticWebsite')]",
                     "indexDocument": "[parameters('websiteIndexDocument')]", 

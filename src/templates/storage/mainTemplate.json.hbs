@@ -41,6 +41,103 @@
             "metadata": {
                 "description": "Name for this managed application instance"
             }
+        },
+        "allowBlobPublicAccess": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Allow or disallow public access to all blobs or containers"
+            }
+        },
+        "minimumTlsVersion": {
+            "type": "string",
+            "defaultValue": "TLS1_2",
+            "allowedValues": [
+                "TLS1_0",
+                "TLS1_1",
+                "TLS1_2"
+            ],
+            "metadata": {
+                "description": "Minimum TLS version permitted on requests to storage"
+            }
+        },
+        "supportsHttpsTrafficOnly": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Allows HTTPS traffic only to storage service"
+            }
+        },
+        "publicNetworkAccess": {
+            "type": "string",
+            "defaultValue": "Enabled",
+            "allowedValues": [
+                "Enabled",
+                "Disabled"
+            ],
+            "metadata": {
+                "description": "Allow or disallow public network access to storage account"
+            }
+        },
+        "defaultToOAuthAuthentication": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Default authentication is OAuth"
+            }
+        },
+        "allowSharedKeyAccess": {
+            "type": "bool",
+            "defaultValue": true,
+            "metadata": {
+                "description": "Allow requests to be authorized with account access key via Shared Key"
+            }
+        },
+        "requireInfrastructureEncryption": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Apply secondary layer of encryption with platform managed keys"
+            }
+        },
+        "blobSoftDeleteDays": {
+            "type": "int",
+            "defaultValue": 7,
+            "minValue": 0,
+            "maxValue": 365,
+            "metadata": {
+                "description": "Number of days to retain deleted blobs (0 to disable)"
+            }
+        },
+        "containerSoftDeleteDays": {
+            "type": "int",
+            "defaultValue": 7,
+            "minValue": 0,
+            "maxValue": 365,
+            "metadata": {
+                "description": "Number of days to retain deleted containers (0 to disable)"
+            }
+        },
+        "enableVersioning": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable blob versioning"
+            }
+        },
+        "changeFeedEnabled": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable blob change feed for auditing"
+            }
+        },
+        "lastAccessTimeTrackingEnabled": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Enable tracking of last access time"
+            }
         }
     },
     "variables": {
@@ -58,15 +155,57 @@
             "kind": "StorageV2",
             "properties": {
                 "accessTier": "Hot",
-                "allowBlobPublicAccess": false,
-                "allowSharedKeyAccess": false,
-                "supportsHttpsTrafficOnly": true,
-                "minimumTlsVersion": "TLS1_2"
+                "allowBlobPublicAccess": "[parameters('allowBlobPublicAccess')]",
+                "minimumTlsVersion": "[parameters('minimumTlsVersion')]",
+                "supportsHttpsTrafficOnly": "[parameters('supportsHttpsTrafficOnly')]",
+                "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
+                "defaultToOAuthAuthentication": "[parameters('defaultToOAuthAuthentication')]",
+                "allowSharedKeyAccess": "[parameters('allowSharedKeyAccess')]",
+                "encryption": {
+                    "requireInfrastructureEncryption": "[parameters('requireInfrastructureEncryption')]",
+                    "services": {
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                }
             },
             "tags": {
                 "CreatedBy": "Azure Marketplace Generator",
                 "Publisher": "{{publisher}}",
                 "Application": "[parameters('applicationName')]"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2023-05-01",
+            "name": "[concat(variables('storageAccountName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+            ],
+            "properties": {
+                "deleteRetentionPolicy": {
+                    "enabled": "[greater(parameters('blobSoftDeleteDays'), 0)]",
+                    "days": "[if(greater(parameters('blobSoftDeleteDays'), 0), parameters('blobSoftDeleteDays'), null())]"
+                },
+                "containerDeleteRetentionPolicy": {
+                    "enabled": "[greater(parameters('containerSoftDeleteDays'), 0)]",
+                    "days": "[if(greater(parameters('containerSoftDeleteDays'), 0), parameters('containerSoftDeleteDays'), null())]"
+                },
+                "isVersioningEnabled": "[parameters('enableVersioning')]",
+                "changeFeed": {
+                    "enabled": "[parameters('changeFeedEnabled')]"
+                },
+                "lastAccessTimeTrackingPolicy": {
+                    "enable": "[parameters('lastAccessTimeTrackingEnabled')]",
+                    "name": "AccessTimeTracking",
+                    "trackingGranularityInDays": 1,
+                    "blobType": [
+                        "blockBlob"
+                    ]
+                }
             }
         }
     ],
@@ -83,6 +222,47 @@
             "value": "[reference(variables('storageAccountName'), '2023-05-01').primaryEndpoints.blob]",
             "metadata": {
                 "description": "Primary blob endpoint URL"
+            }
+        },
+        "storageAccountId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+            "metadata": {
+                "description": "Resource ID of the storage account"
+            }
+        },
+        "securityStatus": {
+            "type": "object",
+            "value": {
+                "publicAccessBlocked": "[not(parameters('allowBlobPublicAccess'))]",
+                "tlsVersion": "[parameters('minimumTlsVersion')]",
+                "httpsOnly": "[parameters('supportsHttpsTrafficOnly')]",
+                "publicNetworkAccess": "[parameters('publicNetworkAccess')]",
+                "oauthDefault": "[parameters('defaultToOAuthAuthentication')]",
+                "sharedKeyAllowed": "[parameters('allowSharedKeyAccess')]",
+                "infrastructureEncryption": "[parameters('requireInfrastructureEncryption')]"
+            },
+            "metadata": {
+                "description": "Security configuration status"
+            }
+        },
+        "dataProtectionStatus": {
+            "type": "object",
+            "value": {
+                "blobSoftDelete": {
+                    "enabled": "[greater(parameters('blobSoftDeleteDays'), 0)]",
+                    "retentionDays": "[parameters('blobSoftDeleteDays')]"
+                },
+                "containerSoftDelete": {
+                    "enabled": "[greater(parameters('containerSoftDeleteDays'), 0)]",
+                    "retentionDays": "[parameters('containerSoftDeleteDays')]"
+                },
+                "versioning": "[parameters('enableVersioning')]",
+                "changeFeed": "[parameters('changeFeedEnabled')]",
+                "lastAccessTimeTracking": "[parameters('lastAccessTimeTrackingEnabled')]"
+            },
+            "metadata": {
+                "description": "Data protection features status"
             }
         }
     }
