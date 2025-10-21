@@ -29,11 +29,13 @@ The following interfaces and types are now defined and stable:
 - `TemplateRegistry` - Registry for managing templates and plugins
 
 **What's Available:**
+
 - Plugin interface contracts (stable API)
 - Template registry infrastructure
 - Type definitions for extensibility
 
 **What's NOT Yet Implemented:**
+
 - Dynamic plugin loading
 - Plugin discovery and initialization
 - Automatic helper registration
@@ -423,12 +425,14 @@ describe('Plugin Integration', () => {
 ## Roadmap
 
 ### v3.0.0 (Current) ✅
+
 - Plugin interface definitions
 - Template registry
 - Type definitions
 - Base plugin class
 
 ### v3.1.0 (Planned)
+
 - Plugin loader implementation
 - Dynamic plugin discovery
 - Automatic registration
@@ -436,12 +440,14 @@ describe('Plugin Integration', () => {
 - Configuration file support
 
 ### v3.2.0 (Future)
+
 - Plugin marketplace/catalog
 - Plugin dependency management
 - Hot reload support
 - Plugin sandboxing
 
 ### v4.0.0 (Future)
+
 - MCP (Model Context Protocol) server
 - Remote plugin loading
 - Plugin security scanning
@@ -454,6 +460,7 @@ describe('Plugin Integration', () => {
 When v3.1.0 is released, existing code using the v3.0.0 interfaces will continue to work without changes. The interfaces are stable and will not have breaking changes.
 
 **Current (v3.0.0):**
+
 ```typescript
 // Define your plugin using the stable interfaces
 export class MyPlugin implements IPlugin {
@@ -462,6 +469,7 @@ export class MyPlugin implements IPlugin {
 ```
 
 **Future (v3.1.0+):**
+
 ```typescript
 // Same interface, but now you can package and distribute
 // No code changes needed!
