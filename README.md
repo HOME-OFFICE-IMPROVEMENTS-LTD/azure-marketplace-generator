@@ -129,6 +129,7 @@ npm run lint
 - **[Production Features](docs/PRODUCTION_FEATURES.md)** - Summary of all production-ready enhancements
 - **[Development Log](docs/DEVELOPMENT_LOG.md)** - Version history and development phases
 - **[Changelog](CHANGELOG.md)** - Detailed changelog following Keep a Changelog format
+- **[Azure Live Testing](docs/AZURE_LIVE_TESTING.md)** - Comprehensive Azure deployment testing guide
 
 ### 🔗 Official Resources
 - [Azure Storage Documentation](https://learn.microsoft.com/en-us/azure/storage/)
