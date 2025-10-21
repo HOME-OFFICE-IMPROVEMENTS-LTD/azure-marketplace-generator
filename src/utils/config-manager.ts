@@ -222,6 +222,37 @@ export class ConfigManager {
       errors.push('Packaging defaultFileName must end with .zip');
     }
 
+    // Validate plugins array (v3.1.0+)
+    if (config.plugins !== undefined) {
+      if (!Array.isArray(config.plugins)) {
+        errors.push('plugins must be an array');
+      } else {
+        for (let i = 0; i < config.plugins.length; i++) {
+          const plugin = config.plugins[i];
+          const prefix = `plugins[${i}]`;
+          
+          // Validate package field
+          if (!plugin.package || typeof plugin.package !== 'string') {
+            errors.push(`${prefix}.package must be a non-empty string`);
+          } else if (plugin.package.trim().length === 0) {
+            errors.push(`${prefix}.package cannot be an empty string`);
+          }
+          
+          // Validate enabled field (optional boolean)
+          if (plugin.enabled !== undefined && typeof plugin.enabled !== 'boolean') {
+            errors.push(`${prefix}.enabled must be a boolean (or omit to default to true)`);
+          }
+          
+          // Validate options field (optional object)
+          if (plugin.options !== undefined) {
+            if (typeof plugin.options !== 'object' || plugin.options === null || Array.isArray(plugin.options)) {
+              errors.push(`${prefix}.options must be an object (not null or array)`);
+            }
+          }
+        }
+      }
+    }
+
     if (errors.length > 0) {
       logger.warn('Config validation failed', 'config', { errors });
     } else {

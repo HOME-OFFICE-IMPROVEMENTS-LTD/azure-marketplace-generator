@@ -138,21 +138,51 @@ export interface PluginContext {
 /**
  * Plugin configuration in azmp-config.json
  */
+/**
+ * Plugin configuration for loading from npm or local path
+ * Used in azmp-config.json
+ * 
+ * @since 3.0.0
+ * @updated 3.1.0 - Path validation implemented in PluginLoader
+ * 
+ * @example npm package
+ * ```json
+ * {
+ *   "package": "azmp-compute-templates",
+ *   "enabled": true,
+ *   "options": { "defaultVmSize": "Standard_B2s" }
+ * }
+ * ```
+ * 
+ * @example Local plugin
+ * ```json
+ * {
+ *   "package": "./plugins/my-plugin",
+ *   "enabled": true
+ * }
+ * ```
+ */
 export interface PluginConfig {
-  /** Plugin package name or file path */
+  /** 
+   * npm package name or local file path
+   * - npm: "azmp-compute-templates" or "@myorg/azmp-plugin"
+   * - local: "./plugins/my-plugin" or "/abs/path/to/plugin"
+   * - Security: local paths are validated to prevent ../ traversal (v3.1.0+)
+   */
   package: string;
   
-  /** Whether the plugin is enabled */
+  /** 
+   * Whether the plugin is enabled
+   * @default true (defaults to true if omitted)
+   */
   enabled?: boolean;
   
-  /** Plugin-specific configuration */
+  /** 
+   * Plugin-specific configuration options
+   * Passed to plugin during initialization via context.options
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: Record<string, any>;
-  
-  // TODO(v3.1.0): Add path validation and normalization
-  // - Sanitize PluginConfig.package to prevent path traversal (../)
-  // - Whitelist allowed paths (e.g., node_modules, ~/.azmp/plugins)
-  // - Document security considerations in PLUGIN_ARCHITECTURE.md
 }
 
 /**
