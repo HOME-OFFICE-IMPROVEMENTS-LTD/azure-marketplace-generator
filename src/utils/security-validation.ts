@@ -66,19 +66,27 @@ export class SecurityValidation {
       return false;
     }
 
-    // Reject dangerous traversal patterns, absolute paths, and current directory references
+    // Reject absolute paths - only allow relative paths
+    if (normalized.startsWith('/') || normalized.startsWith('\\') || filePath.startsWith('/')) {
+      return false;
+    }
+
+    // Allow paths starting with ./ (current directory references are safe for CLI)
+    // Only reject paths with upward traversal attempts
+    if (normalized.startsWith('./') && (normalized.includes('../') || normalized === '.')) {
+      return false;
+    }
+
+    // Reject dangerous traversal patterns
     if (normalized.includes('../') ||
         normalized.includes('..\\') ||
-        normalized.startsWith('/') ||       // Reject absolute paths
-        normalized.startsWith('./') ||      // Reject current directory references
         normalized.includes('%2e%2e') ||    // URL encoded .. (case insensitive)
         normalized.includes('%2f') ||       // URL encoded /
         normalized.includes('%5c') ||       // URL encoded \
         normalized.includes('%00') ||       // Null byte
         decoded.includes('../') ||          // Decoded traversal patterns
         decoded.includes('..\\') ||
-        decoded.startsWith('/') ||
-        decoded.startsWith('./') ||
+
         normalized.includes('<') || normalized.includes('>') ||
         normalized.includes('|') || normalized.includes('&') ||
         normalized.includes(';') || normalized.includes('`') ||
@@ -96,6 +104,7 @@ export class SecurityValidation {
     }
 
     // Additional check: simple file/folder structure only (alphanumeric, dots, hyphens, underscores, slashes)
+    // Only allow simple relative paths for legitimate CLI usage
     const safePathRegex = /^[a-zA-Z0-9._/-]+$/;
     if (!safePathRegex.test(normalized)) {
       return false;
@@ -132,6 +141,60 @@ export class SecurityValidation {
   }
 
   /**
+   * Validates publisher names for marketplace submissions
+   * Publisher names can include business suffixes like "Inc." or "LLC"
+   */
+  static validatePublisherName(publisherName: string): boolean {
+    if (!publisherName || publisherName.length === 0 || publisherName.length > 100) {
+      return false;
+    }
+    // Publisher names can be more flexible to accommodate business names
+    // Allow alphanumeric start, with spaces, dots, hyphens, underscores in middle
+    // Allow ending with alphanumeric OR period (for Inc., LLC, etc.)
+    const publisherRegex = /^[a-zA-Z0-9][a-zA-Z0-9\s._-]*[a-zA-Z0-9.]$/;
+    return publisherRegex.test(publisherName);
+  }  /**
+   * Validates Azure marketplace application names
+   */
+  static validateApplicationName(appName: string): boolean {
+    if (!appName || appName.length === 0 || appName.length > 64) {
+      return false;
+    }
+    // Application names should be alphanumeric with limited special characters
+    const appNameRegex = /^[a-zA-Z0-9][a-zA-Z0-9\s._-]{0,62}[a-zA-Z0-9]$/;
+    return appNameRegex.test(appName);
+  }
+
+  /**
+   * Validates package output file names
+   */
+  static validatePackageFileName(fileName: string): boolean {
+    if (!fileName || fileName.length === 0 || fileName.length > 255) {
+      return false;
+    }
+    
+    // Extract just the filename from path (e.g., "./test.zip" -> "test.zip")
+    const basename = fileName.split('/').pop() || fileName;
+    const basenameWindows = basename.split('\\').pop() || basename;
+    
+    // Package files should be safe filenames
+    const fileNameRegex = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,253}[a-zA-Z0-9]$/;
+    return fileNameRegex.test(basenameWindows) && basenameWindows.toLowerCase().endsWith('.zip');
+  }
+
+  /**
+   * Validates directory names for template output
+   */
+  static validateDirectoryName(dirName: string): boolean {
+    if (!dirName || dirName.length === 0 || dirName.length > 100) {
+      return false;
+    }
+    // Directory names should be safe
+    const dirRegex = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,98}[a-zA-Z0-9]$/;
+    return dirRegex.test(dirName);
+  }
+
+  /**
    * Validates ARM template test names for ARM-TTK
    */
   static validateTestName(testName: string): boolean {
@@ -153,8 +216,11 @@ export class SecurityValidation {
  * Custom error for validation failures
  */
 export class ValidationError extends Error {
-  constructor(message: string, public field?: string) {
+  public field?: string;
+  
+  constructor(message: string, field?: string) {
     super(message);
     this.name = 'ValidationError';
+    this.field = field;
   }
 }
