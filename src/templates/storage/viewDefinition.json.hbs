@@ -50,6 +50,72 @@
             }
         },
         {
+            "kind": "Properties",
+            "properties": {
+                "displayName": "Security Status",
+                "version": "1.0.0.0",
+                "items": [
+                    {
+                        "displayName": "Public Access Blocked",
+                        "value": "[if(outputs('securityStatus').publicAccessBlocked, '✅ Yes (Secure)', '⚠️ No')]"
+                    },
+                    {
+                        "displayName": "TLS Version",
+                        "value": "[outputs('securityStatus').tlsVersion]"
+                    },
+                    {
+                        "displayName": "HTTPS Only",
+                        "value": "[if(outputs('securityStatus').httpsOnly, '✅ Enabled', '⚠️ Disabled')]"
+                    },
+                    {
+                        "displayName": "Public Network Access",
+                        "value": "[outputs('securityStatus').publicNetworkAccess]"
+                    },
+                    {
+                        "displayName": "Shared Key Authentication",
+                        "value": "[if(outputs('securityStatus').sharedKeyAllowed, '⚠️ Allowed', '✅ Disabled (Secure)')]"
+                    },
+                    {
+                        "displayName": "OAuth Default",
+                        "value": "[if(outputs('securityStatus').oauthDefault, '✅ Enabled', 'Disabled')]"
+                    },
+                    {
+                        "displayName": "Infrastructure Encryption",
+                        "value": "[if(outputs('securityStatus').infrastructureEncryption, '✅ Enabled (Double Encryption)', 'Single Layer')]"
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "Properties",
+            "properties": {
+                "displayName": "Data Protection Status",
+                "version": "1.0.0.0",
+                "items": [
+                    {
+                        "displayName": "Blob Soft Delete",
+                        "value": "[if(outputs('dataProtectionStatus').blobSoftDelete.enabled, concat('✅ Enabled (', string(outputs('dataProtectionStatus').blobSoftDelete.retentionDays), ' days)'), '⚠️ Disabled')]"
+                    },
+                    {
+                        "displayName": "Container Soft Delete",
+                        "value": "[if(outputs('dataProtectionStatus').containerSoftDelete.enabled, concat('✅ Enabled (', string(outputs('dataProtectionStatus').containerSoftDelete.retentionDays), ' days)'), '⚠️ Disabled')]"
+                    },
+                    {
+                        "displayName": "Blob Versioning",
+                        "value": "[if(outputs('dataProtectionStatus').versioning, '✅ Enabled', 'Disabled')]"
+                    },
+                    {
+                        "displayName": "Change Feed (Audit Log)",
+                        "value": "[if(outputs('dataProtectionStatus').changeFeed, '✅ Enabled', 'Disabled')]"
+                    },
+                    {
+                        "displayName": "Last Access Time Tracking",
+                        "value": "[if(outputs('dataProtectionStatus').lastAccessTimeTracking, '✅ Enabled', 'Disabled')]"
+                    }
+                ]
+            }
+        },
+        {
             "kind": "Metrics",
             "properties": {
                 "displayName": "Storage Metrics",

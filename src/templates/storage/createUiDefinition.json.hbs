@@ -107,6 +107,304 @@
                 ]
             },
             {
+                "name": "securityConfig",
+                "label": "Security & Access Control",
+                "subLabel": {
+                    "preValidation": "Configure security settings",
+                    "postValidation": "Security configuration complete"
+                },
+                "bladeTitle": "Security Settings",
+                "elements": [
+                    {
+                        "name": "securityInfo",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "icon": "Info",
+                            "text": "🔒 Configure security and access control settings for your storage account. These settings help meet compliance requirements (PCI-DSS, HIPAA, SOC2) and protect your data from unauthorized access."
+                        }
+                    },
+                    {
+                        "name": "allowBlobPublicAccess",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Public Blob Access",
+                        "defaultValue": "Disabled",
+                        "toolTip": "Control whether blobs can be accessed anonymously. Disable for maximum security (recommended for production).",
+                        "constraints": {
+                            "required": true,
+                            "allowedValues": [
+                                {
+                                    "label": "Disabled (Recommended) - No public access to blobs",
+                                    "value": false
+                                },
+                                {
+                                    "label": "Enabled - Allow public read access to blobs/containers",
+                                    "value": true
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "minimumTlsVersion",
+                        "type": "Microsoft.Common.DropDown",
+                        "label": "Minimum TLS Version",
+                        "defaultValue": "TLS 1.2 (Recommended)",
+                        "toolTip": "Minimum TLS version required for requests. TLS 1.2 is required for PCI-DSS compliance.",
+                        "constraints": {
+                            "required": true,
+                            "allowedValues": [
+                                {
+                                    "label": "TLS 1.0 (Legacy - Not recommended)",
+                                    "value": "TLS1_0"
+                                },
+                                {
+                                    "label": "TLS 1.1 (Legacy - Not recommended)",
+                                    "value": "TLS1_1"
+                                },
+                                {
+                                    "label": "TLS 1.2 (Recommended)",
+                                    "value": "TLS1_2"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "supportsHttpsTrafficOnly",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "HTTPS Traffic Only",
+                        "defaultValue": "Enabled",
+                        "toolTip": "Require HTTPS for all requests. HTTP requests will be rejected.",
+                        "constraints": {
+                            "required": true,
+                            "allowedValues": [
+                                {
+                                    "label": "Enabled (Recommended) - HTTPS required",
+                                    "value": true
+                                },
+                                {
+                                    "label": "Disabled - Allow HTTP traffic",
+                                    "value": false
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "publicNetworkAccess",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "label": "Public Network Access",
+                        "defaultValue": "Enabled",
+                        "toolTip": "Control access from public networks. Disable for private endpoint-only access (requires private endpoint configuration).",
+                        "constraints": {
+                            "required": true,
+                            "allowedValues": [
+                                {
+                                    "label": "Enabled - Allow public network access",
+                                    "value": "Enabled"
+                                },
+                                {
+                                    "label": "Disabled - Private endpoints only",
+                                    "value": "Disabled"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "privateEndpointWarning",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": "[equals(steps('securityConfig').publicNetworkAccess, 'Disabled')]",
+                        "options": {
+                            "icon": "Warning",
+                            "text": "⚠️ Private endpoint access requires additional configuration. Ensure you have private endpoints configured before disabling public access, or you will lose access to your storage account."
+                        }
+                    },
+                    {
+                        "name": "authenticationSection",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Authentication Settings",
+                        "elements": [
+                            {
+                                "name": "defaultToOAuthAuthentication",
+                                "type": "Microsoft.Common.CheckBox",
+                                "label": "Default to OAuth Authentication",
+                                "defaultValue": false,
+                                "toolTip": "When enabled, requests default to Azure AD (OAuth) authentication instead of Shared Key"
+                            },
+                            {
+                                "name": "allowSharedKeyAccess",
+                                "type": "Microsoft.Common.OptionsGroup",
+                                "label": "Shared Key Authentication",
+                                "defaultValue": "Disabled",
+                                "toolTip": "Control whether Shared Key authentication is allowed. Disabling enhances security but requires Azure AD authentication.",
+                                "constraints": {
+                                    "required": true,
+                                    "allowedValues": [
+                                        {
+                                            "label": "Disabled (Recommended) - Azure AD only",
+                                            "value": false
+                                        },
+                                        {
+                                            "label": "Enabled - Allow Shared Key auth",
+                                            "value": true
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "sharedKeyWarning",
+                                "type": "Microsoft.Common.InfoBox",
+                                "visible": "[equals(steps('securityConfig').authenticationSection.allowSharedKeyAccess, false)]",
+                                "options": {
+                                    "icon": "Info",
+                                    "text": "🔐 Shared Key authentication is disabled. Your applications must use Azure AD authentication (OAuth). This provides better security and is required for many compliance frameworks."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "encryptionSection",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Encryption Settings",
+                        "elements": [
+                            {
+                                "name": "requireInfrastructureEncryption",
+                                "type": "Microsoft.Common.CheckBox",
+                                "label": "Enable Infrastructure Encryption (Double Encryption)",
+                                "defaultValue": false,
+                                "toolTip": "Apply secondary layer of encryption with platform-managed keys. Provides additional security but cannot be changed after creation."
+                            },
+                            {
+                                "name": "infrastructureEncryptionInfo",
+                                "type": "Microsoft.Common.InfoBox",
+                                "visible": "[steps('securityConfig').encryptionSection.requireInfrastructureEncryption]",
+                                "options": {
+                                    "icon": "Warning",
+                                    "text": "⚠️ Infrastructure encryption cannot be disabled after storage account creation. This is a permanent setting."
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "name": "dataProtectionConfig",
+                "label": "Data Protection & Backup",
+                "subLabel": {
+                    "preValidation": "Configure data protection",
+                    "postValidation": "Data protection configured"
+                },
+                "bladeTitle": "Data Protection",
+                "elements": [
+                    {
+                        "name": "dataProtectionInfo",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "icon": "Info",
+                            "text": "🛡️ Configure soft delete, versioning, and change tracking to protect against accidental deletions and track data changes. Soft delete retention adds storage costs proportionally to data churn."
+                        }
+                    },
+                    {
+                        "name": "softDeleteSection",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Soft Delete Protection",
+                        "elements": [
+                            {
+                                "name": "blobSoftDeleteDays",
+                                "type": "Microsoft.Common.Slider",
+                                "label": "Blob Soft Delete Retention (Days)",
+                                "subLabel": "days",
+                                "defaultValue": 7,
+                                "min": 0,
+                                "max": 365,
+                                "showStepMarkers": false,
+                                "toolTip": "Number of days to retain deleted blobs. Set to 0 to disable. Recommended: 7-30 days for production.",
+                                "constraints": {
+                                    "required": true
+                                }
+                            },
+                            {
+                                "name": "containerSoftDeleteDays",
+                                "type": "Microsoft.Common.Slider",
+                                "label": "Container Soft Delete Retention (Days)",
+                                "subLabel": "days",
+                                "defaultValue": 7,
+                                "min": 0,
+                                "max": 365,
+                                "showStepMarkers": false,
+                                "toolTip": "Number of days to retain deleted containers. Set to 0 to disable. Recommended: 7-30 days for production.",
+                                "constraints": {
+                                    "required": true
+                                }
+                            },
+                            {
+                                "name": "softDeleteCostWarning",
+                                "type": "Microsoft.Common.InfoBox",
+                                "visible": "[or(greater(steps('dataProtectionConfig').softDeleteSection.blobSoftDeleteDays, 0), greater(steps('dataProtectionConfig').softDeleteSection.containerSoftDeleteDays, 0))]",
+                                "options": {
+                                    "icon": "Info",
+                                    "text": "💰 Soft delete retention increases storage costs by keeping deleted data for the retention period. Cost impact is proportional to your data churn rate. Estimate: ~1-10% additional storage costs for typical workloads."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "versioningSection",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Versioning & Change Tracking",
+                        "elements": [
+                            {
+                                "name": "enableVersioning",
+                                "type": "Microsoft.Common.CheckBox",
+                                "label": "Enable Blob Versioning",
+                                "defaultValue": false,
+                                "toolTip": "Automatically maintain previous versions of blobs. Useful for audit trails and rollback capabilities. Increases storage costs."
+                            },
+                            {
+                                "name": "versioningInfo",
+                                "type": "Microsoft.Common.InfoBox",
+                                "visible": "[steps('dataProtectionConfig').versioningSection.enableVersioning]",
+                                "options": {
+                                    "icon": "Info",
+                                    "text": "📊 Versioning keeps all versions of modified blobs. Storage costs increase based on modification frequency. Best for compliance and audit requirements."
+                                }
+                            },
+                            {
+                                "name": "changeFeedEnabled",
+                                "type": "Microsoft.Common.CheckBox",
+                                "label": "Enable Change Feed (Audit Log)",
+                                "defaultValue": false,
+                                "toolTip": "Track all create, update, and delete operations. Required for some compliance frameworks and useful for audit trails."
+                            },
+                            {
+                                "name": "changeFeedInfo",
+                                "type": "Microsoft.Common.InfoBox",
+                                "visible": "[steps('dataProtectionConfig').versioningSection.changeFeedEnabled]",
+                                "options": {
+                                    "icon": "Info",
+                                    "text": "📝 Change feed provides ordered, durable log of all changes. Perfect for compliance, auditing, and building event-driven architectures."
+                                }
+                            },
+                            {
+                                "name": "lastAccessTimeTrackingEnabled",
+                                "type": "Microsoft.Common.CheckBox",
+                                "label": "Enable Last Access Time Tracking",
+                                "defaultValue": false,
+                                "toolTip": "Track when blobs were last accessed. Useful for lifecycle management policies to automatically tier or delete old data."
+                            },
+                            {
+                                "name": "lastAccessInfo",
+                                "type": "Microsoft.Common.InfoBox",
+                                "visible": "[steps('dataProtectionConfig').versioningSection.lastAccessTimeTrackingEnabled]",
+                                "options": {
+                                    "icon": "Info",
+                                    "text": "⏱️ Last access time tracking enables data lifecycle policies to automatically move rarely-accessed data to cheaper tiers or delete it. Cost optimization feature."
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
                 "name": "serviceSelection",
                 "label": "Service Selection",
                 "subLabel": {
@@ -255,7 +553,19 @@
             "storageAccountNamePrefix": "[steps('storageConfig').storageAccountPrefix]",
             "storageAccountType": "[steps('storageConfig').storageAccountType]",
             "location": "[location()]",
-            "applicationName": "[basics('applicationName')]"
+            "applicationName": "[basics('applicationName')]",
+            "allowBlobPublicAccess": "[steps('securityConfig').allowBlobPublicAccess]",
+            "minimumTlsVersion": "[steps('securityConfig').minimumTlsVersion]",
+            "supportsHttpsTrafficOnly": "[steps('securityConfig').supportsHttpsTrafficOnly]",
+            "publicNetworkAccess": "[steps('securityConfig').publicNetworkAccess]",
+            "defaultToOAuthAuthentication": "[steps('securityConfig').authenticationSection.defaultToOAuthAuthentication]",
+            "allowSharedKeyAccess": "[steps('securityConfig').authenticationSection.allowSharedKeyAccess]",
+            "requireInfrastructureEncryption": "[steps('securityConfig').encryptionSection.requireInfrastructureEncryption]",
+            "blobSoftDeleteDays": "[steps('dataProtectionConfig').softDeleteSection.blobSoftDeleteDays]",
+            "containerSoftDeleteDays": "[steps('dataProtectionConfig').softDeleteSection.containerSoftDeleteDays]",
+            "enableVersioning": "[steps('dataProtectionConfig').versioningSection.enableVersioning]",
+            "changeFeedEnabled": "[steps('dataProtectionConfig').versioningSection.changeFeedEnabled]",
+            "lastAccessTimeTrackingEnabled": "[steps('dataProtectionConfig').versioningSection.lastAccessTimeTrackingEnabled]"
         }
     }
 }
