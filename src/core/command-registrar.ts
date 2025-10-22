@@ -102,6 +102,10 @@ export class CommandRegistrar {
   /**
    * Check if command name conflicts with existing command
    * 
+   * Note: While Commander.js has built-in duplicate command detection,
+   * this method provides more informative error messages that identify
+   * which specific plugins are in conflict, improving debugging experience.
+   * 
    * @param commandName Command name to check
    * @param pluginId Plugin ID for error messages
    * @throws Error if command name already exists

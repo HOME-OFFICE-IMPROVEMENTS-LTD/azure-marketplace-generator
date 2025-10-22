@@ -153,11 +153,16 @@ export class PluginLoader {
     const normalizedPath = path.normalize(absolutePath);
     
     // Security: Ensure path doesn't escape workspace root (for relative paths)
-    if (!path.isAbsolute(relativePath) && !normalizedPath.startsWith(workspaceRoot)) {
-      throw new Error(
-        `Security violation: Plugin path '${relativePath}' attempts to escape workspace root. ` +
-        `Normalized path '${normalizedPath}' is outside '${workspaceRoot}'`
-      );
+    // Use path.relative to properly detect escape attempts
+    if (!path.isAbsolute(relativePath)) {
+      const relativeToCwd = path.relative(workspaceRoot, normalizedPath);
+      // If relative path starts with '..' or is absolute, it's outside workspace
+      if (relativeToCwd.startsWith('..') || path.isAbsolute(relativeToCwd)) {
+        throw new Error(
+          `Security violation: Plugin path '${relativePath}' attempts to escape workspace root. ` +
+          `Normalized path '${normalizedPath}' is outside '${workspaceRoot}'`
+        );
+      }
     }
     
     // Check if path exists
@@ -186,9 +191,9 @@ export class PluginLoader {
           `Plugin directory '${normalizedPath}' must contain index.js entrypoint`
         );
       }
-    } else if (!modulePath.endsWith('.js')) {
+    } else if (modulePath.endsWith('.ts')) {
       throw new Error(
-        `Plugin file '${modulePath}' must be a .js file (compiled JavaScript). ` +
+        `Plugin file '${modulePath}' must be compiled JavaScript (.js, .mjs, .cjs). ` +
         `TypeScript plugins must be built before loading.`
       );
     }
@@ -219,9 +224,9 @@ export class PluginLoader {
     logger.debug(`Loading npm plugin: ${packageName}`, 'plugin-loader');
     
     try {
-      // Use createRequire to resolve npm package path
-      // This respects node_modules resolution from the loader's location
-      const require = createRequire(__filename);
+      // Use createRequire from current working directory to resolve npm packages
+      // This allows plugins to be installed as project dependencies
+      const require = createRequire(path.join(process.cwd(), 'package.json'));
       
       try {
         // Resolve package to absolute path

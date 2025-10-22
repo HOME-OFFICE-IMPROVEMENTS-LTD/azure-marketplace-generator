@@ -12,6 +12,7 @@ const logger = getLogger();
 export interface AzmpConfig {
   publisher?: string;
   defaultOutputDir?: string;
+  templatesDir?: string;
   templates?: {
     storage?: {
       name?: string;

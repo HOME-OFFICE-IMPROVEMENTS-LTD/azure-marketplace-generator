@@ -257,6 +257,38 @@ describe('Plugin Loading System', () => {
           commandRegistrar.register(plugin2, 'plugin2', program);
         }).toThrow(/already have command/);
       });
+
+      it('should detect direct command name conflicts between plugins', () => {
+        const plugin1: IPlugin = {
+          metadata: { 
+            id: 'plugin1', 
+            name: 'Plugin 1', 
+            description: 'First plugin',
+            version: '1.0.0' 
+          },
+          registerCommands: (prog: Command) => {
+            prog.command('shared-cmd').description('Command from plugin 1');
+          }
+        };
+
+        const plugin2: IPlugin = {
+          metadata: { 
+            id: 'plugin2', 
+            name: 'Plugin 2', 
+            description: 'Second plugin',
+            version: '1.0.0' 
+          },
+          registerCommands: (prog: Command) => {
+            prog.command('shared-cmd').description('Command from plugin 2');
+          }
+        };
+
+        commandRegistrar.register(plugin1, 'plugin1', program);
+
+        expect(() => {
+          commandRegistrar.register(plugin2, 'plugin2', program);
+        }).toThrow(/already have command 'shared-cmd'/);
+      });
     });
   });
 

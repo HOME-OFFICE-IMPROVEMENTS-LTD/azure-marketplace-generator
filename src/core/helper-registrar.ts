@@ -16,9 +16,10 @@ const logger = getLogger();
 
 /**
  * Helper name validation pattern
- * Allows: letters, numbers, underscore, hyphen
+ * Allows: letters, numbers, underscore, hyphen, colon (for namespaces), dot (for sub-namespaces)
+ * Examples: "myHelper", "vm-size", "net:vnet.template", "security:policy.rule"
  */
-const HELPER_NAME_PATTERN = /^[a-zA-Z0-9_-]+$/;
+const HELPER_NAME_PATTERN = /^[a-zA-Z0-9_:.-]+$/;
 
 /**
  * Handlebars helper registrar with conflict detection

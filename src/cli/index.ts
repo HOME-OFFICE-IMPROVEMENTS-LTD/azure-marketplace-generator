@@ -154,7 +154,7 @@ async function loadPlugins(): Promise<void> {
     // Load plugins
     const pluginContext = {
       generatorVersion: packageJson.version,
-      templatesDir: config.defaultOutputDir || './output',
+      templatesDir: config.templatesDir || './templates',
       outputDir: config.defaultOutputDir || './output',
       config: config,
       logger: {

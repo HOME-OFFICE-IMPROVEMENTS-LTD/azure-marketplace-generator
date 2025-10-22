@@ -167,7 +167,7 @@ The following interfaces and types are defined and stable:
 - **Impact**: Plugins can claim compatibility with any generator version
 - **Mitigation**: Plugin developers should manually test compatibility
 - **Planned Fix**: v3.2.0 will add semver validation during plugin loading
-- **Tracking**: TODO comment in `src/core/plugin-loader.ts:313`
+- **Tracking**: TODO comment in `src/core/plugin-loader.ts:343-344`
 
 ### ⏳ Plugin Load Order Determinism
 
@@ -185,7 +185,7 @@ The following interfaces and types are defined and stable:
 - **Impact**: Invalid plugin templates detected when used, not when registered
 - **Mitigation**: Manual testing of plugin templates before publishing
 - **Planned Fix**: v3.2.0 will call validation automatically during `registerPlugin()`
-- **Tracking**: TODO comment in `src/core/template-registry.ts:14`
+- **Tracking**: TODO comment in `src/core/template-registry.ts:10`
 
 ### ⏳ Template Override Mechanism
 
