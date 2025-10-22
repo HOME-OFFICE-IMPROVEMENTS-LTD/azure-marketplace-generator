@@ -1,6 +1,7 @@
 import { ArmTtkValidator } from '../core/validator';
 import fs from 'fs';
 
+
 describe('ArmTtkValidator', () => {
   let validator: ArmTtkValidator;
 
@@ -16,6 +17,7 @@ describe('ArmTtkValidator', () => {
     test('should reject package ID with special characters', () => {
       const maliciousId = '../../../etc/passwd';
       expect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (validator as any).sanitizePackageId(maliciousId);
       }).toThrow('Invalid package ID');
     });
@@ -23,16 +25,19 @@ describe('ArmTtkValidator', () => {
     test('should reject version with script injection attempts', () => {
       const maliciousVersion = '1.0.0; rm -rf /';
       expect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (validator as any).sanitizeVersion(maliciousVersion);
       }).toThrow('Invalid version format');
     });
 
     test('should handle empty or null inputs safely', () => {
       expect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (validator as any).sanitizePackageId('');
       }).toThrow('Invalid package ID');
 
       expect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (validator as any).sanitizeVersion('');
       }).toThrow('Invalid version format');
     });
@@ -62,6 +67,7 @@ describe('ArmTtkValidator', () => {
     test('should prevent command injection in package validation', () => {
       const maliciousPackage = '../malicious-package';
       expect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (validator as any).sanitizePackageId(maliciousPackage);
       }).toThrow('Invalid package ID');
     });
@@ -69,6 +75,7 @@ describe('ArmTtkValidator', () => {
     test('should prevent path traversal in version strings', () => {
       const maliciousVersion = '../../etc/passwd';
       expect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (validator as any).sanitizeVersion(maliciousVersion);
       }).toThrow('Invalid version format');
     });

@@ -252,7 +252,17 @@ describe('Package Creation Comprehensive Tests', () => {
         }
       };
 
-      const isValidUiDefinition = (uiDef: any): boolean => {
+      interface UiDefinition {
+        $schema?: string;
+        handler?: string;
+        parameters?: {
+          basics?: unknown;
+          steps?: unknown;
+          outputs?: unknown;
+        };
+      }
+
+      const isValidUiDefinition = (uiDef: UiDefinition): boolean => {
         return uiDef.$schema !== undefined &&
                uiDef.handler === "Microsoft.Azure.CreateUIDef" &&
                uiDef.parameters !== undefined &&
@@ -271,7 +281,17 @@ describe('Package Creation Comprehensive Tests', () => {
         // Missing parameters section
       };
 
-      const isValidUiDefinition = (uiDef: any): boolean => {
+      interface UiDefinition {
+        $schema?: string;
+        handler?: string;
+        parameters?: {
+          basics?: unknown;
+          steps?: unknown;
+          outputs?: unknown;
+        };
+      }
+
+      const isValidUiDefinition = (uiDef: UiDefinition): boolean => {
         return uiDef.$schema !== undefined &&
                uiDef.handler === "Microsoft.Azure.CreateUIDef" &&
                uiDef.parameters !== undefined &&

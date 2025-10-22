@@ -8,8 +8,6 @@ export class CliError extends Error {
     super(message);
     this.name = 'CliError';
     Object.setPrototypeOf(this, CliError.prototype);
-    // code is stored for programmatic error handling
-    void this.code;
   }
 }
 
@@ -18,8 +16,6 @@ export class ValidationError extends Error {
     super(message);
     this.name = 'ValidationError';
     Object.setPrototypeOf(this, ValidationError.prototype);
-    // details is stored for additional context
-    void this.details;
   }
 }
 
@@ -28,8 +24,6 @@ export class FileSystemError extends Error {
     super(message);
     this.name = 'FileSystemError';
     Object.setPrototypeOf(this, FileSystemError.prototype);
-    // path is stored for debugging
-    void this.path;
   }
 }
 
@@ -38,8 +32,6 @@ export class TemplateGenerationError extends Error {
     super(message);
     this.name = 'TemplateGenerationError';
     Object.setPrototypeOf(this, TemplateGenerationError.prototype);
-    // templateName is stored for context
-    void this.templateName;
   }
 }
 
@@ -48,8 +40,6 @@ export class ArmTtkError extends Error {
     super(message);
     this.name = 'ArmTtkError';
     Object.setPrototypeOf(this, ArmTtkError.prototype);
-    // validationErrors is stored for detailed reporting
-    void this.validationErrors;
   }
 }
 
