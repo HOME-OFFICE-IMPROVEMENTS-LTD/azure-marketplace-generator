@@ -31,8 +31,9 @@ const PLUGIN_INIT_TIMEOUT_MS = 5000; // 5 seconds
  * Plugin loader with lifecycle management
  */
 export class PluginLoader {
-  private loadedPlugins: Set<string> = new Set();
+  private loadedPlugins = new Map<string, IPlugin>();
   private cleanupRegistered = false;
+  private cleanupInProgress = false;
 
   /**
    * Load plugins from configuration
@@ -376,7 +377,7 @@ export class PluginLoader {
         );
       }
 
-      this.loadedPlugins.add(pluginId);
+      this.loadedPlugins.set(pluginId, plugin);
       logger.info(`Plugin '${pluginId}' initialized successfully`, 'plugin-loader');
 
       // Register cleanup handler on first plugin load
@@ -423,6 +424,12 @@ export class PluginLoader {
    */
   private registerCleanupHandlers(): void {
     const cleanup = async () => {
+      // Prevent multiple cleanup calls
+      if (this.cleanupInProgress) {
+        return;
+      }
+      this.cleanupInProgress = true;
+      
       logger.info('Running plugin cleanup...', 'plugin-loader');
       await this.cleanupAllPlugins();
     };
@@ -434,9 +441,11 @@ export class PluginLoader {
       logger.debug('Process exiting', 'plugin-loader');
     });
 
-    // Async cleanup before exit
+    // Async cleanup before exit (fires when event loop empties)
     process.on('beforeExit', async () => {
       await cleanup();
+      // Exit explicitly after cleanup to prevent beforeExit loop
+      process.exit(0);
     });
 
     // Ctrl+C
