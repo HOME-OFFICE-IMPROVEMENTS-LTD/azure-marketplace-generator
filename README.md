@@ -167,14 +167,14 @@ npm run lint
 
 ## Roadmap
 
-### ✅ v3.0.0 (Released - October 2025)
+### ✅ v3.0.0 (Released - October 2024)
 
 - ✅ Plugin interface foundation
 - ✅ 12 security and data protection parameters
 - ✅ Comprehensive documentation (9 guides)
 - ✅ Full Azure live testing (35/35 tests)
 
-### ✅ v3.1.0 (Released - January 2025)
+### ✅ v3.1.0 (Released - December 2024)
 
 **Plugin System Implementation:**
 
@@ -198,15 +198,20 @@ npm run lint
 npm install @hoiltd/azmp-plugin-vm
 ```
 
-### 🚧 v3.2.0 (Next - Planned Q1 2026)
+### 🚧 v3.2.0 (In Development)
 
-**Plugin Ecosystem Enhancements:**
+**Core Improvements:**
 
-- [ ] Plugin marketplace/catalog
-- [ ] Plugin dependency management
-- [ ] Hot reload support for development
-- [ ] Enhanced plugin sandboxing and isolation
-- [ ] Plugin version compatibility checking
+- [ ] Semver validation for plugin versions
+- [ ] Eager template validation on plugin load
+- [ ] Plugin performance optimizations
+- [ ] Enhanced error messages and debugging
+
+**Plugin Ecosystem:**
+
+- [ ] Plugin documentation improvements
+- [ ] Plugin testing utilities
+- [ ] Community plugin registry
 
 **Storage Features:**
 
@@ -217,7 +222,7 @@ npm install @hoiltd/azmp-plugin-vm
 - [ ] Azure AD RBAC role assignments
 - [ ] Diagnostic settings and monitoring
 
-### 🔮 v4.0.0 (Future - 2026)
+### 🔮 Future Releases
 
 **Advanced Extensibility:**
 
