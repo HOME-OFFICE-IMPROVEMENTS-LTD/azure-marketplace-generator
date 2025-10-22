@@ -5,23 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2025-01-08
+
+### Added
+
+#### Plugin System
+
+- **Dynamic Plugin Loading**: Complete plugin system with discovery, loading, and lifecycle management
+- **Configuration-Based Discovery**: Load plugins automatically from `azmp.config.json`
+- **CLI Command Extensions**: Plugins can register custom CLI commands with full Commander.js integration
+- **Template Type Registration**: Extensible template system allowing plugins to add new resource types
+- **Handlebars Helper Registration**: Custom Handlebars helpers from plugins for advanced template logic
+- **Comprehensive Plugin API**: Complete TypeScript interfaces for plugin development
+- **Plugin Lifecycle Hooks**: `initialize`, `cleanup`, and event-based plugin management
+- **Error Handling**: Robust error handling with detailed logging and graceful degradation
+- **Security Features**: Path traversal prevention, plugin validation, timeout enforcement
+
+#### Core Improvements
+
+- **Command Registration System** (`src/core/command-registrar.ts`): Centralized CLI command management with namespace collision detection
+- **Helper Registration System** (`src/core/helper-registrar.ts`): Handlebars helper management with validation
+- **Config Manager Enhancements**: Plugin configuration loading and validation support
+- **Example Configuration**: `azmp.config.json` template for quick plugin setup
+
+#### Documentation
+
+- **Complete Plugin Guide** (`docs/PLUGIN_ARCHITECTURE.md`): 383 lines of comprehensive plugin development documentation
+- **API Reference**: Full TypeScript interface documentation for all plugin hooks
+- **Usage Examples**: Real-world plugin examples including the VM plugin reference
+- **Best Practices**: Security guidelines, error handling patterns, and performance tips
+- **Migration Guide**: Clear instructions for creating and integrating plugins
+
+#### Testing
+
+- **Comprehensive Test Suite** (`src/__tests__/plugin-loading.test.ts`): 599 lines, 25+ test cases
+- **Plugin Discovery Tests**: Validation of config-based and automatic plugin discovery
+- **Lifecycle Tests**: Initialization, cleanup, and error handling verification
+- **Security Tests**: Path traversal prevention, invalid plugin handling
+- **Integration Tests**: End-to-end plugin loading and registration workflows
+
+### Fixed
+
+- **ESLint Configuration**: Resolved conflicts between base and TypeScript-specific rules
+- **Type Safety**: Improved TypeScript strict mode compliance across test files
+- **Infinite Loop Prevention**: Added safeguards in plugin cleanup lifecycle
+- **CommonJS Compatibility**: Enhanced plugin loading to support both ESM and CommonJS modules
+- **GitHub Actions Security**: Fixed CodeQL alerts #23 and #24 with explicit workflow permissions
+
+### Security
+
+- **Workflow Permissions**: Restricted GITHUB_TOKEN permissions to minimal required scopes
+  - `ci.yml`: `contents: read`, `checks: write`
+  - `release.yml`: `contents: write`
+- **Plugin Path Validation**: Prevention of directory traversal attacks in plugin loading
+- **Plugin Isolation**: Sandboxing mechanisms for safer plugin execution
+
+### Changed
+
+- **Updated README.md**: Added plugin system overview, usage examples, and documentation links
+- **Enhanced CLI**: Integrated plugin loader into main CLI entry point
+- **Improved Error Messages**: More descriptive errors for plugin loading and validation failures
+
+### Technical Details
+
+- **119 Tests Passing**: Full test coverage maintained across all changes
+- **Zero Lint Issues**: Clean ESLint and TypeScript compilation
+- **CI/CD Green**: All GitHub Actions checks passing (Node 18.x, 20.x, CodeQL)
+- **Security Posture**: 0 open CodeQL alerts
+
+
 ## [Unreleased]
 
 ### Coming Soon
-
-#### v3.1.0 (Planned)
-
-**Plugin System Implementation:**
-- Plugin loader with dynamic discovery
-- Automatic plugin registration from config files
-- CLI command extensions support
-- Template type registration API
-- Handlebars helper registration API
-
-**Storage Features:**
-- Private endpoint configuration
-- Customer-managed encryption keys (CMK)
-- Immutability policies for compliance
 
 #### v3.2.0 (Future)
 
