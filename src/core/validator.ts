@@ -135,11 +135,19 @@ export class ArmTtkValidator {
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.error(chalk.red('❌ ARM-TTK execution failed:'), errorMessage);
 
+      // Extract stdout/stderr from error object if available (exec errors have these properties)
+      const errorOutput = error && typeof error === 'object' && 
+        ('stdout' in error || 'stderr' in error) 
+        ? ((error as { stdout?: string; stderr?: string }).stdout || 
+           (error as { stdout?: string; stderr?: string }).stderr || 
+           'No output available')
+        : 'No output available';
+
       return {
         success: false,
         errors: [`ARM-TTK execution failed: ${errorMessage}`],
         warnings: [],
-        details: (error as any)?.stdout || (error as any)?.stderr || 'No output available',
+        details: errorOutput,
         passCount: 0,
         failCount: 1,
         testResults: [{

@@ -8,6 +8,9 @@ import { packageCommand } from './commands/package';
 import { configCommand } from './commands/config';
 import { setupGlobalErrorHandlers } from '../utils/error-handler';
 import { getLogger } from '../utils/logger';
+import { getConfigManager } from '../utils/config-manager';
+import { pluginLoader } from '../core/plugin-loader';
+import { commandRegistrar } from '../core/command-registrar';
 import * as packageJson from '../../package.json';
 
 // Setup global error handlers for uncaught exceptions and signals
@@ -118,22 +121,89 @@ program.exitOverride((err) => {
   throw err;
 });
 
-try {
-  program.parse();
-} catch (err: unknown) {
-  const errorMessage = err instanceof Error ? err.message : String(err);
-
-  // Don't show error for version, help, or outputHelp commands
-  if (errorMessage.includes('commander.version') || 
-      errorMessage.includes('commander.help') || 
-      errorMessage.includes('outputHelp')) {
-    process.exit(0);
+/**
+ * Load plugins from configuration
+ * This runs before program.parse() so plugin commands are available
+ */
+async function loadPlugins(): Promise<void> {
+  try {
+    // Load configuration
+    const configManager = getConfigManager();
+    const config = await configManager.loadConfig();
+    
+    // Skip if no config or no plugins defined
+    if (!config || !config.plugins || config.plugins.length === 0) {
+      logger.debug('No plugins configured, skipping plugin loading', 'cli');
+      return;
+    }
+    
+    // Validate config including plugins section
+    const validation = configManager.validateConfig(config);
+    if (!validation.valid) {
+      logger.warn('Config validation errors found', 'cli', { errors: validation.errors });
+      console.warn(chalk.yellow('⚠️  Configuration validation warnings:'));
+      validation.errors.forEach(err => {
+        console.warn(chalk.yellow(`   • ${err}`));
+      });
+      // Continue anyway - plugins might still work
+    }
+    
+    // Initialize command registrar with existing commands
+    commandRegistrar.initialize(program);
+    
+    // Load plugins
+    const pluginContext = {
+      generatorVersion: packageJson.version,
+      templatesDir: config.templatesDir || './templates',
+      outputDir: config.defaultOutputDir || './output',
+      config: config,
+      logger: {
+        info: (msg: string) => logger.info(msg, 'plugin'),
+        warn: (msg: string) => logger.warn(msg, 'plugin'),
+        error: (msg: string) => logger.error(msg, 'plugin'),
+        debug: (msg: string) => logger.debug(msg, 'plugin')
+      }
+    };
+    
+    logger.debug(`Loading ${config.plugins.length} plugin(s) from configuration`, 'cli');
+    const loadedPlugins = await pluginLoader.loadPluginsFromConfig(
+      config.plugins,
+      pluginContext,
+      program
+    );
+    
+    if (loadedPlugins.length > 0) {
+      logger.info(`Loaded ${loadedPlugins.length} plugin(s): ${loadedPlugins.join(', ')}`, 'cli');
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error(`Failed to load plugins: ${message}`, 'cli');
+    // Don't fail CLI startup - continue without plugins
+    console.warn(chalk.yellow('⚠️  Plugin loading failed, continuing without plugins'));
+    logger.debug('Plugin loading error details', 'cli', { error });
   }
-
-  console.error(chalk.red('❌ Error:'), errorMessage);
-  console.log(chalk.blue('\n💡 Troubleshooting:'));
-  console.log(chalk.blue('   • Check command syntax: azmp --help'));
-  console.log(chalk.blue('   • Verify file paths exist'));
-  console.log(chalk.blue('   • Run with --verbose for details'));
-  process.exit(1);
 }
+
+// Load plugins asynchronously, then parse CLI
+(async () => {
+  try {
+    await loadPlugins();
+    program.parse();
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+
+    // Don't show error for version, help, or outputHelp commands
+    if (errorMessage.includes('commander.version') || 
+        errorMessage.includes('commander.help') || 
+        errorMessage.includes('outputHelp')) {
+      process.exit(0);
+    }
+
+    console.error(chalk.red('❌ Error:'), errorMessage);
+    console.log(chalk.blue('\n💡 Troubleshooting:'));
+    console.log(chalk.blue('   • Check command syntax: azmp --help'));
+    console.log(chalk.blue('   • Verify file paths exist'));
+    console.log(chalk.blue('   • Run with --verbose for details'));
+    process.exit(1);
+  }
+})();

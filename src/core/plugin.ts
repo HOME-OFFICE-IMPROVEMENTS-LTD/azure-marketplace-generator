@@ -39,7 +39,7 @@ export interface TemplateMetadata {
 /**
  * Handlebars helper function type
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type HandlebarsHelper = (...args: any[]) => any;
 
 /**
@@ -73,7 +73,6 @@ export interface IPlugin {
    * 
    * @param context Plugin initialization context
    */
-  // eslint-disable-next-line no-unused-vars
   initialize?(context: PluginContext): void | Promise<void>;
 
   /**
@@ -95,7 +94,6 @@ export interface IPlugin {
    * 
    * @param program Commander.js program instance
    */
-  // eslint-disable-next-line no-unused-vars
   registerCommands?(program: Command): void;
 
   /**
@@ -124,13 +122,9 @@ export interface PluginContext {
   
   /** Logger function for plugin messages */
   logger: {
-    // eslint-disable-next-line no-unused-vars
     info: (_message: string) => void;
-    // eslint-disable-next-line no-unused-vars
     warn: (_message: string) => void;
-    // eslint-disable-next-line no-unused-vars
     error: (_message: string) => void;
-    // eslint-disable-next-line no-unused-vars
     debug: (_message: string) => void;
   };
 }
@@ -138,21 +132,51 @@ export interface PluginContext {
 /**
  * Plugin configuration in azmp-config.json
  */
+/**
+ * Plugin configuration for loading from npm or local path
+ * Used in azmp-config.json
+ * 
+ * @since 3.0.0
+ * @updated 3.1.0 - Path validation implemented in PluginLoader
+ * 
+ * @example npm package
+ * ```json
+ * {
+ *   "package": "azmp-compute-templates",
+ *   "enabled": true,
+ *   "options": { "defaultVmSize": "Standard_B2s" }
+ * }
+ * ```
+ * 
+ * @example Local plugin
+ * ```json
+ * {
+ *   "package": "./plugins/my-plugin",
+ *   "enabled": true
+ * }
+ * ```
+ */
 export interface PluginConfig {
-  /** Plugin package name or file path */
+  /** 
+   * npm package name or local file path
+   * - npm: "azmp-compute-templates" or "@myorg/azmp-plugin"
+   * - local: "./plugins/my-plugin" or "/abs/path/to/plugin"
+   * - Security: local paths are validated to prevent ../ traversal (v3.1.0+)
+   */
   package: string;
   
-  /** Whether the plugin is enabled */
+  /** 
+   * Whether the plugin is enabled
+   * @default true (defaults to true if omitted)
+   */
   enabled?: boolean;
   
-  /** Plugin-specific configuration */
+  /** 
+   * Plugin-specific configuration options
+   * Passed to plugin during initialization via context.options
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: Record<string, any>;
-  
-  // TODO(v3.1.0): Add path validation and normalization
-  // - Sanitize PluginConfig.package to prevent path traversal (../)
-  // - Whitelist allowed paths (e.g., node_modules, ~/.azmp/plugins)
-  // - Document security considerations in PLUGIN_ARCHITECTURE.md
 }
 
 /**
@@ -194,7 +218,6 @@ export interface PluginConfig {
 export abstract class BasePlugin implements IPlugin {
   abstract readonly metadata: IPlugin['metadata'];
 
-  // eslint-disable-next-line no-unused-vars
   initialize?(_context: PluginContext): void | Promise<void> {
     // Default: no-op
   }
@@ -207,7 +230,6 @@ export abstract class BasePlugin implements IPlugin {
     return {};
   }
 
-  // eslint-disable-next-line no-unused-vars
   registerCommands?(_program: Command): void {
     // Default: no commands
   }

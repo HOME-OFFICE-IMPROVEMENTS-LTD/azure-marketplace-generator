@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    {
+      "package": "/home/msalsouri/Projects/azmp-plugin-vm/dist",
+      "enabled": true,
+      "options": {
+        "defaultVmSize": "Standard_D2s_v3",
+        "enableDiagnostics": true,
+        "enablePublicIP": true
+      }
+    }
+  ]
+}

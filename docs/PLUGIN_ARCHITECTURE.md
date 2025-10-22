@@ -1,8 +1,8 @@
 # Plugin Architecture
 
-**Version:** 3.0.0  
-**Status:** Foundation Established (Interfaces Defined)  
-**Implementation:** Planned for v3.1.0+
+**Version:** 3.1.0  
+**Status:** ✅ Fully Implemented  
+**Implementation:** Complete - Dynamic plugin loading available
 
 ## Overview
 
@@ -13,13 +13,13 @@ The Azure Marketplace Generator supports extensibility through a plugin architec
 - **Extend CLI commands** with additional functionality
 - **Customize validation** and packaging behavior
 
-Starting with v3.0.0, the plugin interface foundation has been established to ensure a stable API contract for future extensions.
+The plugin system is fully operational as of v3.1.0, supporting both npm packages and local file plugins with comprehensive security validations.
 
 ## Architecture Status
 
-### ✅ v3.0.0 - Foundation (Current Release)
+### ✅ v3.0.0 - Foundation (Released)
 
-The following interfaces and types are now defined and stable:
+The following interfaces and types are defined and stable:
 
 - `IPlugin` - Main plugin interface
 - `PluginContext` - Context provided during initialization
@@ -28,98 +28,173 @@ The following interfaces and types are now defined and stable:
 - `BasePlugin` - Abstract base class for plugins
 - `TemplateRegistry` - Registry for managing templates and plugins
 
-**What's Available:**
+### ✅ v3.1.0 - Full Implementation (Current)
 
-- Plugin interface contracts (stable API)
-- Template registry infrastructure
-- Type definitions for extensibility
-- **Helper/Command collision detection** - Prevents duplicate helper and command names
-- **Plugin lifecycle management** - Initialize with timeout, cleanup on exit
-- **Template override protection** - Explicit errors for conflicting template types
+**Complete plugin system with:**
 
-**What's NOT Yet Implemented:**
+- ✅ **Dynamic plugin loading** from npm packages and local paths
+- ✅ **Security validations** - Path traversal protection, workspace root checking
+- ✅ **Automatic helper registration** with Handlebars engine
+- ✅ **CLI command registration** with Commander integration
+- ✅ **Conflict detection** for helpers, commands, and template types
+- ✅ **Plugin lifecycle management** - Initialize with 5s timeout, cleanup on exit
+- ✅ **Configuration support** in `azmp-config.json` with validation
+- ✅ **Error isolation** - Bad plugins don't crash the CLI
+- ✅ **Metadata validation** - Ensures required fields present
 
-- Dynamic plugin loading from npm/filesystem
-- Plugin discovery and initialization from config
-- Automatic helper registration with Handlebars
-- CLI command registration from plugins
-- Version compatibility enforcement (see Known Limitations below)
+**New classes implemented:**
 
-### 🚧 v3.1.0 - Implementation (Planned)
+- `PluginLoader` - Dynamic module loading with security
+- `HelperRegistrar` - Handlebars helper management
+- `CommandRegistrar` - CLI command tracking and registration
 
-Full plugin system implementation including:
+## Getting Started with Plugins
 
-- `PluginLoader` class for dynamic loading
-- Plugin discovery from `node_modules` and local paths
-- Automatic registration of templates and helpers
-- CLI command registration
-- Plugin lifecycle management (initialize/cleanup)
-- Configuration support in `azmp-config.json`
+### Quick Start: Using an Existing Plugin
 
-## Known Limitations (v3.0.0)
+1. **Install the plugin** (if from npm):
+   ```bash
+   npm install azmp-compute-templates
+   ```
 
-The following features are **deferred to v3.1.0** to ensure a stable v3.0.0 release:
+2. **Create or edit `azmp-config.json`**:
+   ```json
+   {
+     "plugins": [
+       {
+         "package": "azmp-compute-templates",
+         "enabled": true
+       }
+     ]
+   }
+   ```
+
+3. **Use the plugin**:
+   ```bash
+   azmp create vm --name "MyVM" --publisher "Acme Inc"
+   ```
+
+### Quick Start: Creating a Local Plugin
+
+1. **Create plugin directory**:
+   ```bash
+   mkdir -p plugins/my-plugin
+   cd plugins/my-plugin
+   ```
+
+2. **Create `index.js`** (see full example in "Creating a Plugin" section below):
+   ```javascript
+   exports.default = class MyPlugin {
+     metadata = {
+       id: 'my-plugin',
+       name: 'My Custom Plugin',
+       version: '1.0.0'
+     };
+     
+     getTemplates() {
+       return [/* your templates */];
+     }
+   };
+   ```
+
+3. **Add to `azmp-config.json`**:
+   ```json
+   {
+     "plugins": [
+       {
+         "package": "./plugins/my-plugin"
+       }
+     ]
+   }
+   ```
+
+4. **Test the plugin**:
+   ```bash
+   azmp --verbose
+   # Should show "Loaded 1 plugin(s): my-plugin"
+   ```
+
+## Security Features (v3.1.0)
+
+### ✅ Path Traversal Protection
+
+- **Status**: **IMPLEMENTED in v3.1.0** ✅
+- **Implementation**: `PluginLoader.loadLocalModule()` validates paths
+- **Security**: 
+  - Resolves relative paths against workspace root
+  - Normalizes paths to collapse `../` sequences
+  - Rejects paths that escape workspace root
+  - Example: `../../etc/passwd` is blocked with clear error
+- **File**: `src/core/plugin-loader.ts`
+
+### ✅ Helper Name Validation
+
+- **Status**: **IMPLEMENTED in v3.1.0** ✅
+- **Implementation**: `HelperRegistrar.validateHelperName()`
+- **Pattern**: `^[a-zA-Z0-9_-]+$` (alphanumeric, underscore, hyphen only)
+- **Prevents**: Code injection via helper names
+- **File**: `src/core/helper-registrar.ts`
+
+### ✅ Conflict Detection
+
+- **Status**: **IMPLEMENTED in v3.1.0** ✅
+- **Scope**: Helpers, commands, command aliases, template types
+- **Behavior**: Throws descriptive errors before registration
+- **Files**: `src/core/helper-registrar.ts`, `src/core/command-registrar.ts`, `src/core/template-registry.ts`
+
+### ✅ Plugin Metadata Validation
+
+- **Status**: **IMPLEMENTED in v3.1.0** ✅
+- **Required Fields**: `metadata.id`, `metadata.name`, `metadata.version`
+- **ID Pattern**: `^[a-zA-Z0-9_-]+$`
+- **Prevents**: Malformed plugins from loading
+- **File**: `src/core/plugin-loader.ts`
+
+### ✅ Error Isolation
+
+- **Status**: **IMPLEMENTED in v3.1.0** ✅
+- **Behavior**: Failed plugin load doesn't crash CLI
+- **Continues**: Loads other plugins, shows summary of failures
+- **User Experience**: CLI remains usable even with broken plugins
+- **File**: `src/cli/index.ts`, `src/core/plugin-loader.ts`
+
+## Known Limitations (v3.1.0)
 
 ### ⏳ Version Compatibility Enforcement
 
+- **Status**: Deferred to v3.2.0
 - **Issue**: `metadata.requiredGeneratorVersion` field exists but is not validated
 - **Impact**: Plugins can claim compatibility with any generator version
 - **Mitigation**: Plugin developers should manually test compatibility
-- **Fix**: v3.1.0 will add semver validation during plugin loading
-- **Tracking**: TODO in `src/core/plugin-loader.ts`
+- **Planned Fix**: v3.2.0 will add semver validation during plugin loading
+- **Tracking**: TODO comment in `src/core/plugin-loader.ts:343-344`
 
 ### ⏳ Plugin Load Order Determinism
 
-- **Issue**: No explicit ordering mechanism for plugins
-- **Impact**: If plugin A depends on plugin B, load order matters
-- **Mitigation**: Plugins should be independent; document any dependencies
-- **Fix**: v3.1.0 may add explicit ordering or dependency resolution
+- **Status**: Deferred to v3.2.0
+- **Issue**: Plugins load in array order from config, no dependency resolution
+- **Impact**: If plugin A depends on plugin B, config order matters
+- **Mitigation**: Plugins should be independent; document any dependencies in README
+- **Planned Fix**: v3.2.0 may add explicit `dependencies` field or ordering
 - **Tracking**: Not yet specified
 
-### ⏳ Template Path Validation Security
+### ⏳ Eager Template Validation
 
-- **Issue**: Plugin paths are not validated during loading (not implemented yet)
-- **Impact**: Path traversal (`../../malicious`) could be possible when loader ships
-- **Mitigation**: v3.0.0 doesn't include dynamic loading, so this is not exploitable
-- **Fix**: v3.1.0 will normalize/whitelist paths in `PluginConfig.package`
-- **Tracking**: TODO in `src/core/plugin.ts:155` and `src/core/plugin-loader.ts`
-
-### ⏳ Template Validation Timing
-
-- **Issue**: `TemplateRegistry.validateTemplatePath()` exists but isn't called automatically
-- **Impact**: Invalid plugin templates detected only when used, not when registered
-- **Mitigation**: Manual testing of plugin templates recommended
-- **Fix**: v3.1.0 will add eager validation during plugin registration
-- **Tracking**: Design decision needed
+- **Status**: Deferred to v3.2.0
+- **Issue**: `TemplateRegistry.validateTemplatePath()` exists but isn't called during registration
+- **Impact**: Invalid plugin templates detected when used, not when registered
+- **Mitigation**: Manual testing of plugin templates before publishing
+- **Planned Fix**: v3.2.0 will call validation automatically during `registerPlugin()`
+- **Tracking**: TODO comment in `src/core/template-registry.ts:10`
 
 ### ⏳ Template Override Mechanism
 
+- **Status**: Intentional limitation for v3.1.0
 - **Issue**: `registerPlugin()` throws error if template type conflicts (by design)
 - **Impact**: Cannot override or extend built-in templates
-- **Mitigation**: This is intentional for v3.0.0 - ensures deterministic behavior
-- **Fix**: v3.2.0 may add CLI flag/setting for explicit overrides
+- **Rationale**: Ensures deterministic behavior and prevents accidental shadowing
+- **Planned Fix**: v3.2.0+ may add CLI flag/config option for explicit overrides
 - **Tracking**: Feature request, not a bug
-
-### ✅ Helper/Command Collision Detection
-
-- **Status**: **IMPLEMENTED in v3.0.0** ✅
-- **Implementation**: `TemplateRegistry` now tracks all helpers and commands
-- **Behavior**: Explicit errors thrown for duplicate helper names or command names
-- **File**: `src/core/template-registry.ts`
-
-### ✅ Plugin Initialization Timeout
-
-- **Status**: **IMPLEMENTED in v3.0.0** ✅
-- **Implementation**: `PluginLoader` enforces 5-second timeout on `initialize()`
-- **Behavior**: Prevents hung plugins from blocking the CLI
-- **File**: `src/core/plugin-loader.ts`
-
-### ✅ Cleanup Guarantees
-
-- **Status**: **IMPLEMENTED in v3.0.0** ✅
-- **Implementation**: `PluginLoader` registers handlers for SIGINT, SIGTERM, exit, uncaughtException
-- **Behavior**: Ensures `cleanup()` is called with 2-second timeout
-- **File**: `src/core/plugin-loader.ts`
 
 ## Plugin Interface
 
@@ -284,11 +359,14 @@ export class MySimplePlugin extends BasePlugin {
 
 ## Plugin Configuration (v3.1.0+)
 
-Plugins can be configured in `azmp-config.json`:
+Plugins are configured in `azmp-config.json` in the `plugins` array. The CLI automatically loads and initializes enabled plugins before parsing commands.
+
+### Complete Configuration Example
 
 ```json
 {
-  "outputDir": "./output",
+  "publisher": "My Company Inc.",
+  "defaultOutputDir": "./output",
   "templatesDir": "./src/templates",
   "plugins": [
     {
@@ -305,7 +383,8 @@ Plugins can be configured in `azmp-config.json`:
     },
     {
       "package": "@myorg/azmp-database-templates",
-      "enabled": false
+      "enabled": false,
+      "options": {}
     }
   ]
 }
@@ -313,9 +392,108 @@ Plugins can be configured in `azmp-config.json`:
 
 ### Configuration Fields
 
-- **package**: npm package name or local file path
-- **enabled**: Whether to load this plugin (default: `true`)
-- **options**: Plugin-specific configuration object
+#### `package` (required)
+- **Type**: `string`
+- **Purpose**: Specifies the plugin location
+- **npm packages**: `"azmp-compute-templates"` or `"@myorg/azmp-plugin"`
+- **Local paths**: `"./plugins/my-plugin"` or `"/absolute/path/to/plugin"`
+- **Security**: Local relative paths are validated against workspace root to prevent `../` traversal
+- **Validation**: Must be non-empty string
+
+#### `enabled` (optional)
+- **Type**: `boolean`
+- **Default**: `true`
+- **Purpose**: Controls whether plugin is loaded
+- **Use case**: Temporarily disable plugins without removing from config
+- **Example**: Set to `false` during debugging
+
+#### `options` (optional)
+- **Type**: `object`
+- **Default**: `{}`
+- **Purpose**: Plugin-specific configuration passed to plugin during initialization
+- **Access**: Available in `PluginContext.config.pluginOptions`
+- **Validation**: Must be an object (not array or null)
+
+### Plugin Loading Behavior
+
+**Load Order:**
+1. Config file is loaded and validated
+2. Built-in commands registered (create, validate, package, config)
+3. CommandRegistrar initialized with existing commands
+4. Each enabled plugin processed in array order:
+   - Module resolved (npm or local path)
+   - Plugin instantiated and metadata validated
+   - Plugin initialized with 5-second timeout
+   - Templates registered in TemplateRegistry
+   - Helpers registered in HelperRegistrar
+   - Commands registered via CommandRegistrar
+5. CLI proceeds to `program.parse()`
+
+**Error Handling:**
+- Failed plugin loads don't crash the CLI
+- Errors collected and reported as warnings
+- Other plugins continue to load
+- CLI remains functional without failed plugins
+
+**Validation Errors:**
+The following config errors are detected during validation:
+- `plugins` is not an array
+- `package` is missing, empty, or not a string
+- `enabled` is not a boolean
+- `options` is not an object (e.g., array or null)
+
+### Export Requirements
+
+Plugins must export their class or instance using one of these patterns:
+
+**Default export (recommended):**
+```typescript
+export default class MyPlugin implements IPlugin {
+  // ...
+}
+```
+
+**Named export:**
+```typescript
+export const plugin = new MyPlugin();
+```
+
+**Pre-instantiated export:**
+```typescript
+class MyPlugin implements IPlugin { /* ... */ }
+export default new MyPlugin();
+```
+
+The plugin loader accepts:
+- ✅ Default export of a class constructor
+- ✅ Default export of a plugin instance
+- ✅ Named export called `plugin`
+- ❌ Multiple exports without `default` or `plugin` name
+
+### Security Notes
+
+**Local Path Plugins:**
+- Relative paths (starting with `./` or `../`) are resolved against workspace root
+- Paths are normalized to collapse `../` sequences
+- Paths that escape workspace root are rejected with clear error
+- Example blocked: `"../../etc/passwd"`
+- Absolute paths are allowed but not validated (use with caution)
+
+**npm Package Plugins:**
+- Resolved using Node.js module resolution from `node_modules`
+- Uses `createRequire()` to respect package boundaries
+- Clear error if package not found: "npm package 'X' not found. Install it with: npm install X"
+
+**Helper Name Restrictions:**
+- Must match pattern: `^[a-zA-Z0-9_-]+$`
+- Prevents code injection via helper names
+- Invalid characters rejected before registration
+
+**Conflict Detection:**
+- Helper names must be unique across all plugins
+- Command names and aliases must be unique
+- Template types must be unique
+- Conflicts cause descriptive errors during load
 
 ## Template Structure
 
@@ -556,10 +734,55 @@ No action required. Plugin support is opt-in:
 
 ## Examples
 
-See the `examples/plugins/` directory (coming in v3.1.0) for complete plugin examples:
+### Official Plugins
+
+**azmp-plugin-vm** - Virtual Machine Plugin  
+Repository: https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azmp-plugin-vm  
+npm: `@hoiltd/azmp-plugin-vm`
+
+A complete example plugin demonstrating:
+- VM template generation with networking (VNet, NSG, Public IP)
+- Custom Handlebars helpers (`vm-size`, `vm-image`, `vm-resource-name`)
+- CLI commands (`vm list-sizes`, `vm list-images`)
+- Comprehensive documentation and testing
+- TypeScript implementation with full type safety
+
+**Installation:**
+```bash
+npm install @hoiltd/azmp-plugin-vm
+```
+
+**Configuration:**
+```json
+{
+  "plugins": [
+    {
+      "package": "@hoiltd/azmp-plugin-vm",
+      "enabled": true,
+      "options": {
+        "defaultVmSize": "Standard_D2s_v3",
+        "enableDiagnostics": true
+      }
+    }
+  ]
+}
+```
+
+**Local Development:**
+```json
+{
+  "plugins": [
+    {
+      "package": "../azmp-plugin-vm",
+      "enabled": true
+    }
+  ]
+}
+```
+
+See the `examples/plugins/` directory for additional plugin examples:
 
 - `basic-plugin` - Minimal plugin with one template
-- `compute-templates` - Full-featured plugin with multiple templates
 - `custom-helpers` - Plugin focused on Handlebars helpers
 - `cli-commands` - Plugin adding custom CLI commands
 
