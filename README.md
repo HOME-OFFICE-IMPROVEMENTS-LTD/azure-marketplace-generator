@@ -15,7 +15,11 @@ Enterprise-grade CLI tool for generating Azure Storage marketplace managed appli
 - **ARM template validation** with Microsoft ARM-TTK integration
 - **Marketplace-ready package creation** for Azure Marketplace submission
 - **TypeScript with full type safety** for reliability and maintainability
-- **Extensible plugin architecture** for custom templates and commands (v3.0.0+)
+- **Extensible plugin architecture** for custom templates and commands (v3.1.0 - ✅ Fully Operational)
+  - Install plugins from npm or use local plugins
+  - Extend with custom Handlebars helpers
+  - Add CLI commands dynamically
+  - First official plugin: [@hoiltd/azmp-plugin-vm](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azmp-plugin-vm)
 
 ### 🔒 Enhanced Security Features (v3.0.0)
 
@@ -147,15 +151,27 @@ npm run lint
 - ✅ Comprehensive documentation (9 guides)
 - ✅ Full Azure live testing (35/35 tests)
 
-### v3.1.0 (Planned)
+### v3.1.0 (Current - In Development) 🚀
 
-**Plugin System Implementation:**
+**Plugin System Implementation (Complete):**
 
-- Plugin loader with dynamic discovery
-- Automatic plugin registration from config files
-- CLI command extensions support
-- Template type registration API
-- Handlebars helper registration API
+- ✅ Plugin loader with dynamic discovery
+- ✅ Automatic plugin registration from config files
+- ✅ CLI command extensions support
+- ✅ Template type registration API
+- ✅ Handlebars helper registration API
+- ✅ Security validations (path traversal, workspace protection)
+- ✅ Conflict detection for helpers, commands, templates
+- ✅ Error isolation and timeout handling
+- ✅ Comprehensive test suite (26 plugin tests)
+
+**Official Plugin Available:**
+
+📦 **[@hoiltd/azmp-plugin-vm](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azmp-plugin-vm)** - Virtual Machine plugin with VM templates, helpers, and CLI commands
+
+```bash
+npm install @hoiltd/azmp-plugin-vm
+```
 
 **Storage Features:**
 

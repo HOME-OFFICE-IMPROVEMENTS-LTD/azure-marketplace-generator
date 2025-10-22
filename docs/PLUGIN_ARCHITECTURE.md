@@ -734,10 +734,55 @@ No action required. Plugin support is opt-in:
 
 ## Examples
 
-See the `examples/plugins/` directory (coming in v3.1.0) for complete plugin examples:
+### Official Plugins
+
+**azmp-plugin-vm** - Virtual Machine Plugin  
+Repository: https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azmp-plugin-vm  
+npm: `@hoiltd/azmp-plugin-vm`
+
+A complete example plugin demonstrating:
+- VM template generation with networking (VNet, NSG, Public IP)
+- Custom Handlebars helpers (`vm-size`, `vm-image`, `vm-resource-name`)
+- CLI commands (`vm list-sizes`, `vm list-images`)
+- Comprehensive documentation and testing
+- TypeScript implementation with full type safety
+
+**Installation:**
+```bash
+npm install @hoiltd/azmp-plugin-vm
+```
+
+**Configuration:**
+```json
+{
+  "plugins": [
+    {
+      "package": "@hoiltd/azmp-plugin-vm",
+      "enabled": true,
+      "options": {
+        "defaultVmSize": "Standard_D2s_v3",
+        "enableDiagnostics": true
+      }
+    }
+  ]
+}
+```
+
+**Local Development:**
+```json
+{
+  "plugins": [
+    {
+      "package": "../azmp-plugin-vm",
+      "enabled": true
+    }
+  ]
+}
+```
+
+See the `examples/plugins/` directory for additional plugin examples:
 
 - `basic-plugin` - Minimal plugin with one template
-- `compute-templates` - Full-featured plugin with multiple templates
 - `custom-helpers` - Plugin focused on Handlebars helpers
 - `cli-commands` - Plugin adding custom CLI commands
 
