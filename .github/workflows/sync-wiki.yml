@@ -1,0 +1,108 @@
+name: Sync Wiki
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - 'wiki-content/**'
+  workflow_dispatch:
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Sync wiki content
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          
+          echo "🚀 Starting wiki sync..."
+          
+          # Configure git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Clone wiki repository
+          WIKI_DIR="/tmp/wiki"
+          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
+          
+          echo "📥 Cloning wiki repository..."
+          if ! git clone "$REPO_URL" "$WIKI_DIR" 2>/dev/null; then
+            echo "⚠️  Wiki not initialized. Creating initial page..."
+            mkdir -p "$WIKI_DIR"
+            cd "$WIKI_DIR"
+            git init
+            git remote add origin "$REPO_URL"
+            
+            # Create initial page
+            echo "# Wiki" > Home.md
+            git add Home.md
+            git commit -m "Initialize wiki"
+            git branch -M master
+            git push -u origin master
+            
+            echo "✅ Wiki initialized"
+          else
+            echo "✅ Wiki cloned"
+          fi
+          
+          # Copy wiki content
+          echo "📋 Copying wiki content..."
+          cd "$WIKI_DIR"
+          
+          # Remove all existing markdown files
+          rm -f *.md
+          
+          # Copy new content (exclude WIKI_STATUS.md)
+          cp "$GITHUB_WORKSPACE"/wiki-content/*.md .
+          rm -f WIKI_STATUS.md
+          
+          FILE_COUNT=$(ls -1 *.md | wc -l)
+          echo "✅ Copied $FILE_COUNT files"
+          
+          # Commit and push changes
+          git add *.md
+          
+          if git diff --staged --quiet; then
+            echo "✅ No changes - wiki is up to date"
+          else
+            echo "💾 Committing changes..."
+            git commit -m "docs: sync wiki from wiki-content directory
+            
+            Auto-synced from repository commit: $GITHUB_SHA
+            
+            - Home: Landing page with navigation
+            - Getting-Started: Installation and tutorials
+            - Plugin-Development: Plugin creation guide
+            - CLI-Reference: CLI commands documentation
+            - API-Reference: TypeScript API docs
+            - Security-Features: Security documentation
+            - FAQ: Questions and answers
+            - Configuration-Guide: Configuration reference
+            - Data-Protection: Backup and recovery
+            - Contributing: Contribution guidelines"
+            
+            echo "📤 Pushing to wiki..."
+            git push origin master
+            echo "✅ Wiki synced successfully!"
+          fi
+          
+          # Cleanup
+          cd "$GITHUB_WORKSPACE"
+          rm -rf "$WIKI_DIR"
+          
+          echo ""
+          echo "=========================================="
+          echo "✅ WIKI SYNC COMPLETE!"
+          echo "=========================================="
+          echo "📊 Files synced: $FILE_COUNT"
+          echo "🌐 View at: https://github.com/${GITHUB_REPOSITORY}/wiki"
