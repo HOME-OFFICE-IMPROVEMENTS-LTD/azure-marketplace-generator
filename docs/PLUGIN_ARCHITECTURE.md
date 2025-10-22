@@ -162,30 +162,29 @@ The following interfaces and types are defined and stable:
 
 ### ⏳ Version Compatibility Enforcement
 
-- **Status**: Deferred to v3.2.0
+- **Status**: Planned for v3.2.0
 - **Issue**: `metadata.requiredGeneratorVersion` field exists but is not validated
 - **Impact**: Plugins can claim compatibility with any generator version
 - **Mitigation**: Plugin developers should manually test compatibility
 - **Planned Fix**: v3.2.0 will add semver validation during plugin loading
-- **Tracking**: TODO comment in `src/core/plugin-loader.ts:343-344`
+- **Tracking**: TODO in `src/core/plugin-loader.ts:343-344`
 
-### ⏳ Plugin Load Order Determinism
+### ⏳ Plugin Load Order & Dependencies
 
-- **Status**: Deferred to v3.2.0
+- **Status**: Planned for v3.2.0
 - **Issue**: Plugins load in array order from config, no dependency resolution
 - **Impact**: If plugin A depends on plugin B, config order matters
 - **Mitigation**: Plugins should be independent; document any dependencies in README
 - **Planned Fix**: v3.2.0 may add explicit `dependencies` field or ordering
-- **Tracking**: Not yet specified
 
 ### ⏳ Eager Template Validation
 
-- **Status**: Deferred to v3.2.0
+- **Status**: Planned for v3.2.0
 - **Issue**: `TemplateRegistry.validateTemplatePath()` exists but isn't called during registration
 - **Impact**: Invalid plugin templates detected when used, not when registered
 - **Mitigation**: Manual testing of plugin templates before publishing
 - **Planned Fix**: v3.2.0 will call validation automatically during `registerPlugin()`
-- **Tracking**: TODO comment in `src/core/template-registry.ts:10`
+- **Tracking**: TODO in `src/core/template-registry.ts:10`
 
 ### ⏳ Template Override Mechanism
 
@@ -194,7 +193,27 @@ The following interfaces and types are defined and stable:
 - **Impact**: Cannot override or extend built-in templates
 - **Rationale**: Ensures deterministic behavior and prevents accidental shadowing
 - **Planned Fix**: v3.2.0+ may add CLI flag/config option for explicit overrides
-- **Tracking**: Feature request, not a bug
+
+## Future Enhancements
+
+See [GitHub Wiki - Roadmap](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/wiki/Roadmap) for detailed plans.
+
+### v3.2.0 (Planned Q1 2026)
+
+- [ ] Semver validation for `requiredGeneratorVersion`
+- [ ] Plugin dependency resolution and load ordering
+- [ ] Eager template validation during registration
+- [ ] Plugin marketplace/catalog
+- [ ] Hot reload support for development
+- [ ] Enhanced plugin sandboxing
+
+### v4.0.0+ (Future)
+
+- [ ] MCP (Model Context Protocol) server support
+- [ ] Remote plugin loading from registries
+- [ ] Plugin security scanning and verification
+- [ ] Plugin performance monitoring
+- [ ] Template override mechanisms with explicit opt-in
 
 ## Plugin Interface
 

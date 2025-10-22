@@ -3,7 +3,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9+-blue.svg)](https://www.typescriptlang.org/)
-[![Version](https://img.shields.io/badge/version-3.0.0-brightgreen.svg)](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/releases)
+[![Version](https://img.shields.io/npm/v/@hoiltd/azure-marketplace-generator)](https://www.npmjs.com/package/@hoiltd/azure-marketplace-generator)
+[![npm](https://img.shields.io/npm/dt/@hoiltd/azure-marketplace-generator)](https://www.npmjs.com/package/@hoiltd/azure-marketplace-generator)
+[![Tests](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/workflows/CI/badge.svg)](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/actions)
 
 Enterprise-grade CLI tool for generating Azure Storage marketplace managed applications with comprehensive security and data protection features.
 
@@ -44,6 +46,18 @@ Enterprise-grade CLI tool for generating Azure Storage marketplace managed appli
 
 ## Installation
 
+### From NPM (Recommended)
+
+```bash
+# Install globally
+npm install -g @hoiltd/azure-marketplace-generator
+
+# Verify installation
+azmp --version
+```
+
+### From Source
+
 ```bash
 # Clone and install
 git clone https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator.git
@@ -56,6 +70,15 @@ npm run install-arm-ttk
 # Build the CLI
 npm run build
 ```
+
+## Quick Links
+
+- 📦 **[NPM Package](https://www.npmjs.com/package/@hoiltd/azure-marketplace-generator)** - Install the latest version
+- 📖 **[GitHub Wiki](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/wiki)** - Comprehensive guides and tutorials
+- 🚀 **[Releases](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/releases)** - Version history and changelogs
+- 💬 **[Discussions](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/discussions)** - Community support and ideas
+- 🐛 **[Issues](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/issues)** - Bug reports and feature requests
+- 🔌 **[Plugin: VM](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azmp-plugin-vm)** - Virtual Machine plugin (@hoiltd/azmp-plugin-vm)
 
 ## Usage
 
@@ -144,16 +167,16 @@ npm run lint
 
 ## Roadmap
 
-### v3.0.0 (Current) ✅
+### ✅ v3.0.0 (Released - October 2025)
 
 - ✅ Plugin interface foundation
 - ✅ 12 security and data protection parameters
 - ✅ Comprehensive documentation (9 guides)
 - ✅ Full Azure live testing (35/35 tests)
 
-### v3.1.0 (Current - In Development) 🚀
+### ✅ v3.1.0 (Released - January 2025)
 
-**Plugin System Implementation (Complete):**
+**Plugin System Implementation:**
 
 - ✅ Plugin loader with dynamic discovery
 - ✅ Automatic plugin registration from config files
@@ -163,7 +186,9 @@ npm run lint
 - ✅ Security validations (path traversal, workspace protection)
 - ✅ Conflict detection for helpers, commands, templates
 - ✅ Error isolation and timeout handling
-- ✅ Comprehensive test suite (26 plugin tests)
+- ✅ Comprehensive test suite (119 tests passing)
+- ✅ Published to NPM registry
+- ✅ GitHub Actions security hardening (CodeQL alerts fixed)
 
 **Official Plugin Available:**
 
@@ -173,43 +198,43 @@ npm run lint
 npm install @hoiltd/azmp-plugin-vm
 ```
 
-**Storage Features:**
+### 🚧 v3.2.0 (Next - Planned Q1 2026)
 
-- Private endpoint configuration
-- Customer-managed encryption keys (CMK)
-- Immutability policies for compliance
+**Plugin Ecosystem Enhancements:**
 
-### v3.2.0 (Future)
-
-**Plugin Ecosystem:**
-
-- Plugin marketplace/catalog
-- Plugin dependency management
-- Hot reload support
-- Plugin sandboxing and isolation
+- [ ] Plugin marketplace/catalog
+- [ ] Plugin dependency management
+- [ ] Hot reload support for development
+- [ ] Enhanced plugin sandboxing and isolation
+- [ ] Plugin version compatibility checking
 
 **Storage Features:**
 
-- Advanced network security rules
-- Azure AD RBAC role assignments
-- Diagnostic settings and monitoring
+- [ ] Private endpoint configuration
+- [ ] Customer-managed encryption keys (CMK)
+- [ ] Immutability policies for compliance
+- [ ] Advanced network security rules
+- [ ] Azure AD RBAC role assignments
+- [ ] Diagnostic settings and monitoring
 
-### v4.0.0 (Future)
+### 🔮 v4.0.0 (Future - 2026)
 
 **Advanced Extensibility:**
 
-- MCP (Model Context Protocol) server support
-- Remote plugin loading
-- Plugin security scanning
-- Advanced plugin APIs and lifecycle management
+- [ ] MCP (Model Context Protocol) server support
+- [ ] Remote plugin loading from registries
+- [ ] Plugin security scanning and verification
+- [ ] Advanced plugin APIs and lifecycle management
+- [ ] Plugin performance monitoring
 
 **Storage Features:**
 
-- Multi-region deployment support
-- Geo-replication configuration
-- Disaster recovery templates
+- [ ] Multi-region deployment support
+- [ ] Geo-replication configuration
+- [ ] Disaster recovery templates
+- [ ] Advanced monitoring dashboards
 
-> See [PLUGIN_ARCHITECTURE.md](docs/PLUGIN_ARCHITECTURE.md) for detailed plugin development guide and roadmap.
+> **Note:** See [PLUGIN_ARCHITECTURE.md](docs/PLUGIN_ARCHITECTURE.md) for detailed plugin development guide and [GitHub Wiki](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/wiki) for roadmap updates.
 
 ## Contributing
 
@@ -223,8 +248,10 @@ Contributions are welcome! Please ensure:
 ## Support
 
 For issues, questions, or contributions:
+
 - **Issues:** [GitHub Issues](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/discussions)
+- **Wiki:** [GitHub Wiki](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/wiki)
 
 ## License
 

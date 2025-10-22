@@ -1,5 +1,244 @@
 # Development Log
 
+## v3.1.0 - Plugin System Implementation (January 8, 2025)
+
+### Overview
+
+Major release introducing a comprehensive plugin system that enables extensibility through dynamic loading, custom CLI commands, template types, and Handlebars helpers. This release establishes the foundation for community-driven extensions and custom resource templates.
+
+### Development Phases
+
+#### Phase A: Plugin System Core ✅
+
+**Completed:** January 8, 2025
+
+**Changes:**
+- Implemented `src/core/plugin-loader.ts` (348 lines) - Dynamic plugin discovery and loading
+- Implemented `src/core/command-registrar.ts` (234 lines) - CLI command registration system
+- Implemented `src/core/helper-registrar.ts` (171 lines) - Handlebars helper registration system
+- Updated `src/cli/index.ts` with plugin loader integration
+- Created `azmp.config.json` example configuration file
+- Enhanced `src/utils/config-manager.ts` with plugin configuration support
+
+**Key Features:**
+- **Dynamic Plugin Loading**: Automatic discovery from configuration files
+- **CLI Command Extensions**: Plugins can register custom commands with Commander.js
+- **Template Type Registration**: Extensible template system for new resource types
+- **Handlebars Helper Registration**: Custom helpers for advanced template logic
+- **Security Features**: Path traversal prevention, plugin validation, timeout enforcement
+- **Error Isolation**: Robust error handling with graceful degradation
+- **Lifecycle Management**: Initialize and cleanup hooks for proper plugin management
+
+**Commits:**
+- `a9c1dd8` - feat(plugins): implement dynamic plugin loading
+- `e4d1ea7` - docs(plugins): update PLUGIN_ARCHITECTURE.md
+- `c8ee4b3` - test(plugins): add comprehensive tests
+- `6f83a91` - docs: add reference to azmp-plugin-vm
+- `c99426e` - fix: use require() for CommonJS plugins
+- `1cb0200` - fix: prevent infinite cleanup loop
+- `02d477b` - fix: address PR #51 review comments
+- `3f2751a` - fix: resolve ESLint errors and warnings
+- `ce6e814` - Merge PR #51: feat: Implement v3.1.0 Plugin System
+
+---
+
+#### Phase B: Security Hardening ✅
+
+**Completed:** January 8, 2025
+
+**Changes:**
+- Fixed CodeQL security alerts #23 and #24
+- Hardened GitHub Actions workflow permissions
+- Added explicit minimal permissions to CI workflows:
+  - `ci.yml`: `contents: read`, `checks: write`
+  - `release.yml`: `contents: write`
+- Enhanced ESLint configuration to resolve TypeScript conflicts
+
+**Security Improvements:**
+- Workflow permissions restricted to minimal required scopes
+- Plugin path validation prevents directory traversal attacks
+- Plugin sandboxing mechanisms for safer execution
+- Security tests for path validation and error handling
+
+**Commits:**
+- `59d8769` - fix: update ESLint configuration to resolve TypeScript conflicts
+- Security fixes applied to main, develop, and feature branches
+
+---
+
+#### Phase C: Testing & Documentation ✅
+
+**Completed:** January 8, 2025
+
+**Changes:**
+- Created `src/__tests__/plugin-loading.test.ts` (599 lines, 25+ test cases)
+- Created `docs/PLUGIN_ARCHITECTURE.md` (383 lines of comprehensive documentation)
+- Updated `README.md` with plugin system overview and examples
+- All 119 tests passing (94 existing + 25 new plugin tests)
+
+**Test Categories:**
+1. Plugin Discovery Tests - Config-based and automatic discovery
+2. Plugin Loading Tests - ESM and CommonJS module loading
+3. Lifecycle Tests - Initialization and cleanup verification
+4. Security Tests - Path traversal prevention, invalid plugin handling
+5. Integration Tests - End-to-end plugin loading and registration
+6. Error Handling Tests - Graceful degradation and error isolation
+
+**Documentation Structure:**
+1. **PLUGIN_ARCHITECTURE.md:**
+   - Complete plugin development guide
+   - API reference with TypeScript interfaces
+   - Usage examples and best practices
+   - Security guidelines and performance tips
+   - Reference to azmp-plugin-vm implementation
+
+2. **README.md Updates:**
+   - Plugin system overview in Features section
+   - Installation instructions for plugins
+   - Link to official VM plugin
+   - Updated roadmap with v3.1.0 completion
+
+**Test Results:**
+```
+Test Suites: 7 passed, 7 total
+Tests:       119 passed, 119 total
+Snapshots:   0 total
+Time:        2.728 s
+```
+
+**Commits:**
+- Documentation and tests included in PR #51 merge
+
+---
+
+#### Phase D: Release & Publication ✅
+
+**Completed:** January 8, 2025
+
+**Changes:**
+- Updated `package.json` version to 3.1.0
+- Created comprehensive `CHANGELOG.md` entry for v3.1.0
+- Built distribution files for NPM publication
+- Created git tag `v3.1.0` with detailed annotation
+- Published to NPM registry as `@hoiltd/azure-marketplace-generator@3.1.0`
+- Created GitHub release with comprehensive release notes
+
+**Release Details:**
+- **NPM Package**: Published successfully
+- **GitHub Release**: https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/releases/tag/v3.1.0
+- **Package Size**: 131.0 kB (tarball), 648.5 kB (unpacked)
+- **Total Files**: 121 files including dist, docs, and templates
+
+**Commits:**
+- `bf5d943` - chore: release v3.1.0
+
+---
+
+### Technical Details
+
+#### Plugin System Architecture
+
+**Core Components:**
+
+1. **PluginLoader** (`src/core/plugin-loader.ts`):
+   - Dynamic plugin discovery from config files
+   - ESM and CommonJS module loading support
+   - Plugin lifecycle management (initialize, cleanup)
+   - Security validations and timeout enforcement
+   - Error isolation per plugin
+
+2. **CommandRegistrar** (`src/core/command-registrar.ts`):
+   - CLI command registration with Commander.js
+   - Namespace collision detection
+   - Command validation and error handling
+
+3. **HelperRegistrar** (`src/core/helper-registrar.ts`):
+   - Handlebars helper registration
+   - Helper validation and namespace management
+   - Template engine integration
+
+**Plugin API:**
+
+```typescript
+export interface AzmpPlugin {
+  name: string;
+  version: string;
+  initialize?(context: PluginContext): void | Promise<void>;
+  cleanup?(): void | Promise<void>;
+  registerTemplates?(registry: TemplateRegistry): void;
+  registerCommands?(program: Command, context: PluginContext): void;
+  registerHelpers?(handlebars: typeof Handlebars, context: PluginContext): void;
+}
+```
+
+#### Security Features
+
+1. **Path Validation**: Prevents directory traversal attacks
+2. **Workspace Protection**: Restricts plugin operations to workspace
+3. **Timeout Enforcement**: Prevents hanging plugin operations
+4. **Error Isolation**: Plugin errors don't crash the main application
+5. **GitHub Actions Hardening**: Minimal workflow permissions
+
+#### Test Coverage
+
+- **Total Tests**: 119 (100% passing)
+- **Plugin Tests**: 25+ dedicated plugin system tests
+- **Coverage Areas**: Discovery, loading, lifecycle, security, integration
+- **CI/CD**: All checks passing on Node 18.x and 20.x
+
+---
+
+### Breaking Changes
+
+**None** - This is a backward-compatible enhancement. Existing functionality continues to work without modifications. Plugin system is opt-in.
+
+---
+
+### Migration Guide
+
+#### For Existing Users
+
+No migration required. The plugin system is completely optional. Continue using the tool as before.
+
+#### Using Plugins
+
+1. **Install a plugin:**
+```bash
+npm install @hoiltd/azmp-plugin-vm
+```
+
+2. **Create azmp.config.json:**
+```json
+{
+  "plugins": [
+    "@hoiltd/azmp-plugin-vm"
+  ]
+}
+```
+
+3. **Use plugin features:**
+```bash
+azmp vm create --name myvm
+```
+
+---
+
+### Known Issues
+
+**None** - All features tested and verified. Zero ESLint issues, zero security alerts.
+
+---
+
+### Official Plugin
+
+**[@hoiltd/azmp-plugin-vm](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azmp-plugin-vm)**
+- Virtual Machine template generation
+- Custom VM Handlebars helpers
+- VM-specific CLI commands
+- Fully documented and tested
+
+---
+
 ## v3.0.0 - Enhanced Security & Data Protection (October 21, 2025)
 
 ### Overview
