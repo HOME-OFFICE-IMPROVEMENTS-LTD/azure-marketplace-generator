@@ -192,13 +192,14 @@ export class PluginLoader {
       );
     }
     
-    // Load module using dynamic import
+    // Load module using dynamic import or require based on module type
     logger.debug(`Loading local plugin from: ${modulePath}`, 'plugin-loader');
     
     try {
-      // Convert to file:// URL for import()
-      const fileUrl = `file://${modulePath}`;
-      const module = await import(fileUrl);
+      // Use require for CommonJS modules (most plugins will be CommonJS)
+      // This works better for local development and built plugins
+      const require = createRequire(__filename);
+      const module = require(modulePath);
       return module;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
