@@ -1,0 +1,85 @@
+{
+  "basic": {
+    "name": "vm-basic",
+    "description": "Basic VM deployment - Ubuntu, small size, minimal configuration",
+    "resourceGroup": "rg-azmp-test-vm-basic",
+    "location": "eastus",
+    "tags": {
+      "environment": "test",
+      "scenario": "basic",
+      "owner": "azmp-tests"
+    },
+    "vmSize": "Standard_B2s",
+    "osType": "Linux",
+    "osVersion": "Ubuntu-2204",
+    "adminUsername": "azureuser",
+    "diskType": "Standard_LRS",
+    "publicIpAllocation": "Dynamic",
+    "enableNetworking": true,
+    "enableDiagnostics": true,
+    "enableMonitoring": false,
+    "extensions": [],
+    "managedIdentity": false,
+    "availabilitySet": false,
+    "backupEnabled": false,
+    "estimatedCostUSD": 5,
+    "maxRuntimeMinutes": 30
+  },
+  "enterprise": {
+    "name": "vm-enterprise",
+    "description": "Enterprise VM deployment - Windows, large size, full features",
+    "resourceGroup": "rg-azmp-test-vm-enterprise",
+    "location": "eastus",
+    "tags": {
+      "environment": "test",
+      "scenario": "enterprise",
+      "owner": "azmp-tests"
+    },
+    "vmSize": "Standard_D4s_v5",
+    "osType": "Windows",
+    "osVersion": "WindowsServer-2022",
+    "adminUsername": "azureuser",
+    "diskType": "Premium_LRS",
+    "publicIpAllocation": "Static",
+    "enableNetworking": true,
+    "enableDiagnostics": true,
+    "enableMonitoring": true,
+    "extensions": [
+      "CustomScriptExtension",
+      "AzureMonitorWindowsAgent"
+    ],
+    "managedIdentity": true,
+    "availabilitySet": false,
+    "backupEnabled": false,
+    "estimatedCostUSD": 15,
+    "maxRuntimeMinutes": 45
+  },
+  "ha": {
+    "name": "vm-ha",
+    "description": "High Availability VM deployment - multiple VMs, availability set, load balancer",
+    "resourceGroup": "rg-azmp-test-vm-ha",
+    "location": "eastus",
+    "tags": {
+      "environment": "test",
+      "scenario": "ha",
+      "owner": "azmp-tests"
+    },
+    "vmCount": 2,
+    "vmSize": "Standard_B2s",
+    "osType": "Linux",
+    "osVersion": "Ubuntu-2204",
+    "adminUsername": "azureuser",
+    "diskType": "Standard_LRS",
+    "publicIpAllocation": "Static",
+    "enableNetworking": true,
+    "enableDiagnostics": true,
+    "enableMonitoring": true,
+    "extensions": [],
+    "managedIdentity": true,
+    "availabilitySet": true,
+    "loadBalancer": true,
+    "backupEnabled": false,
+    "estimatedCostUSD": 20,
+    "maxRuntimeMinutes": 60
+  }
+}
