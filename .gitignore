@@ -14,6 +14,7 @@ test-output/
 test-output-*/
 test-results-*.log
 test-package/
+test-spot-*/
 
 # Environment files
 .env

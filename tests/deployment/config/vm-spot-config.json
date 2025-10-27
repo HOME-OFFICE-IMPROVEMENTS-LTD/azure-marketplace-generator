@@ -1,0 +1,90 @@
+{
+  "spot-basic": {
+    "name": "spot-basic-test",
+    "description": "Spot VM - Basic configuration for cost-effective development",
+    "region": "uksouth",
+    "vmSize": "Standard_B2s",
+    "vmPriority": "Spot",
+    "evictionPolicy": "Deallocate",
+    "spotMaxPrice": "-1",
+    "osType": "Linux",
+    "publisher": "Canonical",
+    "offer": "0001-com-ubuntu-server-jammy",
+    "sku": "22_04-lts-gen2",
+    "estimatedCostPerHour": "$0.003",
+    "estimatedMonthlyCost": "$2.19",
+    "savingsVsRegular": "~90%",
+    "useCase": "Development, testing, batch processing",
+    "tags": {
+      "Environment": "Development",
+      "CostOptimization": "Spot",
+      "AutoShutdown": "Yes"
+    }
+  },
+  "spot-compute": {
+    "name": "spot-compute-test",
+    "description": "Spot VM - Compute-optimized for data processing",
+    "region": "uksouth",
+    "vmSize": "Standard_F4s_v2",
+    "vmPriority": "Spot",
+    "evictionPolicy": "Delete",
+    "spotMaxPrice": "-1",
+    "osType": "Linux",
+    "publisher": "Canonical",
+    "offer": "0001-com-ubuntu-server-jammy",
+    "sku": "22_04-lts-gen2",
+    "estimatedCostPerHour": "$0.007",
+    "estimatedMonthlyCost": "$5.11",
+    "savingsVsRegular": "~90%",
+    "useCase": "CI/CD builds, data analysis, machine learning training",
+    "tags": {
+      "Environment": "Development",
+      "CostOptimization": "Spot",
+      "Workload": "Compute-Intensive"
+    }
+  },
+  "spot-memory": {
+    "name": "spot-memory-test",
+    "description": "Spot VM - Memory-optimized for caching/databases",
+    "region": "uksouth",
+    "vmSize": "Standard_E2s_v5",
+    "vmPriority": "Spot",
+    "evictionPolicy": "Deallocate",
+    "spotMaxPrice": "0.05",
+    "osType": "Linux",
+    "publisher": "Canonical",
+    "offer": "0001-com-ubuntu-server-jammy",
+    "sku": "22_04-lts-gen2",
+    "estimatedCostPerHour": "$0.006",
+    "estimatedMonthlyCost": "$4.38",
+    "savingsVsRegular": "~90%",
+    "useCase": "Redis cache, development databases, in-memory processing",
+    "tags": {
+      "Environment": "Development",
+      "CostOptimization": "Spot",
+      "Workload": "Memory-Intensive",
+      "MaxPrice": "$0.05/hr"
+    }
+  },
+  "free-tier": {
+    "name": "free-tier-vm",
+    "description": "Free Tier VM - B1s for development (750 hrs/month free)",
+    "region": "uksouth",
+    "vmSize": "Standard_B1s",
+    "vmPriority": "Regular",
+    "osType": "Linux",
+    "publisher": "Canonical",
+    "offer": "0001-com-ubuntu-server-jammy",
+    "sku": "22_04-lts-gen2",
+    "estimatedCostPerHour": "$0.00",
+    "estimatedMonthlyCost": "$0.00",
+    "freeTierQuota": "750 hours/month",
+    "savingsVsRegular": "100% (within free quota)",
+    "useCase": "Development, learning, light testing",
+    "tags": {
+      "Environment": "Development",
+      "CostOptimization": "FreeTier",
+      "AutoShutdown": "Yes"
+    }
+  }
+}
