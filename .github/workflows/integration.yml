@@ -1,0 +1,68 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run weekly on Monday at 9:00 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  integration:
+    name: Plugin Integration Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build generator
+      run: npm run build
+    
+    - name: Run integration tests
+      run: |
+        chmod +x tests/integration/plugin-integration.test.sh
+        bash tests/integration/plugin-integration.test.sh
+      shell: bash
+    
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: integration-test-results
+        path: |
+          /tmp/azmp-integration-test/
+          tests/integration/*.log
+        retention-days: 7
+    
+    - name: Create summary
+      if: always()
+      run: |
+        echo "### 🧪 Integration Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Test Environment:**" >> $GITHUB_STEP_SUMMARY
+        echo "- Node.js: $(node --version)" >> $GITHUB_STEP_SUMMARY
+        echo "- npm: $(npm --version)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        if [ -f /tmp/azmp-integration-test/test-results.txt ]; then
+          echo "**Test Output:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/azmp-integration-test/test-results.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+        fi
