@@ -256,6 +256,41 @@ npm install @hoiltd/azmp-plugin-vm@^2.1.0
 
 ### 🔮 Future Releases
 
+**Q1 2026: Compliance & Policy Guardrails Plugin**
+
+🛡️ **Enterprise Compliance Made Effortless**
+
+Next generation plugin for automatic governance and compliance frameworks:
+
+**Core Features:**
+- ✨ **One-click compliance** frameworks (CIS, NIST 800-53, Azure Security Benchmark)
+- 🔒 **Automatic security baselines** with Defender for Cloud integration
+- 📋 **Policy as Code** with pre-built Azure Policy initiatives
+- 🚨 **Continuous monitoring** with compliance dashboards and alerting
+- 📊 **Compliance evidence** generation for Partner Center submissions
+
+**Enterprise Value:**
+- 🏢 **Enterprise trust** - Built-in governance reduces security concerns
+- 💰 **Premium pricing** - Compliance commands higher deal values
+- 🔗 **Customer retention** - Governance creates switching costs
+- 🏆 **Competitive advantage** - Most marketplace tools ignore compliance
+
+**Target Frameworks:**
+- CIS Azure Foundations Benchmark (Level 1 & 2)
+- NIST 800-53 (Moderate/High impact controls)
+- Azure Security Benchmark (Microsoft official baseline)
+- ISO 27001 Information Security Management
+- Industry-specific: HIPAA, PCI DSS, FedRAMP, GDPR
+
+```bash
+# Example usage
+azmp create vm-solution --compliance=cis-level1
+azmp create vm-solution --compliance=nist-800-53
+azmp create storage --compliance=azure-security-benchmark
+```
+
+📖 **[Full Proposal](docs/COMPLIANCE_PLUGIN_PROPOSAL.md)** - Detailed technical specifications and implementation roadmap
+
 **Advanced Extensibility:**
 
 - [ ] MCP (Model Context Protocol) server support

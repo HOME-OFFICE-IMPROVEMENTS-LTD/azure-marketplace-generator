@@ -22,7 +22,15 @@ export class AppConfig {
   }
 
   public static getArmTtkPath(): string {
-    return process.env.AZMP_ARM_TTK_PATH || './tools/arm-ttk/arm-ttk/Test-AzTemplate.ps1';
+    // Allow custom ARM-TTK location via environment variable (useful for bundled packages)
+    if (process.env.AZMP_ARM_TTK_PATH) {
+      return process.env.AZMP_ARM_TTK_PATH;
+    }
+    
+    // Resolve ARM-TTK path relative to project root, not current working directory
+    // This ensures validation works regardless of where the command is executed from
+    const projectRoot = path.resolve(__dirname, '..', '..');
+    return path.join(projectRoot, 'tools', 'arm-ttk', 'arm-ttk', 'Test-AzTemplate.ps1');
   }
 
   public static async initializeDirectories(): Promise<void> {

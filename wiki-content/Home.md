@@ -119,6 +119,39 @@ Welcome to the **Azure Marketplace Generator** wiki! This comprehensive guide wi
 
 **See:** [Release Notes](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/releases/tag/v3.1.0) | [Changelog](Changelog) | [Roadmap](Roadmap)
 
+## 🔮 Upcoming: Q1 2026 - Compliance & Policy Guardrails Plugin
+
+🛡️ **Enterprise Compliance Made Effortless**
+
+The next major plugin will revolutionize enterprise governance for Azure Marketplace applications:
+
+**Key Features:**
+- ✨ **One-click compliance** frameworks (CIS, NIST 800-53, Azure Security Benchmark)
+- 🔒 **Automatic security baselines** with Defender for Cloud integration
+- 📋 **Policy as Code** with pre-built Azure Policy initiatives
+- 🚨 **Continuous monitoring** with compliance dashboards
+- 📊 **Partner Center optimization** with compliance evidence generation
+
+**Business Impact:**
+- 🏢 **Enterprise market entry** - Governance unlocks enterprise sales
+- 💰 **Premium pricing** - Compliance commands higher margins
+- 🔗 **Customer stickiness** - Governance creates switching costs
+- 🏆 **Competitive differentiation** - Most marketplace tools ignore compliance
+
+📖 **[Full Technical Proposal](https://github.com/HOME-OFFICE-IMPROVEMENTS-LTD/azure-marketplace-generator/blob/develop/docs/COMPLIANCE_PLUGIN_PROPOSAL.md)**
+
+**Target Frameworks:**
+- CIS Azure Foundations Benchmark
+- NIST 800-53 Controls
+- Azure Security Benchmark
+- ISO 27001, HIPAA, PCI DSS, FedRAMP, GDPR
+
+```bash
+# Future usage example
+azmp create vm-solution --compliance=cis-level1
+azmp create storage --compliance=azure-security-benchmark
+```
+
 ## 💡 Need Help?
 
 - **Questions?** Check our [FAQ](FAQ)
