@@ -1,0 +1,177 @@
+name: Plugin Compatibility Check
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      plugin_version:
+        description: 'Plugin version to test against (e.g., 2.1.0)'
+        required: false
+        default: 'latest'
+
+jobs:
+  check-compatibility:
+    name: Test Generator with VM Plugin
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        plugin-version: ['2.1.0', '2.0.0']
+      fail-fast: false
+    
+    steps:
+      - name: Checkout Generator
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install Generator Dependencies
+        run: npm ci
+      
+      - name: Build Generator
+        run: npm run build
+      
+      - name: Link Generator Locally
+        run: npm link
+      
+      - name: Install VM Plugin ${{ matrix.plugin-version }}
+        run: |
+          if [ "${{ github.event.inputs.plugin_version }}" != "" ]; then
+            npm install -g @hoiltd/azmp-plugin-vm@${{ github.event.inputs.plugin_version }}
+          else
+            npm install -g @hoiltd/azmp-plugin-vm@${{ matrix.plugin-version }}
+          fi
+      
+      - name: Verify Installation
+        run: |
+          azmp --version
+          azmp plugin list
+      
+      - name: Create Test Config
+        run: |
+          mkdir -p test-output
+          cat > test-config.json <<EOF
+          {
+            "vmName": "compat-test-vm",
+            "vmSize": "Standard_B2s",
+            "osType": "Linux",
+            "imagePublisher": "Canonical",
+            "imageOffer": "0001-com-ubuntu-server-jammy",
+            "imageSku": "22_04-lts-gen2",
+            "adminUsername": "azureuser",
+            "authenticationType": "sshPublicKey",
+            "sshPublicKey": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC test@test"
+          }
+          EOF
+      
+      - name: Generate Template
+        run: azmp vm template generate -c test-config.json -o test-output
+      
+      - name: Validate JSON
+        run: |
+          jq empty test-output/mainTemplate.json
+          jq empty test-output/createUiDefinition.json
+      
+      - name: Validate Template
+        run: azmp validate test-output
+      
+      - name: Package Template
+        run: azmp package test-output -o test-package.zip
+      
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compatibility-test-plugin-${{ matrix.plugin-version }}
+          path: test-output/
+          retention-days: 7
+      
+      - name: Report Success
+        if: success()
+        run: |
+          echo "✅ Generator ${{ github.ref_name }} is compatible with Plugin ${{ matrix.plugin-version }}"
+      
+      - name: Report Failure
+        if: failure()
+        run: |
+          echo "❌ Generator ${{ github.ref_name }} is NOT compatible with Plugin ${{ matrix.plugin-version }}"
+          echo "::error::Compatibility check failed for plugin version ${{ matrix.plugin-version }}"
+          exit 1
+  
+  update-compatibility-matrix:
+    name: Update Compatibility Documentation
+    needs: check-compatibility
+    runs-on: ubuntu-latest
+    if: success() && github.event_name == 'release'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Update Compatibility Matrix
+        run: |
+          # Extract version from release tag (e.g., v3.1.0 -> 3.1.0)
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
+          
+          # Add entry to compatibility matrix
+          sed -i "/| \*\*.*\*\* |/a | $VERSION | 2.1.0, 2.0.0 | ✅ Supported | Released $(date '+%Y-%m-%d') |" docs/PLUGIN_COMPATIBILITY.md
+      
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: update compatibility matrix for ${{ github.ref_name }}"
+          title: "Update compatibility matrix for ${{ github.ref_name }}"
+          body: |
+            Automatically updated compatibility matrix after release ${{ github.ref_name }}.
+            
+            All compatibility checks passed:
+            - ✅ Plugin 2.1.0
+            - ✅ Plugin 2.0.0
+          branch: auto/compatibility-update-${{ github.ref_name }}
+          delete-branch: true
+  
+  notify-on-failure:
+    name: Notify on Compatibility Failure
+    needs: check-compatibility
+    runs-on: ubuntu-latest
+    if: failure() && github.event_name == 'release'
+    
+    steps:
+      - name: Create Compatibility Issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `⚠️ Compatibility Issue: Generator ${{ github.ref_name }} fails with VM Plugin`,
+              body: `## Compatibility Check Failed
+              
+              Release **${{ github.ref_name }}** has compatibility issues with one or more VM Plugin versions.
+              
+              ### Failed Checks
+              Check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
+              
+              ### Action Required
+              1. Review compatibility test failures
+              2. Fix breaking changes or update plugin compatibility requirements
+              3. Update \`docs/PLUGIN_COMPATIBILITY.md\` with version requirements
+              4. Consider holding npm publication until resolved
+              
+              ### Versions Tested
+              - Generator: ${{ github.ref_name }}
+              - VM Plugin: 2.1.0, 2.0.0
+              
+              cc @maintainers`,
+              labels: ['compatibility', 'bug', 'release-blocker']
+            });
+            
+            console.log(`Created issue #${issue.data.number}`);

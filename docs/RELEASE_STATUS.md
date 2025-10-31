@@ -71,7 +71,10 @@
 - ✅ Update DEVELOPMENT_LOG.md with v3.1.0 details - **COMPLETED**
 - ✅ Update PLUGIN_ARCHITECTURE.md roadmap - **COMPLETED**
 - ✅ Add Quick Links section to README - **COMPLETED**
-- [ ] Create GitHub Wiki pages (see below)
+- ✅ Create GitHub Wiki pages - **COMPLETED** (10 pages published)
+- ✅ Create PLUGIN_COMPATIBILITY.md - **COMPLETED** (October 31, 2025)
+- ✅ Create three-layer test strategy script - **COMPLETED** (scripts/test-three-layers.sh)
+- ✅ Add plugin compatibility CI workflow - **COMPLETED** (.github/workflows/plugin-compatibility.yml)
 - [ ] Add plugin development tutorial to wiki
 - [ ] Create video walkthrough of plugin system
 
