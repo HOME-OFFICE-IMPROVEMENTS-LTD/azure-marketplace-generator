@@ -40,10 +40,16 @@ jobs:
       
       - name: Install VM Plugin ${{ matrix.plugin-version }}
         run: |
-          if [ "${{ github.event.inputs.plugin_version }}" != "" ]; then
-            npm install -g @hoiltd/azmp-plugin-vm@${{ github.event.inputs.plugin_version }}
-          else
-            npm install -g @hoiltd/azmp-plugin-vm@${{ matrix.plugin-version }}
+          PLUGIN_VERSION="${{ github.event.inputs.plugin_version }}"
+          if [ -z "$PLUGIN_VERSION" ]; then
+            PLUGIN_VERSION="${{ matrix.plugin-version }}"
+          fi
+          
+          # Try npm install -g first, fallback to local workspace install
+          if ! npm install -g @hoiltd/azmp-plugin-vm@${PLUGIN_VERSION} 2>/dev/null; then
+            echo "Global install failed, attempting workspace install..."
+            npm install @hoiltd/azmp-plugin-vm@${PLUGIN_VERSION}
+            export PATH="$PWD/node_modules/.bin:$PATH"
           fi
       
       - name: Verify Installation
@@ -119,8 +125,14 @@ jobs:
           VERSION="${{ github.ref_name }}"
           VERSION="${VERSION#v}"
           
-          # Add entry to compatibility matrix
-          sed -i "/| \*\*.*\*\* |/a | $VERSION | 2.1.0, 2.0.0 | ✅ Supported | Released $(date '+%Y-%m-%d') |" docs/PLUGIN_COMPATIBILITY.md
+          # Check if version already exists in matrix
+          if grep -q "| $VERSION |" docs/PLUGIN_COMPATIBILITY.md; then
+            echo "Version $VERSION already in compatibility matrix, skipping update"
+          else
+            # Add entry to compatibility matrix (after the header row with **)
+            sed -i "/| \*\*.*\*\* |/a | $VERSION | 2.1.0, 2.0.0 | ✅ Supported | Released $(date '+%Y-%m-%d') |" docs/PLUGIN_COMPATIBILITY.md
+            echo "Added version $VERSION to compatibility matrix"
+          fi
       
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
